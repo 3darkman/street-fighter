@@ -1,0 +1,235 @@
+{
+  "STREET_FIGHTER": {
+    "System": "Street Fighter RPG",
+    
+    "Actor": {
+      "Types": {
+        "fighter": "Fighter",
+        "npc": "NPC"
+      }
+    },
+    
+    "Item": {
+      "Types": {
+        "fightingStyle": "Fighting Style",
+        "specialManeuver": "Special Maneuver",
+        "attribute": "Attribute",
+        "ability": "Ability",
+        "technique": "Technique",
+        "background": "Background",
+        "weapon": "Weapon",
+        "division": "Division"
+      }
+    },
+    
+    "Attributes": {
+      "Categories": {
+        "physical": "Physical",
+        "social": "Social",
+        "mental": "Mental"
+      },
+      "strength": "Strength",
+      "dexterity": "Dexterity",
+      "stamina": "Stamina",
+      "charisma": "Charisma",
+      "manipulation": "Manipulation",
+      "appearance": "Appearance",
+      "perception": "Perception",
+      "intelligence": "Intelligence",
+      "wits": "Wits"
+    },
+    
+    "Techniques": {
+      "punch": "Punch",
+      "kick": "Kick",
+      "block": "Block",
+      "grab": "Grab",
+      "athletics": "Athletics",
+      "focus": "Focus"
+    },
+    
+    "Resources": {
+      "health": "Health",
+      "chi": "Chi",
+      "willpower": "Willpower"
+    },
+    
+    "Maneuver": {
+      "Categories": {
+        "punch": "Punch",
+        "kick": "Kick",
+        "block": "Block",
+        "grab": "Grab",
+        "athletics": "Athletics",
+        "focus": "Focus",
+        "other": "Other"
+      }
+    },
+    
+    "Trait": {
+      "Types": {
+        "attribute": "Attribute",
+        "ability": "Ability",
+        "technique": "Technique",
+        "background": "Background"
+      },
+      "Categories": {
+        "physical": "Physical",
+        "social": "Social",
+        "mental": "Mental",
+        "talents": "Talents",
+        "skills": "Skills",
+        "knowledge": "Knowledge",
+        "techniques": "Techniques",
+        "backgrounds": "Backgrounds"
+      },
+      "traitType": "Trait Type",
+      "category": "Category",
+      "bonusPointCost": "Bonus Point Cost",
+      "experiencePointCost": "XP Cost",
+      "startLevel": "Start Level",
+      "experiencePointCostOnStartLevel": "XP Cost at Start Level",
+      "isOptional": "Optional",
+      "isUnique": "Unique",
+      "isWeaponTechnique": "Weapon Technique",
+      "availableLevels": "Available Levels"
+    },
+    
+    "FightingStyle": {
+      "initialChi": "Initial Chi",
+      "initialWillpower": "Initial Willpower",
+      "motto": "Motto"
+    },
+    
+    "SpecialManeuver": {
+      "category": "Category",
+      "speedModifier": "Speed Modifier",
+      "damageModifier": "Damage Modifier",
+      "movementModifier": "Movement Modifier",
+      "chiCost": "Chi Cost",
+      "willpowerCost": "Willpower Cost",
+      "defaultPowerPointCost": "Default Power Point Cost",
+      "bonusPointCost": "Bonus Point Cost",
+      "stylePowerPointCosts": "Style Power Point Costs",
+      "backgroundPowerPointCosts": "Background Power Point Costs",
+      "prerequisites": "Prerequisites",
+      "notes": "Notes",
+      "ruleSummary": "Rule Summary",
+      "damageTraitOverride": "Damage Trait Override",
+      "damageAttributeOverride": "Damage Attribute Override",
+      "speedTraitOverride": "Speed Trait Override",
+      "movementTraitOverride": "Movement Trait Override"
+    },
+    
+    "Weapon": {
+      "techniqueId": "Technique ID",
+      "speed": "Speed",
+      "damage": "Damage",
+      "movement": "Movement",
+      "special": "Special"
+    },
+    
+    "Prerequisite": {
+      "Types": {
+        "techniqueRating": "Technique Rating",
+        "maneuver": "Maneuver",
+        "attributeRating": "Attribute Rating",
+        "abilityRating": "Ability Rating",
+        "background": "Background"
+      }
+    },
+    
+    "Effect": {
+      "New": "New Effect",
+      "Types": {
+        "categoryBonus": "Category Bonus",
+        "categoryInitialFixed": "Category Initial Fixed",
+        "categoryInitialMax": "Category Initial Max",
+        "categoryXpCost": "Category XP Cost",
+        "traitBonus": "Trait Bonus",
+        "traitInitialFixed": "Trait Initial Fixed",
+        "traitInitialMax": "Trait Initial Max",
+        "traitXpCost": "Trait XP Cost",
+        "priorityPoints": "Priority Points",
+        "grantManeuver": "Grant Maneuver",
+        "bypassPrerequisite": "Bypass Prerequisite",
+        "grantDivision": "Grant Division"
+      }
+    },
+    
+    "Common": {
+      "name": "Name",
+      "description": "Description",
+      "sourceId": "Source ID",
+      "effects": "Effects",
+      "requirements": "Requirements",
+      "value": "Value",
+      "max": "Max",
+      "min": "Min",
+      "total": "Total",
+      "roll": "Roll",
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "Create",
+      "cancel": "Cancel",
+      "save": "Save",
+      "select": "Select",
+      "none": "None"
+    },
+    
+    "Tabs": {
+      "details": "Details",
+      "combat": "Combat",
+      "costs": "Costs",
+      "prerequisites": "Prerequisites",
+      "levels": "Levels",
+      "effects": "Effects",
+      "biography": "Biography",
+      "traits": "Traits",
+      "maneuvers": "Maneuvers",
+      "resources": "Resources"
+    },
+    
+    "Renown": {
+      "honor": "Honor",
+      "glory": "Glory"
+    },
+    
+    "Experience": {
+      "title": "Experience",
+      "total": "Total",
+      "spent": "Spent"
+    },
+    
+    "SheetLabels": {
+      "Actor": "Street Fighter Actor Sheet",
+      "Item": "Street Fighter Item Sheet"
+    },
+    
+    "Library": {
+      "import": "Import Library",
+      "importSuccess": "Library imported successfully",
+      "importError": "Error importing library"
+    },
+    
+    "Character": {
+      "import": "Import Characters",
+      "importSuccess": "Characters imported successfully",
+      "importError": "Error importing characters",
+      "isImported": "Imported Character",
+      "isManual": "Manual Character",
+      "readOnlyWarning": "This character was imported and cannot be edited. Re-import to update."
+    },
+    
+    "Profile": {
+      "characterName": "Character Name",
+      "playerName": "Player Name",
+      "chronicleName": "Chronicle",
+      "schoolName": "School",
+      "fightingTeam": "Fighting Team",
+      "stable": "Stable",
+      "concept": "Concept",
+      "signature": "Signature"
+    }
+  }
+}

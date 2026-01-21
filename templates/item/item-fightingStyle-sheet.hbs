@@ -1,0 +1,46 @@
+<form class="{{cssClass}} flexcol" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}" />
+    <div class="header-fields">
+      <h1 class="charname">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'STREET_FIGHTER.Item.Types.fightingStyle'}}" />
+      </h1>
+    </div>
+  </header>
+
+  <section class="sheet-body">
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Common.sourceId"}}</label>
+      <input type="text" name="system.sourceId" value="{{systemData.sourceId}}" placeholder="e.g., aikido" readonly />
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Common.description"}}</label>
+      {{editor enrichedDescription target="system.description" button=true editable=isEditable}}
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.FightingStyle.initialChi"}}</label>
+        <input type="number" name="system.initialChi" value="{{systemData.initialChi}}" min="0" max="10" />
+      </div>
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.FightingStyle.initialWillpower"}}</label>
+        <input type="number" name="system.initialWillpower" value="{{systemData.initialWillpower}}" min="0" max="10" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.FightingStyle.motto"}}</label>
+      <textarea name="system.motto" rows="2">{{systemData.motto}}</textarea>
+    </div>
+
+    <details class="advanced-section">
+      <summary>{{localize "STREET_FIGHTER.Tabs.effects"}}</summary>
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.Common.effects"}} (JSON)</label>
+        <textarea name="system.effectsJson" rows="6">{{json systemData.effects}}</textarea>
+      </div>
+    </details>
+  </section>
+</form>

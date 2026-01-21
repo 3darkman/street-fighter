@@ -1,0 +1,77 @@
+<form class="{{cssClass}} flexcol" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}" />
+    <div class="header-fields">
+      <h1 class="charname">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'STREET_FIGHTER.Item.Types.attribute'}}" />
+      </h1>
+    </div>
+  </header>
+
+  <section class="sheet-body">
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Common.sourceId"}}</label>
+      <input type="text" name="system.sourceId" value="{{systemData.sourceId}}" placeholder="e.g., strength" readonly />
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Trait.category"}}</label>
+      <select name="system.category">
+        {{{sfSelectOptions attributeCategories selected=systemData.category}}}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Common.description"}}</label>
+      {{editor enrichedDescription target="system.description" button=true editable=isEditable}}
+    </div>
+
+    <div class="form-row checkbox-row">
+      <div class="form-group checkbox-group">
+        <input type="checkbox" name="system.isOptional" id="isOptional" {{checked systemData.isOptional}} />
+        <label for="isOptional">{{localize "STREET_FIGHTER.Trait.isOptional"}}</label>
+      </div>
+    </div>
+
+    <details class="advanced-section">
+      <summary>{{localize "STREET_FIGHTER.Tabs.details"}}</summary>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{localize "STREET_FIGHTER.Trait.bonusPointCost"}}</label>
+          <input type="number" name="system.bonusPointCost" value="{{systemData.bonusPointCost}}" min="0" />
+        </div>
+        <div class="form-group">
+          <label>{{localize "STREET_FIGHTER.Trait.experiencePointCost"}}</label>
+          <input type="number" name="system.experiencePointCost" value="{{systemData.experiencePointCost}}" min="0" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{localize "STREET_FIGHTER.Trait.startLevel"}}</label>
+          <input type="number" name="system.startLevel" value="{{systemData.startLevel}}" min="0" />
+        </div>
+        <div class="form-group">
+          <label>{{localize "STREET_FIGHTER.Trait.experiencePointCostOnStartLevel"}}</label>
+          <input type="number" name="system.experiencePointCostOnStartLevel" value="{{systemData.experiencePointCostOnStartLevel}}" min="0" />
+        </div>
+      </div>
+    </details>
+
+    <div class="effects-section">
+      <h3>{{localize "STREET_FIGHTER.Tabs.effects"}}</h3>
+      <ol class="items-list effects-list">
+        {{#each effects}}
+        <li class="item effect" data-effect-id="{{this.id}}">
+          <img class="item-image" src="{{this.icon}}" />
+          <span class="effect-name">{{this.name}}</span>
+          <div class="item-controls">
+            <a class="effect-control" data-action="edit" title="Edit"><i class="fas fa-edit"></i></a>
+            <a class="effect-control" data-action="delete" title="Delete"><i class="fas fa-trash"></i></a>
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+      <a class="effect-control" data-action="create"><i class="fas fa-plus"></i> {{localize "STREET_FIGHTER.Common.create"}}</a>
+    </div>
+  </section>
+</form>

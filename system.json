@@ -1,0 +1,46 @@
+{
+  "id": "street-fighter",
+  "title": "Street Fighter RPG",
+  "description": "Sistema de RPG baseado no universo Street Fighter para Foundry VTT.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "Kirlian Silvestre",
+      "flags": {}
+    }
+  ],
+  "esmodules": ["module/street-fighter.mjs"],
+  "styles": ["styles/street-fighter.css"],
+  "languages": [
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "lang/pt-BR.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "packs": [],
+  "packFolders": [],
+  "primaryTokenAttribute": "health",
+  "secondaryTokenAttribute": "super",
+  "grid": {
+    "type": 1,
+    "distance": 1,
+    "units": "m"
+  },
+  "background": "systems/street-fighter/assets/images/background.webp",
+  "url": "",
+  "manifest": "",
+  "download": "",
+  "license": "LICENSE",
+  "readme": "README.md",
+  "flags": {}
+}

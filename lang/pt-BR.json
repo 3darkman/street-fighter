@@ -1,0 +1,235 @@
+{
+  "STREET_FIGHTER": {
+    "System": "Street Fighter RPG",
+    
+    "Actor": {
+      "Types": {
+        "fighter": "Lutador",
+        "npc": "NPC"
+      }
+    },
+    
+    "Item": {
+      "Types": {
+        "fightingStyle": "Estilo de Luta",
+        "specialManeuver": "Manobra Especial",
+        "attribute": "Atributo",
+        "ability": "Habilidade",
+        "technique": "Técnica",
+        "background": "Antecedente",
+        "weapon": "Arma",
+        "division": "Divisão"
+      }
+    },
+    
+    "Attributes": {
+      "Categories": {
+        "physical": "Físicos",
+        "social": "Sociais",
+        "mental": "Mentais"
+      },
+      "strength": "Força",
+      "dexterity": "Destreza",
+      "stamina": "Vigor",
+      "charisma": "Carisma",
+      "manipulation": "Manipulação",
+      "appearance": "Aparência",
+      "perception": "Percepção",
+      "intelligence": "Inteligência",
+      "wits": "Raciocínio"
+    },
+    
+    "Techniques": {
+      "punch": "Soco",
+      "kick": "Chute",
+      "block": "Bloqueio",
+      "grab": "Agarrar",
+      "athletics": "Atletismo",
+      "focus": "Foco"
+    },
+    
+    "Resources": {
+      "health": "Saúde",
+      "chi": "Chi",
+      "willpower": "Força de Vontade"
+    },
+    
+    "Maneuver": {
+      "Categories": {
+        "punch": "Soco",
+        "kick": "Chute",
+        "block": "Bloqueio",
+        "grab": "Agarrar",
+        "athletics": "Atletismo",
+        "focus": "Foco",
+        "other": "Outro"
+      }
+    },
+    
+    "Trait": {
+      "Types": {
+        "attribute": "Atributo",
+        "ability": "Habilidade",
+        "technique": "Técnica",
+        "background": "Antecedente"
+      },
+      "Categories": {
+        "physical": "Físicos",
+        "social": "Sociais",
+        "mental": "Mentais",
+        "talents": "Talentos",
+        "skills": "Perícias",
+        "knowledge": "Conhecimentos",
+        "techniques": "Técnicas",
+        "backgrounds": "Antecedentes"
+      },
+      "traitType": "Tipo de Característica",
+      "category": "Categoria",
+      "bonusPointCost": "Custo em Pontos de Bônus",
+      "experiencePointCost": "Custo de XP",
+      "startLevel": "Nível Inicial",
+      "experiencePointCostOnStartLevel": "Custo de XP no Nível Inicial",
+      "isOptional": "Opcional",
+      "isUnique": "Único",
+      "isWeaponTechnique": "Técnica de Arma",
+      "availableLevels": "Níveis Disponíveis"
+    },
+    
+    "FightingStyle": {
+      "initialChi": "Chi Inicial",
+      "initialWillpower": "Força de Vontade Inicial",
+      "motto": "Lema"
+    },
+    
+    "SpecialManeuver": {
+      "category": "Categoria",
+      "speedModifier": "Modificador de Velocidade",
+      "damageModifier": "Modificador de Dano",
+      "movementModifier": "Modificador de Movimento",
+      "chiCost": "Custo de Chi",
+      "willpowerCost": "Custo de Força de Vontade",
+      "defaultPowerPointCost": "Custo Padrão de Pontos de Poder",
+      "bonusPointCost": "Custo em Pontos de Bônus",
+      "stylePowerPointCosts": "Custos por Estilo",
+      "backgroundPowerPointCosts": "Custos por Antecedente",
+      "prerequisites": "Pré-requisitos",
+      "notes": "Notas",
+      "ruleSummary": "Resumo das Regras",
+      "damageTraitOverride": "Substituição de Característica de Dano",
+      "damageAttributeOverride": "Substituição de Atributo de Dano",
+      "speedTraitOverride": "Substituição de Característica de Velocidade",
+      "movementTraitOverride": "Substituição de Característica de Movimento"
+    },
+    
+    "Weapon": {
+      "techniqueId": "ID da Técnica",
+      "speed": "Velocidade",
+      "damage": "Dano",
+      "movement": "Movimento",
+      "special": "Especial"
+    },
+    
+    "Prerequisite": {
+      "Types": {
+        "techniqueRating": "Nível de Técnica",
+        "maneuver": "Manobra",
+        "attributeRating": "Nível de Atributo",
+        "abilityRating": "Nível de Habilidade",
+        "background": "Antecedente"
+      }
+    },
+    
+    "Effect": {
+      "New": "Novo Efeito",
+      "Types": {
+        "categoryBonus": "Bônus de Categoria",
+        "categoryInitialFixed": "Categoria Inicial Fixa",
+        "categoryInitialMax": "Categoria Inicial Máxima",
+        "categoryXpCost": "Custo de XP da Categoria",
+        "traitBonus": "Bônus de Característica",
+        "traitInitialFixed": "Característica Inicial Fixa",
+        "traitInitialMax": "Característica Inicial Máxima",
+        "traitXpCost": "Custo de XP da Característica",
+        "priorityPoints": "Pontos de Prioridade",
+        "grantManeuver": "Conceder Manobra",
+        "bypassPrerequisite": "Ignorar Pré-requisito",
+        "grantDivision": "Conceder Divisão"
+      }
+    },
+    
+    "Common": {
+      "name": "Nome",
+      "description": "Descrição",
+      "sourceId": "ID de Origem",
+      "effects": "Efeitos",
+      "requirements": "Requisitos",
+      "value": "Valor",
+      "max": "Máximo",
+      "min": "Mínimo",
+      "total": "Total",
+      "roll": "Rolar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "create": "Criar",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "select": "Selecionar",
+      "none": "Nenhum"
+    },
+    
+    "Tabs": {
+      "details": "Detalhes",
+      "combat": "Combate",
+      "costs": "Custos",
+      "prerequisites": "Pré-requisitos",
+      "levels": "Níveis",
+      "effects": "Efeitos",
+      "biography": "Biografia",
+      "traits": "Características",
+      "maneuvers": "Manobras",
+      "resources": "Recursos"
+    },
+    
+    "Renown": {
+      "honor": "Honra",
+      "glory": "Glória"
+    },
+    
+    "Experience": {
+      "title": "Experiência",
+      "total": "Total",
+      "spent": "Gasto"
+    },
+    
+    "SheetLabels": {
+      "Actor": "Ficha de Personagem Street Fighter",
+      "Item": "Ficha de Item Street Fighter"
+    },
+    
+    "Library": {
+      "import": "Importar Biblioteca",
+      "importSuccess": "Biblioteca importada com sucesso",
+      "importError": "Erro ao importar biblioteca"
+    },
+    
+    "Character": {
+      "import": "Importar Personagens",
+      "importSuccess": "Personagens importados com sucesso",
+      "importError": "Erro ao importar personagens",
+      "isImported": "Personagem Importado",
+      "isManual": "Personagem Manual",
+      "readOnlyWarning": "Este personagem foi importado e não pode ser editado. Reimporte para atualizar."
+    },
+    
+    "Profile": {
+      "characterName": "Nome do Personagem",
+      "playerName": "Nome do Jogador",
+      "chronicleName": "Crônica",
+      "schoolName": "Escola",
+      "fightingTeam": "Equipe de Luta",
+      "stable": "Estábulo",
+      "concept": "Conceito",
+      "signature": "Assinatura"
+    }
+  }
+}

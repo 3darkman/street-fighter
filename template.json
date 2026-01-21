@@ -1,0 +1,135 @@
+{
+  "Actor": {
+    "types": ["fighter"],
+    "htmlFields": ["biography", "background", "motivations", "appearanceNotes", "equipment"],
+    "fighter": {
+      "importData": {
+        "isImported": false,
+        "characterId": "",
+        "importedAt": "",
+        "sourceVersion": ""
+      },
+      "profile": {
+        "characterName": "",
+        "playerName": "",
+        "chronicleName": "",
+        "schoolName": "",
+        "fightingTeam": "",
+        "stable": "",
+        "concept": "",
+        "signature": ""
+      },
+      "resources": {
+        "health": { "value": 10, "max": 10, "damageTaken": 0 },
+        "chi": { "value": 0, "max": 10, "spent": 0 },
+        "willpower": { "value": 0, "max": 10, "spent": 0 }
+      },
+      "renown": {
+        "honor": { "permanent": 0, "temporary": 0 },
+        "glory": { "permanent": 0, "temporary": 0 }
+      },
+      "experience": {
+        "total": 0,
+        "spent": 0
+      },
+      "divisionRecords": [],
+      "sessionRecords": [],
+      "languages": [],
+      "combos": [],
+      "maneuverWeaponBindings": {},
+      "biography": "",
+      "background": "",
+      "motivations": "",
+      "appearanceNotes": "",
+      "equipment": ""
+    }
+  },
+  "Item": {
+    "types": ["fightingStyle", "specialManeuver", "attribute", "ability", "technique", "background", "weapon", "division"],
+    "htmlFields": ["description"],
+    "fightingStyle": {
+      "sourceId": "",
+      "initialChi": 3,
+      "initialWillpower": 4,
+      "motto": "",
+      "description": ""
+    },
+    "specialManeuver": {
+      "sourceId": "",
+      "category": "punch",
+      "prerequisites": [],
+      "defaultPowerPointCost": 0,
+      "stylePowerPointCosts": {},
+      "backgroundPowerPointCosts": {},
+      "bonusPointCost": 4,
+      "chiCost": null,
+      "willpowerCost": null,
+      "speedModifier": "+0",
+      "damageModifier": "+0",
+      "movementModifier": "+0",
+      "notes": "",
+      "ruleSummary": "",
+      "damageTraitOverride": null,
+      "damageAttributeOverride": null,
+      "speedTraitOverride": null,
+      "movementTraitOverride": null,
+      "description": ""
+    },
+    "attribute": {
+      "sourceId": "",
+      "category": "physical",
+      "value": 1,
+      "bonusPointCost": 5,
+      "experiencePointCost": 4,
+      "isOptional": false,
+      "startLevel": 5,
+      "experiencePointCostOnStartLevel": 6,
+      "description": ""
+    },
+    "ability": {
+      "sourceId": "",
+      "category": "talents",
+      "value": 0,
+      "bonusPointCost": 2,
+      "experiencePointCost": 2,
+      "isOptional": false,
+      "startLevel": 5,
+      "experiencePointCostOnStartLevel": 4,
+      "description": ""
+    },
+    "technique": {
+      "sourceId": "",
+      "value": 0,
+      "bonusPointCost": 5,
+      "experiencePointCost": 3,
+      "isOptional": false,
+      "startLevel": 5,
+      "experiencePointCostOnStartLevel": 5,
+      "isWeaponTechnique": false,
+      "description": ""
+    },
+    "background": {
+      "sourceId": "",
+      "value": 0,
+      "bonusPointCost": 1,
+      "experiencePointCost": 0,
+      "isOptional": true,
+      "isUnique": false,
+      "availableLevels": [],
+      "description": ""
+    },
+    "weapon": {
+      "sourceId": "",
+      "techniqueId": "",
+      "speed": "",
+      "damage": "",
+      "movement": "",
+      "special": "",
+      "description": ""
+    },
+    "division": {
+      "sourceId": "",
+      "description": ""
+    }
+  }
+}

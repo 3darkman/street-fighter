@@ -1,0 +1,52 @@
+<form class="{{cssClass}} flexcol" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}" />
+    <div class="header-fields">
+      <h1 class="charname">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'STREET_FIGHTER.Item.Types.weapon'}}" />
+      </h1>
+    </div>
+  </header>
+
+  <section class="sheet-body">
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Common.sourceId"}}</label>
+      <input type="text" name="system.sourceId" value="{{systemData.sourceId}}" placeholder="e.g., katana" readonly />
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Weapon.techniqueId"}}</label>
+      <select name="system.techniqueId">
+        <option value="">-- {{localize "STREET_FIGHTER.Common.select"}} --</option>
+        {{#each weaponTechniques}}
+        <option value="{{this.id}}" {{#if (eq this.id ../systemData.techniqueId)}}selected{{/if}}>{{this.name}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.Weapon.speed"}}</label>
+        <input type="text" name="system.speed" value="{{systemData.speed}}" placeholder="+0" />
+      </div>
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.Weapon.damage"}}</label>
+        <input type="text" name="system.damage" value="{{systemData.damage}}" placeholder="+2" />
+      </div>
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.Weapon.movement"}}</label>
+        <input type="text" name="system.movement" value="{{systemData.movement}}" placeholder="-1" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Weapon.special"}}</label>
+      <textarea name="system.special" rows="2" maxlength="150">{{systemData.special}}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Common.description"}}</label>
+      {{editor enrichedDescription target="system.description" button=true editable=isEditable}}
+    </div>
+  </section>
+</form>

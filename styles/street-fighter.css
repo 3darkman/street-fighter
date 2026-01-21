@@ -1,0 +1,1115 @@
+/**
+ * Street Fighter RPG System Styles
+ * @author Kirlian Silvestre
+ */
+
+:root {
+  --sf-primary: #d32f2f;
+  --sf-primary-dark: #9a0007;
+  --sf-primary-light: #ff6659;
+  --sf-secondary: #1976d2;
+  --sf-secondary-dark: #004ba0;
+  --sf-secondary-light: #63a4ff;
+  --sf-accent: #ffc107;
+  --sf-background: #1a1a2e;
+  --sf-surface: #16213e;
+  --sf-surface-light: #0f3460;
+  --sf-text: #eaeaea;
+  --sf-text-muted: #a0a0a0;
+  --sf-border: #3a3a5a;
+  --sf-success: #4caf50;
+  --sf-warning: #ff9800;
+  --sf-danger: #f44336;
+  --sf-health: #e53935;
+  --sf-chi: #42a5f5;
+  --sf-super: #fdd835;
+}
+
+/* ==================== */
+/* Base Sheet Styles    */
+/* ==================== */
+
+.street-fighter.sheet {
+  background: var(--sf-background);
+  color: var(--sf-text);
+  border: 2px solid var(--sf-primary);
+  border-radius: 8px;
+}
+
+.street-fighter.sheet .window-content {
+  background: linear-gradient(135deg, var(--sf-background) 0%, var(--sf-surface) 100%);
+  padding: 0;
+  overflow: hidden;
+}
+
+.street-fighter.sheet .window-content > form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.street-fighter.sheet .sheet-body,
+.street-fighter.sheet section.sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* ApplicationV2 specific - ensure proper scrolling */
+.street-fighter.sheet .application-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.street-fighter.sheet .application-content > form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.street-fighter.sheet header.sheet-header {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 12px;
+  padding: 12px;
+  background: var(--sf-surface);
+  border-bottom: 2px solid var(--sf-primary);
+}
+
+.street-fighter.sheet.item header.sheet-header {
+  padding: 8px 12px;
+  gap: 10px;
+}
+
+.street-fighter.sheet header.sheet-header img.profile-img {
+  width: 64px;
+  height: 64px;
+  border: 2px solid var(--sf-primary);
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.street-fighter.sheet.item header.sheet-header img.profile-img {
+  width: 64px;
+  height: 64px;
+}
+
+.street-fighter.sheet header.sheet-header .header-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.street-fighter.sheet header.sheet-header h1.charname {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.street-fighter.sheet header.sheet-header h1.charname input {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--sf-text);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--sf-border);
+  width: 100%;
+  padding: 2px 0;
+}
+
+.street-fighter.sheet.item header.sheet-header h1.charname input {
+  font-size: 16px;
+}
+
+.street-fighter.sheet header.sheet-header h1.charname input:focus {
+  border-bottom-color: var(--sf-primary);
+  outline: none;
+}
+
+/* ==================== */
+/* Tabs                 */
+/* ==================== */
+
+.street-fighter.sheet nav.sheet-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px;
+  background: var(--sf-surface);
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.street-fighter.sheet nav.sheet-tabs .item {
+  padding: 8px 16px;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px 4px 0 0;
+  color: var(--sf-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.street-fighter.sheet nav.sheet-tabs .item:hover {
+  background: var(--sf-primary-dark);
+  color: var(--sf-text);
+}
+
+.street-fighter.sheet nav.sheet-tabs .item.active {
+  background: var(--sf-primary);
+  color: white;
+  border-color: var(--sf-primary);
+}
+
+/* ==================== */
+/* Sheet Body           */
+/* ==================== */
+
+.street-fighter.sheet .sheet-body {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.street-fighter.sheet .tab {
+  display: none;
+}
+
+.street-fighter.sheet .tab.active {
+  display: block;
+}
+
+/* ==================== */
+/* Attributes           */
+/* ==================== */
+
+.street-fighter .attributes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.street-fighter .attribute {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.street-fighter .attribute:hover {
+  border-color: var(--sf-primary);
+  transform: translateY(-2px);
+}
+
+.street-fighter .attribute.rollable:hover {
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+}
+
+.street-fighter .attribute-label {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--sf-text-muted);
+  margin-bottom: 8px;
+}
+
+.street-fighter .attribute-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--sf-primary);
+}
+
+.street-fighter .attribute-value input {
+  width: 50px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--sf-primary);
+  background: transparent;
+  border: none;
+}
+
+/* ==================== */
+/* Resources            */
+/* ==================== */
+
+.street-fighter .resources-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.street-fighter .resource {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 8px;
+}
+
+.street-fighter .resource-label {
+  width: 100px;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.street-fighter .resource-bar-container {
+  flex: 1;
+  position: relative;
+  height: 24px;
+  background: var(--sf-background);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.street-fighter .resource-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.street-fighter .resource-bar.health {
+  background: linear-gradient(90deg, var(--sf-health) 0%, #ff6b6b 100%);
+}
+
+.street-fighter .resource-bar.chi {
+  background: linear-gradient(90deg, var(--sf-chi) 0%, #90caf9 100%);
+}
+
+.street-fighter .resource-bar.super {
+  background: linear-gradient(90deg, var(--sf-super) 0%, #ffee58 100%);
+}
+
+.street-fighter .resource-bar.willpower {
+  background: linear-gradient(90deg, #9c27b0 0%, #ce93d8 100%);
+}
+
+.street-fighter .resource-values {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+  justify-content: flex-end;
+}
+
+.street-fighter .resource-values input {
+  width: 40px;
+  text-align: center;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  color: var(--sf-text);
+  padding: 4px;
+}
+
+.street-fighter .resource-control {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--sf-text);
+  transition: all 0.2s ease;
+}
+
+.street-fighter .resource-control:hover {
+  background: var(--sf-primary);
+  border-color: var(--sf-primary);
+}
+
+/* ==================== */
+/* Combat Stats         */
+/* ==================== */
+
+.street-fighter .combat-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.street-fighter .combat-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 8px;
+}
+
+.street-fighter .combat-stat-label {
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--sf-text-muted);
+  margin-bottom: 4px;
+}
+
+.street-fighter .combat-stat-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--sf-secondary);
+}
+
+/* ==================== */
+/* Item Lists           */
+/* ==================== */
+
+.street-fighter .items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 2px solid var(--sf-primary);
+  margin-bottom: 8px;
+}
+
+.street-fighter .items-header h3 {
+  margin: 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--sf-primary);
+}
+
+.street-fighter .item-create {
+  padding: 4px 12px;
+  background: var(--sf-primary);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.street-fighter .item-create:hover {
+  background: var(--sf-primary-dark);
+}
+
+.street-fighter .item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.street-fighter .item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.street-fighter .item:hover {
+  border-color: var(--sf-primary);
+}
+
+.street-fighter .item-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.street-fighter .item-name {
+  flex: 1;
+  font-weight: bold;
+}
+
+.street-fighter .item-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.street-fighter .item-control {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--sf-text-muted);
+  transition: all 0.2s ease;
+}
+
+.street-fighter .item-control:hover {
+  color: var(--sf-text);
+  border-color: var(--sf-primary);
+}
+
+.street-fighter .item-control.item-use:hover {
+  background: var(--sf-success);
+  border-color: var(--sf-success);
+}
+
+.street-fighter .item-control.item-delete:hover {
+  background: var(--sf-danger);
+  border-color: var(--sf-danger);
+}
+
+/* ==================== */
+/* Biography            */
+/* ==================== */
+
+.street-fighter .biography-container {
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 200px;
+}
+
+.street-fighter .biography-container .editor {
+  min-height: 180px;
+}
+
+/* ==================== */
+/* Item Sheet           */
+/* ==================== */
+
+.street-fighter.sheet.item .sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.street-fighter.sheet.item .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.street-fighter.sheet.item .form-group label {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--sf-text-muted);
+}
+
+.street-fighter.sheet.item .form-group input,
+.street-fighter.sheet.item .form-group select,
+.street-fighter.sheet.item .form-group textarea {
+  width: 100%;
+  padding: 8px;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  color: var(--sf-text);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.street-fighter.sheet.item .form-group select option,
+.street-fighter.sheet.item select option {
+  background: var(--sf-surface);
+  color: var(--sf-text);
+}
+
+.street-fighter.sheet.item .form-group input:focus,
+.street-fighter.sheet.item .form-group select:focus,
+.street-fighter.sheet.item .form-group textarea:focus {
+  border-color: var(--sf-primary);
+  outline: none;
+}
+
+.street-fighter.sheet.item .form-group input::placeholder {
+  color: var(--sf-text-muted);
+  opacity: 0.6;
+}
+
+.street-fighter.sheet.item .form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.street-fighter.sheet.item .form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.street-fighter.sheet.item .form-row .form-group {
+  flex: 1;
+}
+
+.street-fighter.sheet.item .checkbox-row {
+  flex-wrap: wrap;
+}
+
+.street-fighter.sheet.item .checkbox-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-width: 140px;
+}
+
+.street-fighter.sheet.item .checkbox-group input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  accent-color: var(--sf-primary);
+}
+
+.street-fighter.sheet.item .checkbox-group label {
+  font-size: 12px;
+  text-transform: none;
+}
+
+.street-fighter.sheet.item .advanced-section {
+  margin-top: 8px;
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  background: var(--sf-surface);
+}
+
+.street-fighter.sheet.item .advanced-section summary {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--sf-text-muted);
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+}
+
+.street-fighter.sheet.item .advanced-section summary:hover {
+  color: var(--sf-text);
+}
+
+.street-fighter.sheet.item .advanced-section[open] summary {
+  border-radius: 4px 4px 0 0;
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.street-fighter.sheet.item .advanced-section > .form-group,
+.street-fighter.sheet.item .advanced-section > .form-row {
+  padding: 12px;
+}
+
+.street-fighter.sheet.item .advanced-section > .form-group:not(:last-child),
+.street-fighter.sheet.item .advanced-section > .form-row:not(:last-child) {
+  padding-bottom: 0;
+}
+
+.street-fighter.sheet.item .description-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.street-fighter.sheet.item .description-container label {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--sf-text-muted);
+  margin-bottom: 4px;
+}
+
+.street-fighter.sheet.item .description-container .editor {
+  flex: 1;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  min-height: 100px;
+}
+
+.street-fighter.sheet.item .editor-content {
+  padding: 8px;
+  min-height: 80px;
+  color: var(--sf-text);
+}
+
+.street-fighter.sheet.item .form-group .editor {
+  width: 100%;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  min-height: 200px;
+}
+
+.street-fighter.sheet.item .form-group .editor .editor-content {
+  color: var(--sf-text);
+  background: var(--sf-surface);
+}
+
+.street-fighter.sheet.item .form-group .editor .editor-content p {
+  margin: 0 0 8px 0;
+}
+
+.street-fighter.sheet.item .prosemirror {
+  width: 100%;
+}
+
+.street-fighter.sheet.item .prosemirror .editor-container {
+  background: var(--sf-surface);
+}
+
+.street-fighter.sheet.item .prosemirror .ProseMirror {
+  color: var(--sf-text);
+  background: var(--sf-surface);
+  padding: 8px;
+  min-height: 120px;
+}
+
+.street-fighter.sheet.item .list-section {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+}
+
+.street-fighter.sheet.item .list-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--sf-text-muted);
+}
+
+.street-fighter.sheet.item .entry-list {
+  list-style: none;
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+
+.street-fighter.sheet.item .entry-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: var(--sf-text);
+}
+
+.street-fighter.sheet.item .entry-item .entry-type {
+  padding: 2px 6px;
+  background: var(--sf-primary-dark);
+  border-radius: 3px;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: white;
+}
+
+.street-fighter.sheet.item .entry-item .entry-name {
+  flex: 1;
+}
+
+.street-fighter.sheet.item .entry-item .entry-value {
+  padding: 2px 6px;
+  background: var(--sf-secondary-dark);
+  border-radius: 3px;
+  font-size: 11px;
+  color: white;
+}
+
+.street-fighter.sheet.item .entry-item a {
+  color: var(--sf-text-muted);
+  cursor: pointer;
+}
+
+.street-fighter.sheet.item .entry-item a:hover {
+  color: var(--sf-danger);
+}
+
+.street-fighter.sheet.item .entry-add-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.street-fighter.sheet.item .entry-add-row select,
+.street-fighter.sheet.item .entry-add-row input {
+  padding: 6px 8px;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  color: var(--sf-text);
+  font-size: 12px;
+}
+
+.street-fighter.sheet.item .entry-add-row select {
+  flex: 1;
+}
+
+.street-fighter.sheet.item .entry-add-row a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--sf-primary);
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.street-fighter.sheet.item .entry-add-row a:hover {
+  background: var(--sf-primary-dark);
+}
+
+.street-fighter.sheet.item .effects-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sf-border);
+}
+
+.street-fighter.sheet.item .effects-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--sf-text-muted);
+}
+
+.street-fighter.sheet.item .effects-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.street-fighter.sheet.item .effects-list .effect {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.street-fighter.sheet.item .effects-list .effect .item-image {
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+}
+
+.street-fighter.sheet.item .effects-list .effect .effect-name {
+  flex: 1;
+  font-size: 13px;
+}
+
+.street-fighter.sheet.item .effect-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  color: var(--sf-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.street-fighter.sheet.item .effect-control:hover {
+  color: var(--sf-primary);
+}
+
+.street-fighter.sheet.item .effect-control i {
+  font-size: 12px;
+}
+
+/* ==================== */
+/* Chat Cards           */
+/* ==================== */
+
+.street-fighter.chat-card {
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.street-fighter.chat-card .card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--sf-primary);
+  color: white;
+}
+
+.street-fighter.chat-card .card-header img {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.street-fighter.chat-card .card-header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.street-fighter.chat-card .card-content {
+  padding: 12px;
+}
+
+.street-fighter.chat-card .card-buttons {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid var(--sf-border);
+}
+
+.street-fighter.chat-card .card-buttons button {
+  flex: 1;
+  padding: 8px;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  color: var(--sf-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.street-fighter.chat-card .card-buttons button:hover {
+  background: var(--sf-primary);
+  border-color: var(--sf-primary);
+}
+
+/* ==================== */
+/* Scrollbar            */
+/* ==================== */
+
+.street-fighter ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.street-fighter ::-webkit-scrollbar-track {
+  background: var(--sf-background);
+}
+
+.street-fighter ::-webkit-scrollbar-thumb {
+  background: var(--sf-border);
+  border-radius: 4px;
+}
+
+.street-fighter ::-webkit-scrollbar-thumb:hover {
+  background: var(--sf-primary);
+}
+
+/* ==================== */
+/* Sidebar Button       */
+/* ==================== */
+
+button.sf-import-library {
+  background: var(--sf-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+button.sf-import-library:hover {
+  background: var(--sf-primary-dark);
+}
+
+button.sf-import-characters {
+  background: var(--sf-secondary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+button.sf-import-characters:hover {
+  background: var(--sf-secondary-dark);
+}
+
+/* ==================== */
+/* Circle Pips          */
+/* ==================== */
+
+.circle-pips {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.circle-pips .pip {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--sf-text-muted);
+  background: transparent;
+  display: inline-block;
+}
+
+.circle-pips .pip.filled {
+  background: var(--sf-primary);
+  border-color: var(--sf-primary);
+}
+
+.circle-pips .pip.empty {
+  background: transparent;
+  border-color: var(--sf-text-muted);
+}
+
+/* Resource-specific pip colors */
+.circle-pips[data-resource="health"] .pip.filled {
+  background: var(--sf-health);
+  border-color: var(--sf-health);
+}
+
+.circle-pips[data-resource="chi"] .pip.filled {
+  background: var(--sf-chi);
+  border-color: var(--sf-chi);
+}
+
+.circle-pips[data-resource="willpower"] .pip.filled {
+  background: var(--sf-super);
+  border-color: var(--sf-super);
+}
+
+.circle-pips[data-resource="honor"] .pip.filled,
+.circle-pips[data-resource="glory"] .pip.filled {
+  background: var(--sf-accent);
+  border-color: var(--sf-accent);
+}
+
+/* ==================== */
+/* Traits Section       */
+/* ==================== */
+
+.traits-section {
+  margin-bottom: 16px;
+}
+
+.traits-section h3 {
+  margin: 0 0 8px 0;
+  padding: 4px 8px;
+  background: var(--sf-surface-light);
+  border-left: 3px solid var(--sf-primary);
+  font-size: 14px;
+  color: var(--sf-text);
+}
+
+.trait-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.trait-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.trait-item:hover {
+  background: var(--sf-surface-light);
+}
+
+.trait-name {
+  flex: 1;
+  min-width: 120px;
+  font-size: 13px;
+}
+
+.trait-item .item-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.trait-item .item-controls a {
+  color: var(--sf-text-muted);
+  cursor: pointer;
+}
+
+.trait-item .item-controls a:hover {
+  color: var(--sf-primary);
+}
+
+/* ==================== */
+/* Resources Section    */
+/* ==================== */
+
+.resources-section {
+  padding: 8px;
+}
+
+.resource-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.resource-row label {
+  min-width: 100px;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.resource-row .resource-value {
+  font-size: 12px;
+  color: var(--sf-text-muted);
+  min-width: 60px;
+  text-align: right;
+}
+
+/* ==================== */
+/* Import Warning       */
+/* ==================== */
+
+.import-warning {
+  background: var(--sf-warning);
+  color: #000;
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.import-warning i {
+  margin-right: 6px;
+}
+
+/* ==================== */
+/* Biography Section    */
+/* ==================== */
+
+.biography-section {
+  margin-bottom: 16px;
+}
+
+.biography-section h3 {
+  margin: 0 0 8px 0;
+  padding: 4px 8px;
+  background: var(--sf-surface-light);
+  border-left: 3px solid var(--sf-secondary);
+  font-size: 14px;
+  color: var(--sf-text);
+}
