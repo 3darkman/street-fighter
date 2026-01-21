@@ -26,9 +26,18 @@ export class StreetFighterActor extends Actor {
 
     if (actorData.type === "fighter") {
       this._prepareFighterData(systemData);
-    } else if (actorData.type === "npc") {
-      this._prepareNpcData(systemData);
     }
+  }
+
+  /**
+   * Get trait value from embedded items by sourceId
+   * @param {string} sourceId - The sourceId of the trait
+   * @returns {number} The trait value or 0 if not found
+   * @private
+   */
+  _getTraitValue(sourceId) {
+    const item = this.items.find(i => i.system.sourceId === sourceId);
+    return item?.system.value ?? 0;
   }
 
   /**
@@ -37,16 +46,19 @@ export class StreetFighterActor extends Actor {
    * @private
    */
   _prepareCommonData(systemData) {
-    const attributes = systemData.attributes;
+    // Initialize combat object if it doesn't exist
+    if (!systemData.combat) {
+      systemData.combat = {};
+    }
 
-    systemData.combat.initiative =
-      attributes.wits.value + attributes.dexterity.value;
+    // Get attribute values from embedded items
+    const wits = this._getTraitValue("wits");
+    const dexterity = this._getTraitValue("dexterity");
+    const stamina = this._getTraitValue("stamina");
 
-    systemData.combat.defense = Math.floor(
-      (attributes.dexterity.value + attributes.wits.value) / 2
-    );
-
-    systemData.combat.soak = Math.floor(attributes.stamina.value / 2);
+    systemData.combat.initiative = wits + dexterity;
+    systemData.combat.defense = Math.floor((dexterity + wits) / 2);
+    systemData.combat.soak = Math.floor(stamina / 2);
   }
 
   /**
@@ -55,41 +67,29 @@ export class StreetFighterActor extends Actor {
    * @private
    */
   _prepareFighterData(systemData) {
-    const attributes = systemData.attributes;
+    // Get attribute/technique values from embedded items
+    const stamina = this._getTraitValue("stamina");
+    const focus = this._getTraitValue("focus");
+    const intelligence = this._getTraitValue("intelligence");
 
-    systemData.resources.health.max =
-      10 + attributes.stamina.value * 2 + attributes.focus.value;
-
-    systemData.resources.chi.max =
-      5 + attributes.focus.value + attributes.intelligence.value;
-  }
-
-  /**
-   * Prepare NPC-specific data
-   * @param {object} systemData
-   * @private
-   */
-  _prepareNpcData(systemData) {
-    const threat = systemData.details.threat || 1;
-
-    systemData.resources.health.max = 5 + threat * 5;
-    systemData.resources.chi.max = Math.floor(threat * 2);
+    systemData.resources.health.max = 10 + stamina * 2 + focus;
+    systemData.resources.chi.max = 5 + focus + intelligence;
   }
 
   /**
    * Roll an attribute check
-   * @param {string} attributeKey - The attribute key to roll
+   * @param {string} attributeKey - The sourceId of the attribute to roll
    * @returns {Promise<Roll>}
    */
   async rollAttribute(attributeKey) {
-    const attribute = this.system.attributes[attributeKey];
-    if (!attribute) return null;
+    const value = this._getTraitValue(attributeKey);
+    if (value === 0) return null;
 
-    const label = game.i18n.localize(
-      CONFIG.STREET_FIGHTER.attributes[attributeKey]
-    );
+    // Find the item to get its name
+    const item = this.items.find(i => i.system.sourceId === attributeKey);
+    const label = item?.name || attributeKey;
 
-    const roll = new Roll(`${attribute.value}d10cs>=7`);
+    const roll = new Roll(`${value}d10cs>=7`);
     await roll.evaluate();
 
     await roll.toMessage({

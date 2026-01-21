@@ -1113,3 +1113,45 @@ button.sf-import-characters:hover {
   font-size: 14px;
   color: var(--sf-text);
 }
+
+/* ProseMirror Editor Styles */
+.street-fighter.sheet prose-mirror {
+  display: block;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+}
+
+.street-fighter.sheet prose-mirror .editor-container,
+.street-fighter.sheet prose-mirror .prosemirror {
+  min-height: 120px;
+  height: auto;
+}
+
+.street-fighter.sheet prose-mirror .ProseMirror {
+  min-height: 120px;
+  height: auto;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 8px;
+  background: var(--sf-background);
+  border: none;
+  color: var(--sf-text);
+}
+
+.street-fighter.sheet prose-mirror .ProseMirror:focus {
+  outline: none;
+}
+
+.street-fighter.sheet prose-mirror .editor-menu {
+  background: var(--sf-surface-light);
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.street-fighter.sheet .editor-content {
+  min-height: 50px;
+  padding: 8px;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+}

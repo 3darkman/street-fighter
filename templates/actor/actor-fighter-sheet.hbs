@@ -257,15 +257,33 @@
     <div class="tab" data-group="primary" data-tab="biography">
       <div class="biography-section">
         <h3>{{localize "STREET_FIGHTER.Tabs.biography"}}</h3>
-        {{editor enrichedBiography target="system.biography" button=true editable=isEditable}}
+        {{#if isEditable}}
+        <prose-mirror name="system.biography" button="true" toggled="true" value="{{systemData.biography}}">
+          {{{enrichedBiography}}}
+        </prose-mirror>
+        {{else}}
+        <div class="editor-content">{{{enrichedBiography}}}</div>
+        {{/if}}
       </div>
       <div class="biography-section">
         <h3>{{localize "STREET_FIGHTER.Profile.background"}}</h3>
-        {{editor enrichedBackground target="system.background" button=true editable=isEditable}}
+        {{#if isEditable}}
+        <prose-mirror name="system.background" button="true" toggled="true" value="{{systemData.background}}">
+          {{{enrichedBackground}}}
+        </prose-mirror>
+        {{else}}
+        <div class="editor-content">{{{enrichedBackground}}}</div>
+        {{/if}}
       </div>
       <div class="biography-section">
         <h3>{{localize "STREET_FIGHTER.Profile.motivations"}}</h3>
-        {{editor enrichedMotivations target="system.motivations" button=true editable=isEditable}}
+        {{#if isEditable}}
+        <prose-mirror name="system.motivations" button="true" toggled="true" value="{{systemData.motivations}}">
+          {{{enrichedMotivations}}}
+        </prose-mirror>
+        {{else}}
+        <div class="editor-content">{{{enrichedMotivations}}}</div>
+        {{/if}}
       </div>
     </div>
   </section>

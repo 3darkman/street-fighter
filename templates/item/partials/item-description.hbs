@@ -1,4 +1,4 @@
 <div class="description-container">
   <label>{{localize "STREET_FIGHTER.Common.description"}}</label>
-  {{editor enrichedDescription target="system.description" button=true editable=isEditable}}
+  {{#if isEditable}}<prose-mirror name="system.description" button="true" toggled="true" value="{{systemData.description}}">{{{enrichedDescription}}}</prose-mirror>{{else}}<div class="editor-content">{{{enrichedDescription}}}</div>{{/if}}
 </div>
