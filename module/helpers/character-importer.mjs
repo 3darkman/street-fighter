@@ -4,7 +4,7 @@
  * @author Kirlian Silvestre
  */
 
-import { findWorldItemBySourceId } from "./utils.mjs";
+import { findWorldItemBySourceId, addNonOptionalTraitsToActor } from "./utils.mjs";
 
 /**
  * Import characters from a .fscharacters file
@@ -302,6 +302,17 @@ async function addEmbeddedItems(actor, charData) {
   // Create all embedded items
   if (itemsToCreate.length > 0) {
     await actor.createEmbeddedDocuments("Item", itemsToCreate);
+  }
+
+  // Add non-optional traits if setting is enabled
+  if (game.settings.get("street-fighter", "autoAddTraitsOnImport")) {
+    const existingSourceIds = new Set(
+      itemsToCreate
+        .filter(i => ["attribute", "ability", "technique", "background"].includes(i.type))
+        .map(i => i.system?.sourceId)
+        .filter(Boolean)
+    );
+    await addNonOptionalTraitsToActor(actor, existingSourceIds);
   }
 }
 

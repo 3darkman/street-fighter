@@ -372,6 +372,14 @@
       "HidePlayerManeuversFromGM": {
         "Name": "Hide Player Maneuvers from GM",
         "Hint": "When enabled, the GM cannot see the selected maneuvers of online players until they are revealed. This preserves the surprise element of combat."
+      },
+      "AutoAddTraitsOnImport": {
+        "Name": "Auto-add Traits on Import",
+        "Hint": "Automatically add all non-optional attributes, abilities, techniques, and backgrounds to imported characters."
+      },
+      "AutoAddTraitsOnManualCreate": {
+        "Name": "Auto-add Traits on Manual Creation",
+        "Hint": "Automatically add all non-optional attributes, abilities, techniques, and backgrounds to manually created characters."
       }
     },
 

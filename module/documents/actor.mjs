@@ -10,6 +10,7 @@ import {
   applyModifiers,
   getRollModifiersForTraits,
 } from "../helpers/effect-helpers.mjs";
+import { addNonOptionalTraitsToActor } from "../helpers/utils.mjs";
 
 export class StreetFighterActor extends Actor {
   /** @override */
@@ -20,6 +21,21 @@ export class StreetFighterActor extends Actor {
   /** @override */
   prepareBaseData() {
     super.prepareBaseData();
+  }
+
+  /** @override */
+  async _onCreate(data, options, userId) {
+    await super._onCreate(data, options, userId);
+
+    if (game.user.id !== userId) return;
+    if (this.type !== "fighter") return;
+
+    const isImported = this.system.importData?.isImported === true;
+    if (isImported) return;
+
+    if (game.settings.get("street-fighter", "autoAddTraitsOnManualCreate")) {
+      await addNonOptionalTraitsToActor(this);
+    }
   }
 
   /** @override */

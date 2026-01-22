@@ -140,3 +140,44 @@ export function generateSourceId(name, suffix = "foundry") {
     .replace(/[^a-z0-9_]/g, "");
   return `${baseId}_${suffix}`;
 }
+
+/**
+ * Get all non-optional traits from world items
+ * @returns {Item[]} Array of world items that are non-optional traits
+ */
+export function getNonOptionalTraits() {
+  const traitTypes = ["attribute", "ability", "technique", "background"];
+  
+  return game.items.filter((item) => {
+    if (!traitTypes.includes(item.type)) return false;
+    return item.system.isOptional === false;
+  });
+}
+
+/**
+ * Add non-optional traits to an actor that don't already exist
+ * @param {Actor} actor - The actor to add traits to
+ * @param {Set<string>} existingSourceIds - Set of sourceIds already on the actor
+ * @returns {Promise<Item[]>} Array of created embedded items
+ */
+export async function addNonOptionalTraitsToActor(actor, existingSourceIds = new Set()) {
+  const nonOptionalTraits = getNonOptionalTraits();
+  const itemsToCreate = [];
+
+  for (const trait of nonOptionalTraits) {
+    const sourceId = trait.system.sourceId;
+    
+    if (existingSourceIds.has(sourceId)) continue;
+    
+    const traitData = trait.toObject();
+    traitData.system.value = trait.type === "attribute" ? 1 : 0;
+    itemsToCreate.push(traitData);
+  }
+
+  if (itemsToCreate.length > 0) {
+    console.log(`Street Fighter | Adding ${itemsToCreate.length} non-optional traits to ${actor.name}`);
+    return await actor.createEmbeddedDocuments("Item", itemsToCreate);
+  }
+
+  return [];
+}

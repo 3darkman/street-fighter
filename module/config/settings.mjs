@@ -44,4 +44,22 @@ export function registerSettings() {
     type: Boolean,
     default: true,
   });
+
+  game.settings.register("street-fighter", "autoAddTraitsOnImport", {
+    name: "STREET_FIGHTER.Settings.AutoAddTraitsOnImport.Name",
+    hint: "STREET_FIGHTER.Settings.AutoAddTraitsOnImport.Hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("street-fighter", "autoAddTraitsOnManualCreate", {
+    name: "STREET_FIGHTER.Settings.AutoAddTraitsOnManualCreate.Name",
+    hint: "STREET_FIGHTER.Settings.AutoAddTraitsOnManualCreate.Hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
 }

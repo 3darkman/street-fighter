@@ -318,9 +318,9 @@
       "title": "Rolagem de Dados",
       "click": "Clique para rolar",
       "attribute": "Atributo",
-      "secondTrait": "Segundo Trait",
+      "secondTrait": "Segunda Característica",
       "selectAttribute": "Selecione o atributo...",
-      "selectTrait": "Selecione o trait...",
+      "selectTrait": "Selecione a Característica...",
       "dicePool": "Parada de Dados",
       "difficulty": "Dificuldade",
       "difficultyShort": "Dif.",
@@ -372,6 +372,14 @@
       "HidePlayerManeuversFromGM": {
         "Name": "Esconder Manobras dos Jogadores do GM",
         "Hint": "Quando ativado, o GM não pode ver as manobras selecionadas dos jogadores online até que sejam reveladas. Isso preserva o elemento surpresa do combate."
+      },
+      "AutoAddTraitsOnImport": {
+        "Name": "Adicionar Características Automaticamente na Importação",
+        "Hint": "Adiciona automaticamente todos os atributos, habilidades, técnicas e antecedentes não opcionais aos personagens importados."
+      },
+      "AutoAddTraitsOnManualCreate": {
+        "Name": "Adicionar Características Automaticamente na Criação Manual",
+        "Hint": "Adiciona automaticamente todos os atributos, habilidades, técnicas e antecedentes não opcionais aos personagens criados manualmente."
       }
     },
 
