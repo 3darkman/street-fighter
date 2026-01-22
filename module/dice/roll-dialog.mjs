@@ -41,7 +41,7 @@ export class StreetFighterRollDialog extends DialogV2 {
         content: content,
         render: (event, dialog) => {
           dialogElement = dialog.element;
-          this._setupDialogListeners(dialog.element, actor);
+          this._setupDialogListeners(dialog.element, actor, options.isDamageRoll || false);
         },
         ok: {
           action: "roll",
@@ -199,6 +199,7 @@ export class StreetFighterRollDialog extends DialogV2 {
       difficulty: DIFFICULTY.default,
       selectedTraitType: options.selectedTraitType,
       preSelectedSecondTrait: options.preSelectedSecondTrait,
+      isDamageRoll: options.isDamageRoll || false,
     };
   }
 
@@ -361,7 +362,7 @@ export class StreetFighterRollDialog extends DialogV2 {
       modifier,
       fixedModifiers: activeFixedModifiers,
       effectModifiers: activeEffectModifiers,
-      dicePool: Math.max(0, dicePool),
+      dicePool: Math.max(options.isDamageRoll ? 1 : 0, dicePool),
       rollTitle,
       targetTokenId,
       targetActorId,
@@ -376,7 +377,7 @@ export class StreetFighterRollDialog extends DialogV2 {
    * @param {Actor} actor
    * @private
    */
-  static _setupDialogListeners(html, actor) {
+  static _setupDialogListeners(html, actor, isDamageRoll = false) {
     if (!html) return;
     
     const attributeSelect = html.querySelector('select[name="attribute"]');
@@ -469,7 +470,7 @@ export class StreetFighterRollDialog extends DialogV2 {
       const attrValue = parseInt(attrOption?.dataset.value) || 0;
       const traitValue = parseInt(traitOption?.dataset.value) || 0;
 
-      const total = Math.max(0, attrValue + traitValue + modifier + fixedModTotal + effectModTotal);
+      const total = Math.max(isDamageRoll ? 1 : 0, attrValue + traitValue + modifier + fixedModTotal + effectModTotal);
       poolDisplay.textContent = total;
     };
 
@@ -516,7 +517,13 @@ export class StreetFighterRollDialog extends DialogV2 {
  * @returns {Promise<void>}
  */
 export async function executeRoll(rollData) {
-  if (!rollData || rollData.dicePool <= 0) {
+  if (!rollData) {
+    ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Roll.noDice"));
+    return;
+  }
+
+  // Ensure minimum 1 die for damage rolls, 0 check for other rolls
+  if (rollData.dicePool <= 0 && !rollData.isDamageRoll) {
     ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Roll.noDice"));
     return;
   }
