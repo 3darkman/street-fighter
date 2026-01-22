@@ -110,6 +110,7 @@ export class ManeuverSelectionDialog extends foundry.applications.api.Handlebars
    */
   _getCharacterStats(actor) {
     const findTraitValue = (sourceId) => {
+      if (!sourceId) return 0;
       const item = actor.items.find(i => i.system.sourceId === sourceId);
       return item?.system.value || 0;
     };
@@ -118,14 +119,15 @@ export class ManeuverSelectionDialog extends foundry.applications.api.Handlebars
     const techniquesMap = {};
     for (const t of techniques) {
       const key = t.system.sourceId || t.name.toLowerCase();
-      const isWeaponTechnique = t.system.isWeaponTechnique || t.system.isFirearmTechnique || false;
       techniquesMap[key] = {
         value: t.system.value || 0,
-        isWeaponTechnique
+        isWeaponTechnique: t.system.isWeaponTechnique || false,
+        isFirearmTechnique: t.system.isFirearmTechnique || false
       };
     }
 
     return {
+      findTraitValue,
       dexterity: findTraitValue("dexterity"),
       strength: findTraitValue("strength"),
       wits: findTraitValue("wits"),
@@ -145,14 +147,19 @@ export class ManeuverSelectionDialog extends foundry.applications.api.Handlebars
   _prepareManeuverData(maneuver, characterStats, actor) {
     const category = maneuver.system.category || "";
     const categoryKey = category.toLowerCase();
+    const { findTraitValue } = characterStats;
 
-    const techniqueData = characterStats.techniques[categoryKey] || { value: 0, isWeaponTechnique: false };
+    // Get technique data - check for damageTraitOverride first
+    const effectiveTechniqueKey = maneuver.system.damageTraitOverride || categoryKey;
+    const techniqueData = characterStats.techniques[effectiveTechniqueKey] || { value: 0, isWeaponTechnique: false, isFirearmTechnique: false };
     const techniqueValue = techniqueData.value;
-    const isWeaponTechnique = techniqueData.isWeaponTechnique;
+    const isWeaponTechnique = techniqueData.isWeaponTechnique || techniqueData.isFirearmTechnique;
+    const isFirearmTechnique = techniqueData.isFirearmTechnique;
 
+    // Weapon modifiers (only for weapon/firearm techniques)
     const weapons = actor.items.filter(i => i.type === "weapon");
     const equippedWeapons = isWeaponTechnique
-      ? weapons.filter(w => w.system.isEquipped && (w.system.techniqueId || "").toLowerCase() === categoryKey)
+      ? weapons.filter(w => w.system.isEquipped && (w.system.techniqueId || "").toLowerCase() === effectiveTechniqueKey)
       : [];
 
     const singleEquippedWeapon = equippedWeapons.length === 1 ? equippedWeapons[0] : null;
@@ -161,13 +168,42 @@ export class ManeuverSelectionDialog extends foundry.applications.api.Handlebars
     const weaponDamageMod = singleEquippedWeapon ? parseWeaponMod(singleEquippedWeapon.system.damage) : 0;
     const weaponMovementMod = singleEquippedWeapon ? parseWeaponMod(singleEquippedWeapon.system.movement) : 0;
 
-    const speedBase = isWeaponTechnique ? characterStats.wits : characterStats.dexterity;
+    // Speed calculation
+    // Default: dexterity, firearm: wits, override: specified trait
+    let speedBase;
+    if (maneuver.system.speedTraitOverride) {
+      speedBase = findTraitValue(maneuver.system.speedTraitOverride);
+    } else if (isFirearmTechnique) {
+      speedBase = characterStats.wits;
+    } else {
+      speedBase = characterStats.dexterity;
+    }
     const calculatedSpeed = this._calculateModifier(maneuver.system.speedModifier, speedBase + weaponSpeedMod);
 
-    const damageBase = isWeaponTechnique ? techniqueValue : characterStats.strength + techniqueValue;
+    // Damage calculation
+    // Attribute: default strength, firearm: 0, override: specified attribute
+    // Technique: default category technique, override: specified technique (already handled above)
+    let damageAttribute;
+    if (maneuver.system.damageAttributeOverride) {
+      damageAttribute = findTraitValue(maneuver.system.damageAttributeOverride);
+    } else if (isFirearmTechnique) {
+      damageAttribute = 0;
+    } else {
+      damageAttribute = characterStats.strength;
+    }
+    const damageBase = damageAttribute + techniqueValue;
     const calculatedDamage = this._calculateModifier(maneuver.system.damageModifier, damageBase + weaponDamageMod);
 
-    const movementBase = isWeaponTechnique ? 0 : characterStats.athletics;
+    // Movement calculation
+    // Default: athletics, firearm: 0, override: specified trait
+    let movementBase;
+    if (maneuver.system.movementTraitOverride) {
+      movementBase = findTraitValue(maneuver.system.movementTraitOverride);
+    } else if (isFirearmTechnique) {
+      movementBase = 0;
+    } else {
+      movementBase = characterStats.athletics;
+    }
     const calculatedMovement = this._calculateModifier(maneuver.system.movementModifier, movementBase + weaponMovementMod);
 
     return {
@@ -183,7 +219,8 @@ export class ManeuverSelectionDialog extends foundry.applications.api.Handlebars
       willpowerCost: maneuver.system.willpowerCost || 0,
       notes: maneuver.system.notes || "",
       ruleSummary: maneuver.system.ruleSummary || "",
-      isWeaponTechnique
+      isWeaponTechnique,
+      isFirearmTechnique
     };
   }
 
