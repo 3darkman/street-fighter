@@ -18,6 +18,8 @@ import { StreetFighterItemSheet } from "./sheets/item-sheet.mjs";
 import { StreetFighterCombat } from "./combat/combat.mjs";
 import { StreetFighterCombatant } from "./combat/combatant.mjs";
 
+import { registerEffects } from "./effects/index.mjs";
+
 import { showImportDialog } from "./helpers/library-importer.mjs";
 import { showCharacterImportDialog } from "./helpers/character-importer.mjs";
 import { executeRoll } from "./dice/roll-dialog.mjs";
@@ -44,6 +46,8 @@ Hooks.once("init", async () => {
   CONFIG.Item.documentClass = StreetFighterItem;
   CONFIG.Combat.documentClass = StreetFighterCombat;
   CONFIG.Combatant.documentClass = StreetFighterCombatant;
+
+  registerEffects();
 
   // Register sheets using DocumentSheetConfig for V2 applications
   foundry.documents.collections.Actors.registerSheet("street-fighter", StreetFighterActorSheet, {

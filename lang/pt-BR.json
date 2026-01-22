@@ -208,7 +208,8 @@
     
     "SheetLabels": {
       "Actor": "Ficha de Personagem Street Fighter",
-      "Item": "Ficha de Item Street Fighter"
+      "Item": "Ficha de Item Street Fighter",
+      "Effect": "Ficha de Efeito Street Fighter"
     },
     
     "Library": {
@@ -278,7 +279,39 @@
       "noInactive": "Nenhum efeito inativo",
       "add": "Adicionar Efeito",
       "new": "Novo Efeito",
-      "toggle": "Alternar Efeito"
+      "toggle": "Alternar Efeito",
+      "manual": "Efeito Manual (Adicionado pelo GM)"
+    },
+
+    "ActiveEffects": {
+      "name": "Nome do Efeito",
+      "disabled": "Desativado",
+      "disabledHint": "Efeitos desativados estão inativos e não aplicam suas alterações.",
+      "description": "Descrição",
+      "changesHint": "Defina o que este efeito modifica quando ativo.",
+      "addChange": "Adicionar Alteração",
+      "targetType": "Tipo",
+      "target": "Alvo",
+      "allRolls": "Todas as Rolagens",
+      "Tabs": {
+        "details": "Detalhes",
+        "duration": "Duração",
+        "changes": "Alterações"
+      },
+      "Duration": {
+        "startTime": "Tempo Inicial",
+        "seconds": "Segundos",
+        "rounds": "Rodadas",
+        "turns": "Turnos",
+        "combat": "Combate"
+      },
+      "TargetTypes": {
+        "trait": "Modificar Característica",
+        "resourceMax": "Modificar Máximo de Recurso",
+        "rollAll": "Modificar Todas as Rolagens",
+        "rollTrait": "Modificar Rolagens com Característica"
+      },
+      "modified": "Modificado por efeitos (valor base)"
     },
     
     "Roll": {

@@ -7,6 +7,7 @@
 import { StreetFighterRollDialog, executeRoll } from "../dice/roll-dialog.mjs";
 import { calculateModifier, formatOriginalModifier } from "../helpers/utils.mjs";
 import { getTraitMaxValue, getTraitMinValue } from "../config/constants.mjs";
+import { getEffectiveTraitValue } from "../helpers/effect-helpers.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -137,6 +138,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
 
     context.items = this._prepareItems(context);
     context.effects = this._prepareEffects(context);
+    context.effectiveResources = this._prepareEffectiveResources();
     context.tabs = this._prepareTabs(options);
 
     // Enrich HTML fields
@@ -221,6 +223,18 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const techniques = [];
     const backgrounds = [];
 
+    // Helper to prepare trait with effective value
+    const prepareTraitWithEffects = (item) => {
+      const sourceId = item.system.sourceId;
+      const baseValue = item.system.value || 0;
+      const effective = getEffectiveTraitValue(this.actor, sourceId, baseValue);
+      item.effectiveValue = effective.value;
+      item.baseValue = baseValue;
+      item.hasModifiers = effective.hasModifiers;
+      item.modifiers = effective.modifiers;
+      return item;
+    };
+
     // First pass: collect all items
     for (const item of this.actor.items) {
       switch (item.type) {
@@ -233,20 +247,20 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
         case "attribute":
           const attrCategory = item.system.category || "physical";
           if (attributesByCategory[attrCategory]) {
-            attributesByCategory[attrCategory].push(item);
+            attributesByCategory[attrCategory].push(prepareTraitWithEffects(item));
           }
           break;
         case "ability":
           const abilCategory = item.system.category || "talents";
           if (abilitiesByCategory[abilCategory]) {
-            abilitiesByCategory[abilCategory].push(item);
+            abilitiesByCategory[abilCategory].push(prepareTraitWithEffects(item));
           }
           break;
         case "technique":
-          techniques.push(item);
+          techniques.push(prepareTraitWithEffects(item));
           break;
         case "background":
-          backgrounds.push(item);
+          backgrounds.push(prepareTraitWithEffects(item));
           break;
         case "weapon":
           weapons.push(item);
@@ -292,7 +306,10 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
 
     const findTraitValue = (items, sourceId) => {
       const item = items.find(i => i.system.sourceId === sourceId);
-      return item?.system.value || 0;
+      if (!item) return 0;
+      const baseValue = item.system.value || 0;
+      const effective = getEffectiveTraitValue(this.actor, sourceId, baseValue);
+      return effective.value;
     };
 
     // Build techniques map with value and weapon technique flags
@@ -301,8 +318,10 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       const key = t.system.sourceId || t.name.toLowerCase();
       // A technique is a weapon technique if either flag is true
       const isWeaponTechnique = t.system.isWeaponTechnique || t.system.isFirearmTechnique || false;
+      const baseValue = t.system.value || 0;
+      const effective = getEffectiveTraitValue(this.actor, key, baseValue);
       techniquesMap[key] = {
-        value: t.system.value || 0,
+        value: effective.value,
         isWeaponTechnique,
       };
     }
@@ -396,13 +415,15 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const inactive = [];
 
     for (const effect of this.actor.effects) {
+      const isManual = effect.flags?.["street-fighter"]?.isManual || false;
       const effectData = {
         id: effect.id,
         name: effect.name,
-        icon: effect.icon || "icons/svg/aura.svg",
+        icon: effect.img || effect.icon || "icons/svg/aura.svg",
         disabled: effect.disabled,
         duration: effect.duration,
         isTemporary: effect.isTemporary,
+        isManual: isManual,
       };
 
       if (effect.disabled) {
@@ -415,6 +436,33 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     }
 
     return { passive, temporary, inactive };
+  }
+
+  /**
+   * Prepare effective resource values with effect modifiers applied
+   * @returns {object}
+   * @private
+   */
+  _prepareEffectiveResources() {
+    const resources = this.actor.system.resources || {};
+    
+    return {
+      health: {
+        value: resources.health?.value ?? 0,
+        max: resources.health?.max ?? 0,
+        effectiveMax: this.actor.getEffectiveResourceMax("health"),
+      },
+      chi: {
+        value: resources.chi?.value ?? 0,
+        max: resources.chi?.max ?? 0,
+        effectiveMax: this.actor.getEffectiveResourceMax("chi"),
+      },
+      willpower: {
+        value: resources.willpower?.value ?? 0,
+        max: resources.willpower?.max ?? 0,
+        effectiveMax: this.actor.getEffectiveResourceMax("willpower"),
+      },
+    };
   }
 
   /** @inheritDoc */
@@ -890,17 +938,17 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
    */
   static async _onCreateEffect(event, target) {
     event.preventDefault();
-    // Block on imported characters
-    if (this.actor.system.importData?.isImported) {
-      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
-      return;
-    }
     
     const effectData = {
       name: game.i18n.localize("STREET_FIGHTER.Effects.new"),
-      icon: "icons/svg/aura.svg",
+      img: "icons/svg/aura.svg",
       origin: this.actor.uuid,
       disabled: false,
+      flags: {
+        "street-fighter": {
+          isManual: true,
+        },
+      },
     };
     await this.actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
   }
@@ -926,16 +974,20 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
    */
   static async _onDeleteEffect(event, target) {
     event.preventDefault();
-    // Block on imported characters
-    if (this.actor.system.importData?.isImported) {
-      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
-      return;
-    }
     
     const effectId = target.closest("[data-effect-id]")?.dataset.effectId;
     const effect = this.actor.effects.get(effectId);
 
     if (!effect) return;
+
+    // For imported characters, only allow deleting manual effects
+    const isImported = this.actor.system.importData?.isImported;
+    const isManual = effect.flags?.["street-fighter"]?.isManual;
+    
+    if (isImported && !isManual) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return;
+    }
 
     const confirmed = await foundry.applications.api.DialogV2.confirm({
       window: { title: game.i18n.localize("STREET_FIGHTER.Dialog.DeleteItem.Title") },

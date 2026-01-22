@@ -1118,7 +1118,7 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  color: var(--sf-text-muted);
+  color: var(--sf-text);
   cursor: pointer;
   font-size: 12px;
 }
@@ -1700,7 +1700,7 @@ button.sf-import-characters:hover {
 }
 
 .effect-controls a {
-  color: var(--sf-text-muted);
+  color: var(--sf-text);
   cursor: pointer;
   transition: color 0.2s ease;
 }
@@ -1745,7 +1745,7 @@ button.sf-import-characters:hover {
 }
 
 .effect-add button:hover {
-  background: var(--sf-primary-dark);
+  background: var(--sf-text);
 }
 
 /* ==================== */
@@ -2024,20 +2024,35 @@ button.sf-import-characters:hover {
   color: var(--sf-text-muted);
 }
 
-.roll-result .fixed-modifiers-list {
-  list-style: disc;
-  margin: 0 0 8px 20px;
-  padding: 0;
+.roll-result .modifiers-section {
+  margin: 8px 0;
+  padding: 6px 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
   font-size: 11px;
+}
+
+.roll-result .modifiers-label {
+  font-weight: bold;
+  color: var(--sf-text);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.roll-result .modifiers-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   color: var(--sf-text-muted);
 }
 
-.roll-result .fixed-modifiers-list li {
+.roll-result .modifiers-list li {
   margin: 2px 0;
+  padding-left: 8px;
 }
 
-.roll-result .fixed-modifiers-list strong {
-  color: var(--sf-text-muted);
+.roll-result .modifiers-list strong {
+  color: var(--sf-primary);
 }
 
 .roll-result .roll-summary {
@@ -2138,4 +2153,457 @@ button.sf-import-characters:hover {
 
 .roll-result.criticalFailure .final-result {
   color: #c62828;
+}
+
+/* ==================== */
+/* Active Effect Sheet  */
+/* ==================== */
+
+.street-fighter.active-effect-sheet {
+  background: var(--sf-background);
+  color: var(--sf-text);
+}
+
+.street-fighter.active-effect-sheet .sheet-header {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--sf-surface);
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.street-fighter.active-effect-sheet .effect-icon {
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--sf-primary);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.street-fighter.active-effect-sheet .header-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.street-fighter.active-effect-sheet .header-details input[type="text"] {
+  font-size: 18px;
+  font-weight: bold;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--sf-border);
+  color: var(--sf-text);
+  padding: 4px;
+}
+
+.street-fighter.active-effect-sheet .sheet-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  background: var(--sf-surface);
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.street-fighter.active-effect-sheet .sheet-tabs .item {
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+  background: var(--sf-surface-light);
+  color: var(--sf-text-muted);
+  text-decoration: none;
+}
+
+.street-fighter.active-effect-sheet .sheet-tabs .item.active {
+  background: var(--sf-primary);
+  color: white;
+}
+
+.street-fighter.active-effect-sheet .sheet-body {
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.street-fighter.active-effect-sheet .tab {
+  display: none;
+}
+
+.street-fighter.active-effect-sheet .tab.active {
+  display: block;
+}
+
+.street-fighter.active-effect-sheet .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.street-fighter.active-effect-sheet .form-group label {
+  font-weight: bold;
+  color: var(--sf-text);
+}
+
+.street-fighter.active-effect-sheet .form-group .hint {
+  font-size: 11px;
+  color: var(--sf-text-muted);
+  margin: 0;
+}
+
+.street-fighter.active-effect-sheet .form-group input,
+.street-fighter.active-effect-sheet .form-group select,
+.street-fighter.active-effect-sheet .form-group textarea {
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  color: var(--sf-text);
+  padding: 6px 8px;
+}
+
+.street-fighter.active-effect-sheet .form-group input[type="checkbox"] {
+  width: auto;
+}
+
+.street-fighter.active-effect-sheet .changes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.street-fighter.active-effect-sheet .effect-change {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+  border: 1px solid var(--sf-border);
+}
+
+.street-fighter.active-effect-sheet .effect-change select,
+.street-fighter.active-effect-sheet .effect-change input {
+  flex: 1;
+  min-width: 80px;
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  color: var(--sf-text);
+  padding: 4px 6px;
+}
+
+.street-fighter.active-effect-sheet .effect-change-delete {
+  color: var(--sf-danger);
+  cursor: pointer;
+}
+
+.street-fighter.active-effect-sheet .effect-change-delete:hover {
+  color: #ff6659;
+}
+
+.street-fighter.active-effect-sheet .add-change {
+  margin-top: 12px;
+}
+
+.street-fighter.active-effect-sheet .add-change a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--sf-primary);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.street-fighter.active-effect-sheet .add-change a:hover {
+  background: var(--sf-primary-light);
+}
+
+.street-fighter.active-effect-sheet .sheet-footer {
+  padding: 12px;
+  background: var(--sf-surface);
+  border-top: 1px solid var(--sf-border);
+}
+
+.street-fighter.active-effect-sheet .sheet-footer button {
+  padding: 8px 16px;
+  background: var(--sf-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.street-fighter.active-effect-sheet .sheet-footer button:hover {
+  background: var(--sf-primary-light);
+}
+
+/* ==================== */
+/* Roll Dialog Effects  */
+/* ==================== */
+
+.roll-dialog .roll-effect-modifiers {
+  margin-top: 12px;
+}
+
+.roll-dialog .roll-effect-modifiers > label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: var(--sf-secondary);
+}
+
+.roll-dialog .effect-modifier-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.roll-dialog .effect-modifier-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: rgba(25, 118, 210, 0.1);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.roll-dialog .effect-modifier-item input[type="checkbox"] {
+  margin: 0;
+}
+
+.roll-dialog .effect-modifier-item label {
+  flex: 1;
+  cursor: pointer;
+}
+
+/* Resource modifier indicator */
+.resource-modifier {
+  font-size: 11px;
+  color: var(--sf-secondary);
+  margin-left: 4px;
+  font-style: italic;
+}
+
+/* ==================== */
+/* Item Effects Tab     */
+/* ==================== */
+
+.effects-tab {
+  padding: 8px 0;
+}
+
+.effects-tab .effects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.effects-tab .effects-header h3 {
+  margin: 0;
+  color: var(--sf-text);
+}
+
+.effects-tab .effects-header a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--sf-primary);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.effects-tab .effects-header a:hover {
+  background: var(--sf-primary-light);
+}
+
+.effects-tab .effects-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.effects-tab .effect-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 4px;
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+  border: 1px solid var(--sf-border);
+}
+
+.effects-tab .effect-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.effects-tab .effect-name {
+  flex: 1;
+  color: var(--sf-text);
+}
+
+.effects-tab .effect-status {
+  font-size: 14px;
+}
+
+.effects-tab .effect-status.active {
+  color: var(--sf-success);
+}
+
+.effects-tab .effect-status.inactive {
+  color: var(--sf-text-muted);
+}
+
+.effects-tab .effect-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.effects-tab .effect-controls a {
+  color: var(--sf-text);
+  cursor: pointer;
+}
+
+.effects-tab .effect-controls a:hover {
+  color: var(--sf-text);
+}
+
+.effects-tab .effect-controls a[data-action="effectDelete"]:hover {
+  color: var(--sf-danger);
+}
+
+.effects-tab .no-effects {
+  color: var(--sf-text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+/* ==================== */
+/* Trait Modifiers      */
+/* ==================== */
+
+.trait-item.has-modifiers .trait-name {
+  color: var(--sf-primary);
+}
+
+.circle-pips .pip.bonus {
+  background: var(--sf-success, #28a745);
+  border-color: var(--sf-success, #28a745);
+}
+
+.circle-pips .pip.penalty {
+  background: var(--sf-danger, #dc3545);
+  border-color: var(--sf-danger, #dc3545);
+  opacity: 0.6;
+}
+
+/* Manual Effect Badge */
+.effect-manual-badge {
+  color: var(--sf-primary);
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+.effect-item.effect-manual {
+  border-left: 2px solid var(--sf-primary);
+}
+
+/* ==================== */
+/* Effect Changes Tab   */
+/* ==================== */
+
+.street-fighter.effect-sheet .changes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+
+.street-fighter.effect-sheet .effect-change {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  align-items: flex-end;
+}
+
+.street-fighter.effect-sheet .change-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 100px;
+}
+
+.street-fighter.effect-sheet .change-field label {
+  font-size: 10px;
+  color: var(--sf-text-muted);
+  text-transform: uppercase;
+}
+
+.street-fighter.effect-sheet .change-field select,
+.street-fighter.effect-sheet .change-field input {
+  width: 100%;
+  padding: 4px;
+  border: 1px solid var(--sf-border);
+  border-radius: 3px;
+  background: var(--sf-surface);
+  color: var(--sf-text);
+}
+
+.street-fighter.effect-sheet .change-priority {
+  max-width: 60px;
+}
+
+.street-fighter.effect-sheet .delete-change {
+  background: none;
+  border: none;
+  color: var(--sf-text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  align-self: flex-end;
+}
+
+.street-fighter.effect-sheet .delete-change:hover {
+  color: var(--sf-danger);
+}
+
+.street-fighter.effect-sheet .add-change button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--sf-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.street-fighter.effect-sheet .add-change button:hover {
+  background: var(--sf-primary-light);
+}
+
+.street-fighter.effect-sheet .hint {
+  font-size: 11px;
+  color: var(--sf-text-muted);
+  font-style: italic;
+  margin-bottom: 8px;
 }

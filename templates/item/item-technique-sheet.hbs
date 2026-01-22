@@ -8,72 +8,68 @@
     </div>
   </header>
 
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item active" data-tab="details">{{localize "STREET_FIGHTER.Tabs.details"}}</a>
+    <a class="item" data-tab="effects">{{localize "STREET_FIGHTER.Tabs.effects"}}</a>
+  </nav>
+
   <section class="sheet-body">
-    <div class="form-group">
-      <label>{{localize "STREET_FIGHTER.Common.sourceId"}}</label>
-      <input type="text" name="system.sourceId" value="{{systemData.sourceId}}" placeholder="e.g., punch" readonly />
-    </div>
-
-    <div class="form-group">
-      <label>{{localize "STREET_FIGHTER.Common.description"}}</label>
-      {{#if isEditable}}<prose-mirror name="system.description" button="true" toggled="true" value="{{systemData.description}}">{{{enrichedDescription}}}</prose-mirror>{{else}}<div class="editor-content">{{{enrichedDescription}}}</div>{{/if}}
-    </div>
-
-    <div class="form-row checkbox-row">
-      <div class="form-group checkbox-group">
-        <input type="checkbox" name="system.isOptional" id="isOptional" {{checked systemData.isOptional}} />
-        <label for="isOptional">{{localize "STREET_FIGHTER.Trait.isOptional"}}</label>
+    {{!-- Details Tab --}}
+    <div class="tab active" data-group="primary" data-tab="details">
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.Common.sourceId"}}</label>
+        <input type="text" name="system.sourceId" value="{{systemData.sourceId}}" placeholder="e.g., punch" readonly />
       </div>
-    </div>
-    
-    <div class="form-group">
-      <label>{{localize "STREET_FIGHTER.Trait.techniqueType"}}</label>
-      <select name="system.techniqueType">
-        <option value="normal" {{#unless systemData.isWeaponTechnique}}{{#unless systemData.isFirearmTechnique}}selected{{/unless}}{{/unless}}>{{localize "STREET_FIGHTER.Technique.normalTechnique"}}</option>
-        <option value="weapon" {{#if systemData.isWeaponTechnique}}selected{{/if}}>{{localize "STREET_FIGHTER.Trait.isWeaponTechnique"}}</option>
-        <option value="firearm" {{#if systemData.isFirearmTechnique}}selected{{/if}}>{{localize "STREET_FIGHTER.Trait.isFirearmTechnique"}}</option>
-      </select>
-    </div>
 
-    <details class="advanced-section">
-      <summary>{{localize "STREET_FIGHTER.Tabs.details"}}</summary>
-      <div class="form-row">
-        <div class="form-group">
-          <label>{{localize "STREET_FIGHTER.Trait.bonusPointCost"}}</label>
-          <input type="number" name="system.bonusPointCost" value="{{systemData.bonusPointCost}}" min="0" />
-        </div>
-        <div class="form-group">
-          <label>{{localize "STREET_FIGHTER.Trait.experiencePointCost"}}</label>
-          <input type="number" name="system.experiencePointCost" value="{{systemData.experiencePointCost}}" min="0" />
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.Common.description"}}</label>
+        {{#if isEditable}}<prose-mirror name="system.description" button="true" toggled="true" value="{{systemData.description}}">{{{enrichedDescription}}}</prose-mirror>{{else}}<div class="editor-content">{{{enrichedDescription}}}</div>{{/if}}
+      </div>
+
+      <div class="form-row checkbox-row">
+        <div class="form-group checkbox-group">
+          <input type="checkbox" name="system.isOptional" id="isOptional" {{checked systemData.isOptional}} />
+          <label for="isOptional">{{localize "STREET_FIGHTER.Trait.isOptional"}}</label>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>{{localize "STREET_FIGHTER.Trait.startLevel"}}</label>
-          <input type="number" name="system.startLevel" value="{{systemData.startLevel}}" min="0" />
-        </div>
-        <div class="form-group">
-          <label>{{localize "STREET_FIGHTER.Trait.experiencePointCostOnStartLevel"}}</label>
-          <input type="number" name="system.experiencePointCostOnStartLevel" value="{{systemData.experiencePointCostOnStartLevel}}" min="0" />
-        </div>
+      
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.Trait.techniqueType"}}</label>
+        <select name="system.techniqueType">
+          <option value="normal" {{#unless systemData.isWeaponTechnique}}{{#unless systemData.isFirearmTechnique}}selected{{/unless}}{{/unless}}>{{localize "STREET_FIGHTER.Technique.normalTechnique"}}</option>
+          <option value="weapon" {{#if systemData.isWeaponTechnique}}selected{{/if}}>{{localize "STREET_FIGHTER.Trait.isWeaponTechnique"}}</option>
+          <option value="firearm" {{#if systemData.isFirearmTechnique}}selected{{/if}}>{{localize "STREET_FIGHTER.Trait.isFirearmTechnique"}}</option>
+        </select>
       </div>
-    </details>
 
-    <div class="effects-section">
-      <h3>{{localize "STREET_FIGHTER.Tabs.effects"}}</h3>
-      <ol class="items-list effects-list">
-        {{#each effects}}
-        <li class="item effect" data-effect-id="{{this.id}}">
-          <img class="item-image" src="{{this.icon}}" />
-          <span class="effect-name">{{this.name}}</span>
-          <div class="item-controls">
-            <a class="effect-control" data-action="effectEdit" title="Edit"><i class="fas fa-edit"></i></a>
-            <a class="effect-control" data-action="effectDelete" title="Delete"><i class="fas fa-trash"></i></a>
+      <details class="advanced-section">
+        <summary>{{localize "STREET_FIGHTER.Tabs.costs"}}</summary>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Trait.bonusPointCost"}}</label>
+            <input type="number" name="system.bonusPointCost" value="{{systemData.bonusPointCost}}" min="0" />
           </div>
-        </li>
-        {{/each}}
-      </ol>
-      <a class="effect-control" data-action="effectCreate"><i class="fas fa-plus"></i> {{localize "STREET_FIGHTER.Common.create"}}</a>
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Trait.experiencePointCost"}}</label>
+            <input type="number" name="system.experiencePointCost" value="{{systemData.experiencePointCost}}" min="0" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Trait.startLevel"}}</label>
+            <input type="number" name="system.startLevel" value="{{systemData.startLevel}}" min="0" />
+          </div>
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Trait.experiencePointCostOnStartLevel"}}</label>
+            <input type="number" name="system.experiencePointCostOnStartLevel" value="{{systemData.experiencePointCostOnStartLevel}}" min="0" />
+          </div>
+        </div>
+      </details>
+    </div>
+
+    {{!-- Effects Tab --}}
+    <div class="tab" data-group="primary" data-tab="effects">
+      {{> "systems/street-fighter/templates/item/partials/item-effects-tab.hbs"}}
     </div>
   </section>
 </form>

@@ -130,21 +130,38 @@ export function registerHandlebarsHelpers() {
 
   /**
    * Render circle pips for displaying trait/resource values
-   * @param {number} value - Current filled value
+   * @param {number} value - Current filled value (effective value with modifiers)
    * @param {number} max - Maximum number of pips
    * @param {object} options - Handlebars options (can include hash params)
+   *   - baseValue: Original value before modifiers (optional)
+   *   - dataAttrs: Additional data attributes
+   *   - class: Additional CSS classes
    * @returns {Handlebars.SafeString} HTML for circle pips
    */
   Handlebars.registerHelper("circlePips", function (value, max, options) {
     const hash = options.hash || {};
     const dataAttrs = hash.dataAttrs || "";
     const cssClass = hash.class || "";
+    const baseValue = hash.baseValue !== undefined ? hash.baseValue : value;
     
-    let html = `<div class="circle-pips ${cssClass}" data-value="${value}" data-max="${max}" ${dataAttrs}>`;
+    let html = `<div class="circle-pips ${cssClass}" data-value="${value}" data-max="${max}" data-base="${baseValue}" ${dataAttrs}>`;
     
     for (let i = 0; i < max; i++) {
-      const filled = i < value ? "filled" : "empty";
-      html += `<span class="pip ${filled}" data-index="${i}"></span>`;
+      let pipClass = "pip";
+      
+      if (i < value) {
+        if (i < baseValue) {
+          pipClass += " filled";
+        } else {
+          pipClass += " filled bonus";
+        }
+      } else if (i < baseValue) {
+        pipClass += " filled penalty";
+      } else {
+        pipClass += " empty";
+      }
+      
+      html += `<span class="${pipClass}" data-index="${i}"></span>`;
     }
     
     html += "</div>";

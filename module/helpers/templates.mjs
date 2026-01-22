@@ -24,6 +24,9 @@ export async function preloadHandlebarsTemplates() {
     "systems/street-fighter/templates/chat/trait-chat-card.hbs",
     "systems/street-fighter/templates/chat/maneuver-chat-card.hbs",
     "systems/street-fighter/templates/dialog/roll-dialog.hbs",
+    "systems/street-fighter/templates/effects/effect-config.hbs",
+    "systems/street-fighter/templates/effects/effect-changes-tab.hbs",
+    "systems/street-fighter/templates/item/partials/item-effects-tab.hbs",
   ];
 
   return foundry.applications.handlebars.loadTemplates(templatePaths);

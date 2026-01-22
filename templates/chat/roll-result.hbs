@@ -39,12 +39,17 @@
     </div>
 
     {{!-- Fixed Modifiers List --}}
-    {{#if fixedModifiers.length}}
-    <ul class="fixed-modifiers-list">
-      {{#each fixedModifiers}}
-      <li>{{this.name}}: <strong>{{this.displayValue}}</strong></li>
-      {{/each}}
-    </ul>
+    {{#if hasModifiers}}
+    <div class="modifiers-section">
+      <ul class="modifiers-list">
+        {{#each fixedModifiers}}
+        <li>{{this.name}}: <strong>{{this.displayValue}}</strong></li>
+        {{/each}}
+        {{#each effectModifiers}}
+        <li>{{this.name}}: <strong>{{this.displayValue}}</strong></li>
+        {{/each}}
+      </ul>
+    </div>
     {{/if}}
 
     <div class="roll-summary">

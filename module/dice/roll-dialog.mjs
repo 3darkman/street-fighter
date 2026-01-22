@@ -4,6 +4,7 @@
  */
 
 import { DIFFICULTY, clampDifficulty } from "../config/constants.mjs";
+import { getEffectiveTraitValue } from "../helpers/effect-helpers.mjs";
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -40,7 +41,7 @@ export class StreetFighterRollDialog extends DialogV2 {
         content: content,
         render: (event, dialog) => {
           dialogElement = dialog.element;
-          this._setupDialogListeners(dialog.element);
+          this._setupDialogListeners(dialog.element, actor);
         },
         ok: {
           action: "roll",
@@ -81,10 +82,17 @@ export class StreetFighterRollDialog extends DialogV2 {
     const backgrounds = [];
 
     for (const item of actor.items) {
+      const sourceId = item.system.sourceId;
+      const baseValue = item.system.value || 0;
+      const effective = getEffectiveTraitValue(actor, sourceId, baseValue);
+      
       const itemData = {
         id: item.id,
         name: item.name,
         system: item.system,
+        effectiveValue: effective.value,
+        baseValue: baseValue,
+        hasModifiers: effective.hasModifiers,
         selected: item.id === options.selectedTraitId,
         secondSelected: item.id === options.preSelectedSecondTrait,
       };
@@ -133,8 +141,8 @@ export class StreetFighterRollDialog extends DialogV2 {
     techniques.sort(sortByName);
     backgrounds.sort(sortByName);
 
-    // Get applicable effects (future implementation)
-    const effects = [];
+    // Collect active effect modifiers for rolls
+    const effectModifiers = this._collectEffectModifiers(actor, attributes, abilities, techniques, backgrounds, options);
 
     // Prepare fixed modifiers (from maneuvers, weapons, etc.)
     const fixedModifiers = [];
@@ -171,12 +179,61 @@ export class StreetFighterRollDialog extends DialogV2 {
       abilities,
       techniques,
       backgrounds,
-      effects,
+      effectModifiers,
       fixedModifiers,
       difficulty: DIFFICULTY.default,
       selectedTraitType: options.selectedTraitType,
       preSelectedSecondTrait: options.preSelectedSecondTrait,
     };
+  }
+
+  /**
+   * Collect effect modifiers applicable to the roll
+   * @param {Actor} actor
+   * @param {Array} attributes
+   * @param {Array} abilities
+   * @param {Array} techniques
+   * @param {Array} backgrounds
+   * @param {object} options
+   * @returns {Array}
+   * @private
+   */
+  static _collectEffectModifiers(actor, attributes, abilities, techniques, backgrounds, options) {
+    const modifiers = [];
+
+    // Collect trait sourceIds that might be selected
+    const traitSourceIds = [];
+    
+    // Add pre-selected traits
+    if (options.selectedTraitId) {
+      const selectedItem = actor.items.get(options.selectedTraitId);
+      if (selectedItem?.system.sourceId) {
+        traitSourceIds.push(selectedItem.system.sourceId);
+      }
+    }
+    if (options.preSelectedSecondTrait) {
+      const secondItem = actor.items.get(options.preSelectedSecondTrait);
+      if (secondItem?.system.sourceId) {
+        traitSourceIds.push(secondItem.system.sourceId);
+      }
+    }
+
+    // Get roll modifiers from actor
+    const rollMods = actor.getRollModifiers(traitSourceIds);
+
+    for (const mod of rollMods) {
+      modifiers.push({
+        name: mod.name,
+        value: mod.value,
+        displayValue: mod.value >= 0 ? `+${mod.value}` : `${mod.value}`,
+        effectId: mod.effectId,
+        isGlobal: mod.isGlobal,
+        traitSourceId: mod.traitSourceId || null,
+        checked: true,
+      });
+    }
+
+    return modifiers;
   }
 
   /**
@@ -205,12 +262,33 @@ export class StreetFighterRollDialog extends DialogV2 {
       });
     }
 
+    // Calculate effect modifiers from checked checkboxes
+    let effectModifierTotal = 0;
+    if (dialogElement) {
+      const effectModCheckboxes = dialogElement.querySelectorAll('.effect-modifier-item input[type="checkbox"]:checked');
+      effectModCheckboxes.forEach(cb => {
+        const value = parseInt(cb.dataset.value) || 0;
+        effectModifierTotal += value;
+      });
+    }
+
     const attribute = actor.items.get(attributeId);
     const secondTrait = actor.items.get(secondTraitId);
 
-    const attributeValue = attribute?.system.value || 0;
-    const secondTraitValue = secondTrait?.system.value || 0;
-    const totalModifier = modifier + fixedModifierTotal;
+    // Get effective values (with trait modifiers applied)
+    let attributeValue = 0;
+    if (attribute) {
+      const attrEffective = getEffectiveTraitValue(actor, attribute.system.sourceId, attribute.system.value || 0);
+      attributeValue = attrEffective.value;
+    }
+    
+    let secondTraitValue = 0;
+    if (secondTrait) {
+      const traitEffective = getEffectiveTraitValue(actor, secondTrait.system.sourceId, secondTrait.system.value || 0);
+      secondTraitValue = traitEffective.value;
+    }
+    
+    const totalModifier = modifier + fixedModifierTotal + effectModifierTotal;
     const dicePool = attributeValue + secondTraitValue + totalModifier;
 
     // Collect active fixed modifiers for chat display
@@ -229,6 +307,21 @@ export class StreetFighterRollDialog extends DialogV2 {
       });
     }
 
+    // Collect active effect modifiers for chat display
+    const activeEffectModifiers = [];
+    if (dialogElement) {
+      const effectModCheckboxes = dialogElement.querySelectorAll('.effect-modifier-item input[type="checkbox"]:checked');
+      effectModCheckboxes.forEach(cb => {
+        const label = cb.nextElementSibling?.textContent?.trim() || "";
+        const match = label.match(/^(.+?)\s*\([^)]+\)$/);
+        const name = match ? match[1].trim() : label;
+        const value = parseInt(cb.dataset.value) || 0;
+        if (value !== 0) {
+          activeEffectModifiers.push({ name, value, displayValue: value >= 0 ? `+${value}` : `${value}` });
+        }
+      });
+    }
+
     return {
       actor,
       attribute: attribute ? { id: attribute.id, name: attribute.name, value: attributeValue } : null,
@@ -236,6 +329,7 @@ export class StreetFighterRollDialog extends DialogV2 {
       difficulty,
       modifier,
       fixedModifiers: activeFixedModifiers,
+      effectModifiers: activeEffectModifiers,
       dicePool: Math.max(0, dicePool),
       rollTitle,
     };
@@ -244,9 +338,10 @@ export class StreetFighterRollDialog extends DialogV2 {
   /**
    * Setup event listeners for the dialog
    * @param {HTMLElement} html
+   * @param {Actor} actor
    * @private
    */
-  static _setupDialogListeners(html) {
+  static _setupDialogListeners(html, actor) {
     if (!html) return;
     
     const attributeSelect = html.querySelector('select[name="attribute"]');
@@ -255,13 +350,69 @@ export class StreetFighterRollDialog extends DialogV2 {
     const difficultyInput = html.querySelector('input[name="difficulty"]');
     const poolDisplay = html.querySelector("#dicePoolTotal");
     const fixedModCheckboxes = html.querySelectorAll('.fixed-modifier-item input[type="checkbox"]');
+    const effectModifiersContainer = html.querySelector('.roll-effect-modifiers');
     
     if (!difficultyInput) return;
 
+    // Function to get selected trait sourceIds
+    const getSelectedTraitSourceIds = () => {
+      const sourceIds = [];
+      
+      const attrId = attributeSelect?.value;
+      if (attrId) {
+        const attr = actor.items.get(attrId);
+        if (attr?.system.sourceId) sourceIds.push(attr.system.sourceId);
+      }
+      
+      const traitId = secondTraitSelect?.value;
+      if (traitId) {
+        const trait = actor.items.get(traitId);
+        if (trait?.system.sourceId) sourceIds.push(trait.system.sourceId);
+      }
+      
+      return sourceIds;
+    };
+
+    // Function to update effect modifiers based on selected traits
+    const updateEffectModifiers = () => {
+      if (!effectModifiersContainer) return;
+      
+      const traitSourceIds = getSelectedTraitSourceIds();
+      const rollMods = actor.getRollModifiers(traitSourceIds);
+      
+      // Build new effect modifiers list
+      let html = `<label>${game.i18n.localize("STREET_FIGHTER.Roll.activeEffects")}</label>
+        <ul class="effect-modifier-list">`;
+      
+      for (let i = 0; i < rollMods.length; i++) {
+        const mod = rollMods[i];
+        const displayValue = mod.value >= 0 ? `+${mod.value}` : `${mod.value}`;
+        html += `<li class="effect-modifier-item">
+          <input type="checkbox" name="effectMod-${i}" id="effectMod-${i}" data-value="${mod.value}" checked />
+          <label for="effectMod-${i}">${mod.name} (${displayValue})</label>
+        </li>`;
+      }
+      
+      html += `</ul>`;
+      
+      if (rollMods.length > 0) {
+        effectModifiersContainer.innerHTML = html;
+        effectModifiersContainer.style.display = "";
+        
+        // Re-attach listeners to new checkboxes
+        const newCheckboxes = effectModifiersContainer.querySelectorAll('input[type="checkbox"]');
+        newCheckboxes.forEach(cb => {
+          cb.addEventListener("change", updatePool);
+        });
+      } else {
+        effectModifiersContainer.style.display = "none";
+      }
+    };
+
     const updatePool = () => {
-      const attrOption = attributeSelect.selectedOptions[0];
-      const traitOption = secondTraitSelect.selectedOptions[0];
-      const modifier = parseInt(modifierInput.value) || 0;
+      const attrOption = attributeSelect?.selectedOptions[0];
+      const traitOption = secondTraitSelect?.selectedOptions[0];
+      const modifier = parseInt(modifierInput?.value) || 0;
 
       // Calculate fixed modifiers from checked checkboxes
       let fixedModTotal = 0;
@@ -271,11 +422,25 @@ export class StreetFighterRollDialog extends DialogV2 {
         }
       });
 
+      // Calculate effect modifiers from checked checkboxes (re-query as they may have changed)
+      let effectModTotal = 0;
+      const currentEffectCheckboxes = html.querySelectorAll('.effect-modifier-item input[type="checkbox"]');
+      currentEffectCheckboxes.forEach(cb => {
+        if (cb.checked) {
+          effectModTotal += parseInt(cb.dataset.value) || 0;
+        }
+      });
+
       const attrValue = parseInt(attrOption?.dataset.value) || 0;
       const traitValue = parseInt(traitOption?.dataset.value) || 0;
 
-      const total = Math.max(0, attrValue + traitValue + modifier + fixedModTotal);
+      const total = Math.max(0, attrValue + traitValue + modifier + fixedModTotal + effectModTotal);
       poolDisplay.textContent = total;
+    };
+
+    const onTraitChange = () => {
+      updateEffectModifiers();
+      updatePool();
     };
 
     const clampDifficultyInput = () => {
@@ -285,12 +450,18 @@ export class StreetFighterRollDialog extends DialogV2 {
       if (value > DIFFICULTY.max) difficultyInput.value = DIFFICULTY.max;
     };
 
-    attributeSelect?.addEventListener("change", updatePool);
-    secondTraitSelect?.addEventListener("change", updatePool);
+    attributeSelect?.addEventListener("change", onTraitChange);
+    secondTraitSelect?.addEventListener("change", onTraitChange);
     modifierInput?.addEventListener("input", updatePool);
     
     // Fixed modifier checkboxes
     fixedModCheckboxes.forEach(cb => {
+      cb.addEventListener("change", updatePool);
+    });
+
+    // Initial effect modifier checkboxes
+    const effectModCheckboxes = html.querySelectorAll('.effect-modifier-item input[type="checkbox"]');
+    effectModCheckboxes.forEach(cb => {
       cb.addEventListener("change", updatePool);
     });
     
@@ -315,7 +486,7 @@ export async function executeRoll(rollData) {
     return;
   }
 
-  const { actor, attribute, secondTrait, difficulty, modifier, fixedModifiers, dicePool, rollTitle } = rollData;
+  const { actor, attribute, secondTrait, difficulty, modifier, fixedModifiers, effectModifiers, dicePool, rollTitle } = rollData;
 
   // Get system settings
   const onesRemoveSuccesses = game.settings.get("street-fighter", "onesRemoveSuccesses");
@@ -383,6 +554,8 @@ export async function executeRoll(rollData) {
     difficulty,
     modifier,
     fixedModifiers: fixedModifiers || [],
+    effectModifiers: effectModifiers || [],
+    hasModifiers: fixedModifiers.length > 0 || effectModifiers.length > 0,
     dicePool,
     diceResults,
     successes,

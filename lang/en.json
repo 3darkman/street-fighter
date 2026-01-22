@@ -208,7 +208,8 @@
     
     "SheetLabels": {
       "Actor": "Street Fighter Actor Sheet",
-      "Item": "Street Fighter Item Sheet"
+      "Item": "Street Fighter Item Sheet",
+      "Effect": "Street Fighter Effect Sheet"
     },
     
     "Library": {
@@ -278,7 +279,39 @@
       "noInactive": "No inactive effects",
       "add": "Add Effect",
       "new": "New Effect",
-      "toggle": "Toggle Effect"
+      "toggle": "Toggle Effect",
+      "manual": "Manual Effect (GM Added)"
+    },
+
+    "ActiveEffects": {
+      "name": "Effect Name",
+      "disabled": "Disabled",
+      "disabledHint": "Disabled effects are inactive and do not apply their changes.",
+      "description": "Description",
+      "changesHint": "Define what this effect modifies when active.",
+      "addChange": "Add Change",
+      "targetType": "Type",
+      "target": "Target",
+      "allRolls": "All Rolls",
+      "Tabs": {
+        "details": "Details",
+        "duration": "Duration",
+        "changes": "Changes"
+      },
+      "Duration": {
+        "startTime": "Start Time",
+        "seconds": "Seconds",
+        "rounds": "Rounds",
+        "turns": "Turns",
+        "combat": "Combat"
+      },
+      "TargetTypes": {
+        "trait": "Modify Trait",
+        "resourceMax": "Modify Resource Max",
+        "rollAll": "Modify All Rolls",
+        "rollTrait": "Modify Rolls with Trait"
+      },
+      "modified": "Modified by effects (base value)"
     },
     
     "Roll": {

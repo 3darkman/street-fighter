@@ -6,8 +6,8 @@
       <select name="attribute" class="trait-dropdown">
         <option value="">{{localize "STREET_FIGHTER.Roll.selectAttribute"}}</option>
         {{#each attributes}}
-        <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.selected}}selected{{/if}}>
-          {{this.name}} ({{this.system.value}})
+        <option value="{{this.id}}" data-value="{{this.effectiveValue}}" {{#if this.selected}}selected{{/if}}>
+          {{this.name}} ({{this.effectiveValue}})
         </option>
         {{/each}}
       </select>
@@ -22,22 +22,22 @@
         <option value="">{{localize "STREET_FIGHTER.Roll.selectTrait"}}</option>
         <optgroup label="{{localize 'STREET_FIGHTER.Item.Types.ability'}}">
           {{#each abilities}}
-          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.secondSelected}}selected{{else if this.selected}}selected{{/if}}>
-            {{this.name}} ({{this.system.value}})
+          <option value="{{this.id}}" data-value="{{this.effectiveValue}}" {{#if this.secondSelected}}selected{{else if this.selected}}selected{{/if}}>
+            {{this.name}} ({{this.effectiveValue}})
           </option>
           {{/each}}
         </optgroup>
         <optgroup label="{{localize 'STREET_FIGHTER.Item.Types.technique'}}">
           {{#each techniques}}
-          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.secondSelected}}selected{{else if this.selected}}selected{{/if}}>
-            {{this.name}} ({{this.system.value}})
+          <option value="{{this.id}}" data-value="{{this.effectiveValue}}" {{#if this.secondSelected}}selected{{else if this.selected}}selected{{/if}}>
+            {{this.name}} ({{this.effectiveValue}})
           </option>
           {{/each}}
         </optgroup>
         <optgroup label="{{localize 'STREET_FIGHTER.Item.Types.background'}}">
           {{#each backgrounds}}
-          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.secondSelected}}selected{{else if this.selected}}selected{{/if}}>
-            {{this.name}} ({{this.system.value}})
+          <option value="{{this.id}}" data-value="{{this.effectiveValue}}" {{#if this.secondSelected}}selected{{else if this.selected}}selected{{/if}}>
+            {{this.name}} ({{this.effectiveValue}})
           </option>
           {{/each}}
         </optgroup>
@@ -81,21 +81,18 @@
   </div>
   {{/if}}
 
-  {{!-- Active Effects (future implementation) --}}
-  {{#if effects.length}}
-  <div class="roll-effects">
-    <h4>{{localize "STREET_FIGHTER.Roll.activeEffects"}}</h4>
-    <ul class="effect-modifiers">
-      {{#each effects}}
-      <li class="effect-modifier">
-        <input type="checkbox" name="effect-{{this.id}}" id="effect-{{this.id}}" checked />
-        <label for="effect-{{this.id}}">
-          <img src="{{this.icon}}" alt="{{this.name}}" />
-          {{this.name}} ({{this.modifier}})
+  {{!-- Active Effect Modifiers --}}
+  <div class="roll-effect-modifiers" {{#unless effectModifiers.length}}style="display:none"{{/unless}}>
+    <label>{{localize "STREET_FIGHTER.Roll.activeEffects"}}</label>
+    <ul class="effect-modifier-list">
+      {{#each effectModifiers}}
+      <li class="effect-modifier-item">
+        <input type="checkbox" name="effectMod-{{@index}}" id="effectMod-{{@index}}" data-value="{{this.value}}" {{#if this.checked}}checked{{/if}} />
+        <label for="effectMod-{{@index}}">
+          {{this.name}} ({{this.displayValue}})
         </label>
       </li>
       {{/each}}
     </ul>
   </div>
-  {{/if}}
 </form>

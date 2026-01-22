@@ -36,6 +36,19 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
   };
 
   /** @inheritDoc */
+  static TABS = {
+    primary: {
+      details: { id: "details", group: "primary", label: "STREET_FIGHTER.Tabs.details" },
+      effects: { id: "effects", group: "primary", label: "STREET_FIGHTER.Tabs.effects" },
+    },
+  };
+
+  /** @inheritDoc */
+  tabGroups = {
+    primary: "details",
+  };
+
+  /** @inheritDoc */
   _configureRenderParts(options) {
     const parts = super._configureRenderParts(options);
     parts.form = {
@@ -68,7 +81,31 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
 
     this._prepareTypeSpecificData(context);
 
+    // Prepare tabs
+    context.tabs = this._prepareTabs(options);
+
     return context;
+  }
+
+  /**
+   * Prepare tab data for rendering
+   * @param {object} options
+   * @returns {object}
+   * @protected
+   */
+  _prepareTabs(options) {
+    const tabs = {};
+    for (const [groupId, group] of Object.entries(this.constructor.TABS)) {
+      tabs[groupId] = {};
+      for (const [tabId, tab] of Object.entries(group)) {
+        tabs[groupId][tabId] = {
+          ...tab,
+          active: this.tabGroups[groupId] === tabId,
+          cssClass: this.tabGroups[groupId] === tabId ? "active" : "",
+        };
+      }
+    }
+    return tabs;
   }
 
   /** @inheritDoc */
@@ -77,13 +114,96 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
     return controls;
   }
 
+  /** @inheritDoc */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    this._setupTabListeners();
+
+    // Restore active tab after re-render
+    if (this.tabGroups.primary && this.tabGroups.primary !== "details") {
+      this._activateTab(this.tabGroups.primary);
+    }
+  }
+
+  /**
+   * Activate a specific tab
+   * @param {string} tabName - The tab to activate
+   * @private
+   */
+  _activateTab(tabName) {
+    const html = this.element;
+    if (!html) return;
+
+    // Update tab navigation
+    const tabNav = html.querySelectorAll('.sheet-tabs[data-group="primary"] .item');
+    tabNav.forEach((t) => {
+      t.classList.toggle("active", t.dataset.tab === tabName);
+    });
+
+    // Update tab content
+    const tabContents = html.querySelectorAll('.tab[data-group="primary"]');
+    tabContents.forEach((content) => {
+      content.classList.toggle("active", content.dataset.tab === tabName);
+    });
+  }
+
+  /**
+   * Setup tab click listeners
+   * @private
+   */
+  _setupTabListeners() {
+    const html = this.element;
+    if (!html) return;
+
+    const tabs = html.querySelectorAll(".sheet-tabs .item[data-tab]");
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", (event) => {
+        event.preventDefault();
+        const tabId = tab.dataset.tab;
+        const group = tab.closest("[data-group]")?.dataset.group || "primary";
+        this._onChangeTab(group, tabId);
+      });
+    });
+  }
+
+  /**
+   * Handle tab change
+   * @param {string} group - Tab group name
+   * @param {string} tabId - Tab ID to activate
+   * @private
+   */
+  _onChangeTab(group, tabId) {
+    this.tabGroups[group] = tabId;
+
+    const html = this.element;
+    if (!html) return;
+
+    // Update tab navigation
+    const tabNav = html.querySelectorAll(`.sheet-tabs[data-group="${group}"] .item`);
+    tabNav.forEach((t) => {
+      t.classList.toggle("active", t.dataset.tab === tabId);
+    });
+
+    // Update tab content
+    const tabContents = html.querySelectorAll(`.tab[data-group="${group}"]`);
+    tabContents.forEach((content) => {
+      content.classList.toggle("active", content.dataset.tab === tabId);
+    });
+  }
+
   /**
    * Prepare type-specific data for the item sheet
    * @param {object} context
    * @private
    */
   _prepareTypeSpecificData(context) {
-    context.effects = this.item.effects;
+    // Convert effects Collection to array for Handlebars iteration
+    context.effects = Array.from(this.item.effects).map(effect => ({
+      id: effect.id,
+      name: effect.name,
+      img: effect.img,
+      disabled: effect.disabled,
+    }));
 
     switch (this.item.type) {
       case "specialManeuver":
@@ -194,8 +314,9 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
     event.preventDefault();
     const effectData = {
       name: game.i18n.localize("STREET_FIGHTER.Effect.New"),
-      icon: "icons/svg/aura.svg",
+      img: "icons/svg/aura.svg",
       origin: this.item.uuid,
+      transfer: true,
     };
     await this.item.createEmbeddedDocuments("ActiveEffect", [effectData]);
   }

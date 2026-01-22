@@ -4,6 +4,13 @@
  * @extends {Actor}
  */
 
+import {
+  collectTraitModifiers,
+  collectResourceMaxModifiers,
+  applyModifiers,
+  getRollModifiersForTraits,
+} from "../helpers/effect-helpers.mjs";
+
 export class StreetFighterActor extends Actor {
   /** @override */
   prepareData() {
@@ -30,7 +37,7 @@ export class StreetFighterActor extends Actor {
   }
 
   /**
-   * Get trait value from embedded items by sourceId
+   * Get trait value from embedded items by sourceId (base value without effects)
    * @param {string} sourceId - The sourceId of the trait
    * @returns {number} The trait value or 0 if not found
    * @private
@@ -38,6 +45,37 @@ export class StreetFighterActor extends Actor {
   _getTraitValue(sourceId) {
     const item = this.items.find(i => i.system.sourceId === sourceId);
     return item?.system.value ?? 0;
+  }
+
+  /**
+   * Get effective trait value including active effect modifiers
+   * @param {string} sourceId - The sourceId of the trait
+   * @returns {number} The effective trait value
+   */
+  getEffectiveTraitValue(sourceId) {
+    const baseValue = this._getTraitValue(sourceId);
+    const modifiers = collectTraitModifiers(this, sourceId);
+    return applyModifiers(baseValue, modifiers);
+  }
+
+  /**
+   * Get effective resource max value including active effect modifiers
+   * @param {string} resourceType - The resource type (health, chi, willpower)
+   * @returns {number} The effective max value
+   */
+  getEffectiveResourceMax(resourceType) {
+    const baseMax = this.system.resources?.[resourceType]?.max ?? 0;
+    const modifiers = collectResourceMaxModifiers(this, resourceType);
+    return Math.max(0, applyModifiers(baseMax, modifiers));
+  }
+
+  /**
+   * Get roll modifiers from active effects for a specific roll
+   * @param {Array<string>} traitSourceIds - Array of trait sourceIds involved in the roll
+   * @returns {Array<{name: string, value: number, effectId: string}>}
+   */
+  getRollModifiers(traitSourceIds = []) {
+    return getRollModifiersForTraits(this, traitSourceIds);
   }
 
   /**

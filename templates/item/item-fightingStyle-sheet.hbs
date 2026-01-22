@@ -8,39 +8,44 @@
     </div>
   </header>
 
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item active" data-tab="details">{{localize "STREET_FIGHTER.Tabs.details"}}</a>
+    <a class="item" data-tab="effects">{{localize "STREET_FIGHTER.Tabs.effects"}}</a>
+  </nav>
+
   <section class="sheet-body">
-    <div class="form-group">
-      <label>{{localize "STREET_FIGHTER.Common.sourceId"}}</label>
-      <input type="text" name="system.sourceId" value="{{systemData.sourceId}}" placeholder="e.g., aikido" readonly />
-    </div>
-
-    <div class="form-group">
-      <label>{{localize "STREET_FIGHTER.Common.description"}}</label>
-      {{#if isEditable}}<prose-mirror name="system.description" button="true" toggled="true" value="{{systemData.description}}">{{{enrichedDescription}}}</prose-mirror>{{else}}<div class="editor-content">{{{enrichedDescription}}}</div>{{/if}}
-    </div>
-
-    <div class="form-row">
+    {{!-- Details Tab --}}
+    <div class="tab active" data-group="primary" data-tab="details">
       <div class="form-group">
-        <label>{{localize "STREET_FIGHTER.FightingStyle.initialChi"}}</label>
-        <input type="number" name="system.initialChi" value="{{systemData.initialChi}}" min="0" max="10" />
+        <label>{{localize "STREET_FIGHTER.Common.sourceId"}}</label>
+        <input type="text" name="system.sourceId" value="{{systemData.sourceId}}" placeholder="e.g., aikido" readonly />
       </div>
+
       <div class="form-group">
-        <label>{{localize "STREET_FIGHTER.FightingStyle.initialWillpower"}}</label>
-        <input type="number" name="system.initialWillpower" value="{{systemData.initialWillpower}}" min="0" max="10" />
+        <label>{{localize "STREET_FIGHTER.Common.description"}}</label>
+        {{#if isEditable}}<prose-mirror name="system.description" button="true" toggled="true" value="{{systemData.description}}">{{{enrichedDescription}}}</prose-mirror>{{else}}<div class="editor-content">{{{enrichedDescription}}}</div>{{/if}}
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{localize "STREET_FIGHTER.FightingStyle.initialChi"}}</label>
+          <input type="number" name="system.initialChi" value="{{systemData.initialChi}}" min="0" max="10" />
+        </div>
+        <div class="form-group">
+          <label>{{localize "STREET_FIGHTER.FightingStyle.initialWillpower"}}</label>
+          <input type="number" name="system.initialWillpower" value="{{systemData.initialWillpower}}" min="0" max="10" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{localize "STREET_FIGHTER.FightingStyle.motto"}}</label>
+        <textarea name="system.motto" rows="2">{{systemData.motto}}</textarea>
       </div>
     </div>
 
-    <div class="form-group">
-      <label>{{localize "STREET_FIGHTER.FightingStyle.motto"}}</label>
-      <textarea name="system.motto" rows="2">{{systemData.motto}}</textarea>
+    {{!-- Effects Tab --}}
+    <div class="tab" data-group="primary" data-tab="effects">
+      {{> "systems/street-fighter/templates/item/partials/item-effects-tab.hbs"}}
     </div>
-
-    <details class="advanced-section">
-      <summary>{{localize "STREET_FIGHTER.Tabs.effects"}}</summary>
-      <div class="form-group">
-        <label>{{localize "STREET_FIGHTER.Common.effects"}} (JSON)</label>
-        <textarea name="system.effectsJson" rows="6">{{json systemData.effects}}</textarea>
-      </div>
-    </details>
   </section>
 </form>

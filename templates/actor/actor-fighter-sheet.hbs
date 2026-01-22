@@ -52,9 +52,9 @@
             <h4>{{localize "STREET_FIGHTER.Categories.physical"}}</h4>
             <ul class="trait-list">
               {{#each items.attributesByCategory.physical as |attr|}}
-              <li class="trait-item" data-item-id="{{attr.id}}">
+              <li class="trait-item {{#if attr.hasModifiers}}has-modifiers{{/if}}" data-item-id="{{attr.id}}">
                 <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{attr.name}}</a>
-                {{{circlePips attr.system.value 8}}}
+                {{{circlePips attr.effectiveValue 8 baseValue=attr.baseValue}}}
               </li>
               {{/each}}
             </ul>
@@ -64,9 +64,9 @@
             <h4>{{localize "STREET_FIGHTER.Categories.social"}}</h4>
             <ul class="trait-list">
               {{#each items.attributesByCategory.social as |attr|}}
-              <li class="trait-item" data-item-id="{{attr.id}}">
+              <li class="trait-item {{#if attr.hasModifiers}}has-modifiers{{/if}}" data-item-id="{{attr.id}}">
                 <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{attr.name}}</a>
-                {{{circlePips attr.system.value 8}}}
+                {{{circlePips attr.effectiveValue 8 baseValue=attr.baseValue}}}
               </li>
               {{/each}}
             </ul>
@@ -76,9 +76,9 @@
             <h4>{{localize "STREET_FIGHTER.Categories.mental"}}</h4>
             <ul class="trait-list">
               {{#each items.attributesByCategory.mental as |attr|}}
-              <li class="trait-item" data-item-id="{{attr.id}}">
+              <li class="trait-item {{#if attr.hasModifiers}}has-modifiers{{/if}}" data-item-id="{{attr.id}}">
                 <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{attr.name}}</a>
-                {{{circlePips attr.system.value 8}}}
+                {{{circlePips attr.effectiveValue 8 baseValue=attr.baseValue}}}
               </li>
               {{/each}}
             </ul>
@@ -95,9 +95,9 @@
             <h4>{{localize "STREET_FIGHTER.Categories.talents"}}</h4>
             <ul class="trait-list">
               {{#each items.abilitiesByCategory.talents as |ability|}}
-              <li class="trait-item" data-item-id="{{ability.id}}">
+              <li class="trait-item {{#if ability.hasModifiers}}has-modifiers{{/if}}" data-item-id="{{ability.id}}">
                 <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{ability.name}}</a>
-                {{{circlePips ability.system.value 8}}}
+                {{{circlePips ability.effectiveValue 8 baseValue=ability.baseValue}}}
               </li>
               {{/each}}
             </ul>
@@ -107,9 +107,9 @@
             <h4>{{localize "STREET_FIGHTER.Categories.skills"}}</h4>
             <ul class="trait-list">
               {{#each items.abilitiesByCategory.skills as |ability|}}
-              <li class="trait-item" data-item-id="{{ability.id}}">
+              <li class="trait-item {{#if ability.hasModifiers}}has-modifiers{{/if}}" data-item-id="{{ability.id}}">
                 <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{ability.name}}</a>
-                {{{circlePips ability.system.value 8}}}
+                {{{circlePips ability.effectiveValue 8 baseValue=ability.baseValue}}}
               </li>
               {{/each}}
             </ul>
@@ -119,9 +119,9 @@
             <h4>{{localize "STREET_FIGHTER.Categories.knowledge"}}</h4>
             <ul class="trait-list">
               {{#each items.abilitiesByCategory.knowledge as |ability|}}
-              <li class="trait-item" data-item-id="{{ability.id}}">
+              <li class="trait-item {{#if ability.hasModifiers}}has-modifiers{{/if}}" data-item-id="{{ability.id}}">
                 <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{ability.name}}</a>
-                {{{circlePips ability.system.value 8}}}
+                {{{circlePips ability.effectiveValue 8 baseValue=ability.baseValue}}}
               </li>
               {{/each}}
             </ul>
@@ -136,9 +136,9 @@
           <h3>{{localize "STREET_FIGHTER.Item.Types.technique"}}</h3>
           <ul class="trait-list">
             {{#each items.techniques as |tech|}}
-            <li class="trait-item" data-item-id="{{tech.id}}">
+            <li class="trait-item {{#if tech.hasModifiers}}has-modifiers{{/if}}" data-item-id="{{tech.id}}">
               <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{tech.name}}</a>
-              {{{circlePips tech.system.value 8}}}
+              {{{circlePips tech.effectiveValue 8 baseValue=tech.baseValue}}}
             </li>
             {{/each}}
           </ul>
@@ -149,9 +149,9 @@
           <h3>{{localize "STREET_FIGHTER.Item.Types.background"}}</h3>
           <ul class="trait-list">
             {{#each items.backgrounds as |bg|}}
-            <li class="trait-item" data-item-id="{{bg.id}}">
+            <li class="trait-item {{#if bg.hasModifiers}}has-modifiers{{/if}}" data-item-id="{{bg.id}}">
               <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{bg.name}}</a>
-              {{{circlePips bg.system.value 5}}}
+              {{{circlePips bg.effectiveValue 5 baseValue=bg.baseValue}}}
             </li>
             {{/each}}
           </ul>
@@ -251,22 +251,37 @@
         {{!-- Health --}}
         <div class="resource-row" data-resource="health">
           <label class="resource-label clickable">{{localize "STREET_FIGHTER.Resources.health"}}</label>
-          {{{circlePips systemData.resources.health.value systemData.resources.health.max class="resource-pips"}}}
-          <span class="resource-value">{{systemData.resources.health.value}} / {{systemData.resources.health.max}}</span>
+          {{{circlePips effectiveResources.health.value effectiveResources.health.effectiveMax class="resource-pips"}}}
+          <span class="resource-value">
+            {{effectiveResources.health.value}} / {{effectiveResources.health.effectiveMax}}
+            {{#unless (eq effectiveResources.health.max effectiveResources.health.effectiveMax)}}
+            <span class="resource-modifier" title="{{localize 'STREET_FIGHTER.ActiveEffects.modified'}}">({{effectiveResources.health.max}})</span>
+            {{/unless}}
+          </span>
         </div>
 
         {{!-- Chi --}}
         <div class="resource-row" data-resource="chi">
           <label class="resource-label clickable">{{localize "STREET_FIGHTER.Resources.chi"}}</label>
-          {{{circlePips systemData.resources.chi.value systemData.resources.chi.max class="resource-pips"}}}
-          <span class="resource-value">{{systemData.resources.chi.value}} / {{systemData.resources.chi.max}}</span>
+          {{{circlePips effectiveResources.chi.value effectiveResources.chi.effectiveMax class="resource-pips"}}}
+          <span class="resource-value">
+            {{effectiveResources.chi.value}} / {{effectiveResources.chi.effectiveMax}}
+            {{#unless (eq effectiveResources.chi.max effectiveResources.chi.effectiveMax)}}
+            <span class="resource-modifier" title="{{localize 'STREET_FIGHTER.ActiveEffects.modified'}}">({{effectiveResources.chi.max}})</span>
+            {{/unless}}
+          </span>
         </div>
 
         {{!-- Willpower --}}
         <div class="resource-row" data-resource="willpower">
           <label class="resource-label clickable">{{localize "STREET_FIGHTER.Resources.willpower"}}</label>
-          {{{circlePips systemData.resources.willpower.value systemData.resources.willpower.max class="resource-pips"}}}
-          <span class="resource-value">{{systemData.resources.willpower.value}} / {{systemData.resources.willpower.max}}</span>
+          {{{circlePips effectiveResources.willpower.value effectiveResources.willpower.effectiveMax class="resource-pips"}}}
+          <span class="resource-value">
+            {{effectiveResources.willpower.value}} / {{effectiveResources.willpower.effectiveMax}}
+            {{#unless (eq effectiveResources.willpower.max effectiveResources.willpower.effectiveMax)}}
+            <span class="resource-modifier" title="{{localize 'STREET_FIGHTER.ActiveEffects.modified'}}">({{effectiveResources.willpower.max}})</span>
+            {{/unless}}
+          </span>
         </div>
 
         {{!-- Honor --}}
@@ -339,17 +354,18 @@
         </h3>
         <ul class="effect-list">
           {{#each effects.passive as |effect|}}
-          <li class="effect-item" data-effect-id="{{effect.id}}">
+          <li class="effect-item {{#if effect.isManual}}effect-manual{{/if}}" data-effect-id="{{effect.id}}">
             <img class="effect-icon" src="{{effect.icon}}" alt="{{effect.name}}" />
             <span class="effect-name">{{effect.name}}</span>
+            {{#if effect.isManual}}<span class="effect-manual-badge" title="{{localize 'STREET_FIGHTER.Effects.manual'}}"><i class="fas fa-user-edit"></i></span>{{/if}}
             <div class="effect-controls">
               <a data-action="toggleEffect" title="{{localize 'STREET_FIGHTER.Effects.toggle'}}">
                 <i class="fas {{#if effect.disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i>
               </a>
-              {{#unless ../isImported}}
+              {{#if (or (not ../isImported) effect.isManual)}}
               <a data-action="editEffect" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
               <a data-action="deleteEffect" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
-              {{/unless}}
+              {{/if}}
             </div>
           </li>
           {{else}}
@@ -366,9 +382,10 @@
         </h3>
         <ul class="effect-list">
           {{#each effects.temporary as |effect|}}
-          <li class="effect-item" data-effect-id="{{effect.id}}">
+          <li class="effect-item {{#if effect.isManual}}effect-manual{{/if}}" data-effect-id="{{effect.id}}">
             <img class="effect-icon" src="{{effect.icon}}" alt="{{effect.name}}" />
             <span class="effect-name">{{effect.name}}</span>
+            {{#if effect.isManual}}<span class="effect-manual-badge" title="{{localize 'STREET_FIGHTER.Effects.manual'}}"><i class="fas fa-user-edit"></i></span>{{/if}}
             {{#if effect.duration.label}}
             <span class="effect-duration">{{effect.duration.label}}</span>
             {{/if}}
@@ -376,10 +393,10 @@
               <a data-action="toggleEffect" title="{{localize 'STREET_FIGHTER.Effects.toggle'}}">
                 <i class="fas {{#if effect.disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i>
               </a>
-              {{#unless ../isImported}}
+              {{#if (or (not ../isImported) effect.isManual)}}
               <a data-action="editEffect" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
               <a data-action="deleteEffect" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
-              {{/unless}}
+              {{/if}}
             </div>
           </li>
           {{else}}
@@ -396,17 +413,18 @@
         </h3>
         <ul class="effect-list">
           {{#each effects.inactive as |effect|}}
-          <li class="effect-item effect-disabled" data-effect-id="{{effect.id}}">
+          <li class="effect-item effect-disabled {{#if effect.isManual}}effect-manual{{/if}}" data-effect-id="{{effect.id}}">
             <img class="effect-icon" src="{{effect.icon}}" alt="{{effect.name}}" />
             <span class="effect-name">{{effect.name}}</span>
+            {{#if effect.isManual}}<span class="effect-manual-badge" title="{{localize 'STREET_FIGHTER.Effects.manual'}}"><i class="fas fa-user-edit"></i></span>{{/if}}
             <div class="effect-controls">
               <a data-action="toggleEffect" title="{{localize 'STREET_FIGHTER.Effects.toggle'}}">
                 <i class="fas fa-toggle-off"></i>
               </a>
-              {{#unless ../isImported}}
+              {{#if (or (not ../isImported) effect.isManual)}}
               <a data-action="editEffect" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
               <a data-action="deleteEffect" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
-              {{/unless}}
+              {{/if}}
             </div>
           </li>
           {{else}}
@@ -416,14 +434,12 @@
       </div>
 
       {{!-- Add Effect Button --}}
-      {{#unless isImported}}
       <div class="effect-add">
         <button type="button" data-action="createEffect">
           <i class="fas fa-plus"></i>
           {{localize "STREET_FIGHTER.Effects.add"}}
         </button>
       </div>
-      {{/unless}}
     </div>
 
     {{!-- Biography Tab --}}

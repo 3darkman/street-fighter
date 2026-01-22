@@ -1,0 +1,68 @@
+{{!-- Effect Changes Tab for Street Fighter - Must be single root element --}}
+<div class="changes-tab-content">
+  <p class="hint">{{localize "STREET_FIGHTER.ActiveEffects.changesHint"}}</p>
+
+  <ol class="changes-list">
+    {{#each parsedChanges}}
+    <li class="effect-change flexrow" data-index="{{@index}}" data-target-type="{{this.targetType}}" data-target-id="{{this.targetId}}">
+      {{!-- Target Type --}}
+      <div class="change-field">
+        <label>{{localize "STREET_FIGHTER.ActiveEffects.targetType"}}</label>
+        <select name="changes.{{@index}}.targetType" class="change-target-type" data-index="{{@index}}">
+          <option value="trait" {{#if (eq this.targetType 'trait')}}selected{{/if}}>{{localize "STREET_FIGHTER.ActiveEffects.TargetTypes.trait"}}</option>
+          <option value="resourceMax" {{#if (eq this.targetType 'resourceMax')}}selected{{/if}}>{{localize "STREET_FIGHTER.ActiveEffects.TargetTypes.resourceMax"}}</option>
+          <option value="rollAll" {{#if (eq this.targetType 'rollAll')}}selected{{/if}}>{{localize "STREET_FIGHTER.ActiveEffects.TargetTypes.rollAll"}}</option>
+          <option value="rollTrait" {{#if (eq this.targetType 'rollTrait')}}selected{{/if}}>{{localize "STREET_FIGHTER.ActiveEffects.TargetTypes.rollTrait"}}</option>
+        </select>
+      </div>
+
+      {{!-- Target ID Select for Traits --}}
+      <div class="change-field change-trait-select" data-for-type="trait,rollTrait"
+        style="{{#unless (or (eq this.targetType 'trait') (eq this.targetType 'rollTrait') (eq this.targetType ''))}}display:none{{/unless}}">
+        <label>{{localize "STREET_FIGHTER.ActiveEffects.target"}}</label>
+        <select name="changes.{{@index}}.traitTargetId" class="trait-target-select" data-index="{{@index}}">
+          <option value="">{{localize "STREET_FIGHTER.Common.select"}}...</option>
+          {{#each ../traits}}
+          <option value="{{this.id}}">{{this.name}} ({{this.type}})</option>
+          {{/each}}
+        </select>
+      </div>
+
+      {{!-- Target ID Select for Resources --}}
+      <div class="change-field change-resource-select" data-for-type="resourceMax"
+        style="{{#if (eq this.targetType 'resourceMax')}}{{else}}display:none{{/if}}">
+        <label>{{localize "STREET_FIGHTER.ActiveEffects.target"}}</label>
+        <select name="changes.{{@index}}.resourceTargetId" class="resource-target-select" data-index="{{@index}}">
+          <option value="health" {{#if (eq this.targetId 'health')}}selected{{/if}}>{{localize "STREET_FIGHTER.Resources.health"}}</option>
+          <option value="chi" {{#if (eq this.targetId 'chi')}}selected{{/if}}>{{localize "STREET_FIGHTER.Resources.chi"}}</option>
+          <option value="willpower" {{#if (eq this.targetId 'willpower')}}selected{{/if}}>{{localize "STREET_FIGHTER.Resources.willpower"}}</option>
+        </select>
+      </div>
+
+      {{!-- Target ID for Roll All (no selection needed) --}}
+      <div class="change-field change-rollall-select" data-for-type="rollAll"
+        style="{{#if (eq this.targetType 'rollAll')}}{{else}}display:none{{/if}}">
+        <label>{{localize "STREET_FIGHTER.ActiveEffects.target"}}</label>
+        <span class="rollall-label">{{localize "STREET_FIGHTER.ActiveEffects.allRolls"}}</span>
+      </div>
+
+      {{!-- Value --}}
+      <div class="change-field change-value-field">
+        <label>{{localize "EFFECT.ChangeValue"}}</label>
+        <input type="text" name="changes.{{@index}}.value" value="{{this.value}}" placeholder="0" />
+      </div>
+
+      {{!-- Delete Button --}}
+      <button type="button" class="icon delete-change" data-action="deleteChange" data-index="{{@index}}" title="{{localize 'STREET_FIGHTER.Common.delete'}}">
+        <i class="fas fa-trash"></i>
+      </button>
+    </li>
+    {{/each}}
+  </ol>
+
+  <div class="add-change">
+    <button type="button" data-action="addChange">
+      <i class="fas fa-plus"></i> {{localize "STREET_FIGHTER.ActiveEffects.addChange"}}
+    </button>
+  </div>
+</div>
