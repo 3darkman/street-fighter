@@ -51,7 +51,11 @@
     "Resources": {
       "health": "Health",
       "chi": "Chi",
-      "willpower": "Willpower"
+      "willpower": "Willpower",
+      "editMax": "Edit Maximum",
+      "editMaxTitle": "Edit {resource} Maximum",
+      "maxValue": "Maximum Value",
+      "permanent": "Permanent"
     },
     
     "Maneuver": {
@@ -197,7 +201,10 @@
     
     "Renown": {
       "honor": "Honor",
-      "glory": "Glory"
+      "glory": "Glory",
+      "editPermanent": "Edit Permanent Value",
+      "editPermanentTitle": "Edit {renown} Permanent",
+      "permanentValue": "Permanent Value"
     },
     
     "Experience": {

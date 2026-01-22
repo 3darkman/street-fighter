@@ -37,6 +37,8 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       rollTrait: StreetFighterActorSheet._onRollTrait,
       rollManeuver: StreetFighterActorSheet._onRollManeuver,
       toggleWeaponEquip: StreetFighterActorSheet._onToggleWeaponEquip,
+      editResourceMax: StreetFighterActorSheet._onEditResourceMax,
+      editRenownPermanent: StreetFighterActorSheet._onEditRenownPermanent,
     },
     form: {
       submitOnChange: true,
@@ -1161,5 +1163,106 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     await weapon.update({
       "system.isEquipped": !weapon.system.isEquipped,
     });
+  }
+
+  /**
+   * Handle editing a resource's max value (health, chi, willpower)
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onEditResourceMax(event, target) {
+    event.preventDefault();
+    
+    if (this.actor.system.importData?.isImported) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return;
+    }
+    
+    const resourceType = target.dataset.resource;
+    if (!resourceType || !["health", "chi", "willpower"].includes(resourceType)) return;
+    
+    const currentMax = this.actor.system.resources[resourceType]?.max ?? 10;
+    const resourceLabel = game.i18n.localize(`STREET_FIGHTER.Resources.${resourceType}`);
+    const title = game.i18n.format("STREET_FIGHTER.Resources.editMaxTitle", { resource: resourceLabel });
+    
+    const content = `
+      <form>
+        <div class="form-group">
+          <label>${game.i18n.localize("STREET_FIGHTER.Resources.maxValue")}</label>
+          <input type="number" name="maxValue" value="${currentMax}" min="0" max="20" autofocus />
+        </div>
+      </form>
+    `;
+    
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title },
+      content,
+      ok: {
+        label: game.i18n.localize("STREET_FIGHTER.Common.save"),
+        callback: (event, button, dialog) => {
+          const form = button.form;
+          return parseInt(form.elements.maxValue.value) || 0;
+        },
+      },
+    });
+    
+    if (result !== null && result !== undefined) {
+      const newMax = Math.clamp(result, 0, 20);
+      await this.actor.update({
+        [`system.resources.${resourceType}.max`]: newMax,
+        [`system.resources.${resourceType}.value`]: newMax,
+      });
+    }
+  }
+
+  /**
+   * Handle editing a renown's permanent value (honor, glory)
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onEditRenownPermanent(event, target) {
+    event.preventDefault();
+    
+    if (this.actor.system.importData?.isImported) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return;
+    }
+    
+    const renownType = target.dataset.renown;
+    if (!renownType || !["honor", "glory"].includes(renownType)) return;
+    
+    const currentPermanent = this.actor.system.renown[renownType]?.permanent ?? 0;
+    const renownLabel = game.i18n.localize(`STREET_FIGHTER.Renown.${renownType}`);
+    const title = game.i18n.format("STREET_FIGHTER.Renown.editPermanentTitle", { renown: renownLabel });
+    
+    const content = `
+      <form>
+        <div class="form-group">
+          <label>${game.i18n.localize("STREET_FIGHTER.Renown.permanentValue")}</label>
+          <input type="number" name="permanentValue" value="${currentPermanent}" min="0" max="10" autofocus />
+        </div>
+      </form>
+    `;
+    
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title },
+      content,
+      ok: {
+        label: game.i18n.localize("STREET_FIGHTER.Common.save"),
+        callback: (event, button, dialog) => {
+          const form = button.form;
+          return parseInt(form.elements.permanentValue.value) || 0;
+        },
+      },
+    });
+    
+    if (result !== null && result !== undefined) {
+      const newPermanent = Math.clamp(result, 0, 10);
+      await this.actor.update({
+        [`system.renown.${renownType}.permanent`]: newPermanent,
+      });
+    }
   }
 }

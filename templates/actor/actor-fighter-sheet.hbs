@@ -258,6 +258,11 @@
             <span class="resource-modifier" title="{{localize 'STREET_FIGHTER.ActiveEffects.modified'}}">({{effectiveResources.health.max}})</span>
             {{/unless}}
           </span>
+          {{#unless isImported}}
+          <a class="resource-edit" data-action="editResourceMax" data-resource="health" title="{{localize 'STREET_FIGHTER.Resources.editMax'}}">
+            <i class="fas fa-edit"></i>
+          </a>
+          {{/unless}}
         </div>
 
         {{!-- Chi --}}
@@ -270,6 +275,11 @@
             <span class="resource-modifier" title="{{localize 'STREET_FIGHTER.ActiveEffects.modified'}}">({{effectiveResources.chi.max}})</span>
             {{/unless}}
           </span>
+          {{#unless isImported}}
+          <a class="resource-edit" data-action="editResourceMax" data-resource="chi" title="{{localize 'STREET_FIGHTER.Resources.editMax'}}">
+            <i class="fas fa-edit"></i>
+          </a>
+          {{/unless}}
         </div>
 
         {{!-- Willpower --}}
@@ -282,20 +292,35 @@
             <span class="resource-modifier" title="{{localize 'STREET_FIGHTER.ActiveEffects.modified'}}">({{effectiveResources.willpower.max}})</span>
             {{/unless}}
           </span>
+          {{#unless isImported}}
+          <a class="resource-edit" data-action="editResourceMax" data-resource="willpower" title="{{localize 'STREET_FIGHTER.Resources.editMax'}}">
+            <i class="fas fa-edit"></i>
+          </a>
+          {{/unless}}
         </div>
 
         {{!-- Honor --}}
-        <div class="resource-row">
+        <div class="resource-row" data-renown="honor">
           <label>{{localize "STREET_FIGHTER.Renown.honor"}}</label>
           {{{circlePips systemData.renown.honor.permanent 10 dataAttrs="data-resource=\"honor\""}}}
           <span class="resource-value">{{systemData.renown.honor.permanent}} ({{systemData.renown.honor.temporary}})</span>
+          {{#unless isImported}}
+          <a class="resource-edit" data-action="editRenownPermanent" data-renown="honor" title="{{localize 'STREET_FIGHTER.Renown.editPermanent'}}">
+            <i class="fas fa-edit"></i>
+          </a>
+          {{/unless}}
         </div>
 
         {{!-- Glory --}}
-        <div class="resource-row">
+        <div class="resource-row" data-renown="glory">
           <label>{{localize "STREET_FIGHTER.Renown.glory"}}</label>
           {{{circlePips systemData.renown.glory.permanent 10 dataAttrs="data-resource=\"glory\""}}}
           <span class="resource-value">{{systemData.renown.glory.permanent}} ({{systemData.renown.glory.temporary}})</span>
+          {{#unless isImported}}
+          <a class="resource-edit" data-action="editRenownPermanent" data-renown="glory" title="{{localize 'STREET_FIGHTER.Renown.editPermanent'}}">
+            <i class="fas fa-edit"></i>
+          </a>
+          {{/unless}}
         </div>
 
         {{!-- Experience --}}

@@ -1446,6 +1446,28 @@ button.sf-import-characters:hover {
   text-align: right;
 }
 
+.resource-row .resource-edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--sf-text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.resource-row .resource-edit:hover {
+  color: var(--sf-primary);
+  background: var(--sf-surface-light);
+}
+
+.resource-row .resource-edit i {
+  font-size: 11px;
+}
+
 /* ==================== */
 /* Import Warning       */
 /* ==================== */
