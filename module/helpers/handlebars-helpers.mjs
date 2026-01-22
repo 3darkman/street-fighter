@@ -127,4 +127,27 @@ export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("checked", function (value) {
     return value ? "checked" : "";
   });
+
+  /**
+   * Render circle pips for displaying trait/resource values
+   * @param {number} value - Current filled value
+   * @param {number} max - Maximum number of pips
+   * @param {object} options - Handlebars options (can include hash params)
+   * @returns {Handlebars.SafeString} HTML for circle pips
+   */
+  Handlebars.registerHelper("circlePips", function (value, max, options) {
+    const hash = options.hash || {};
+    const dataAttrs = hash.dataAttrs || "";
+    const cssClass = hash.class || "";
+    
+    let html = `<div class="circle-pips ${cssClass}" data-value="${value}" data-max="${max}" ${dataAttrs}>`;
+    
+    for (let i = 0; i < max; i++) {
+      const filled = i < value ? "filled" : "empty";
+      html += `<span class="pip ${filled}" data-index="${i}"></span>`;
+    }
+    
+    html += "</div>";
+    return new Handlebars.SafeString(html);
+  });
 }

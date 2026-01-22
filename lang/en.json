@@ -229,7 +229,39 @@
       "fightingTeam": "Fighting Team",
       "stable": "Stable",
       "concept": "Concept",
-      "signature": "Signature"
+      "signature": "Signature",
+      "background": "Background",
+      "motivations": "Motivations"
+    },
+    
+    "Categories": {
+      "physical": "Physical",
+      "social": "Social",
+      "mental": "Mental",
+      "talents": "Talents",
+      "skills": "Skills",
+      "knowledge": "Knowledge"
+    },
+    
+    "Division": {
+      "rank": "Rank",
+      "wins": "Wins",
+      "draws": "Draws",
+      "losses": "Losses",
+      "knockouts": "KO"
+    },
+    
+    "ContextMenu": {
+      "increment": "Increment",
+      "decrement": "Decrement",
+      "sendToChat": "Send to Chat"
+    },
+    
+    "Dialog": {
+      "DeleteItem": {
+        "Title": "Delete Item",
+        "Content": "Are you sure you want to delete {name}?"
+      }
     }
   }
 }

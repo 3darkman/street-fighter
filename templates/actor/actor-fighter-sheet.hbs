@@ -26,7 +26,7 @@
   </header>
 
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="traits">{{localize "STREET_FIGHTER.Tabs.traits"}}</a>
+    <a class="item active" data-tab="traits">{{localize "STREET_FIGHTER.Tabs.traits"}}</a>
     <a class="item" data-tab="maneuvers">{{localize "STREET_FIGHTER.Tabs.maneuvers"}}</a>
     <a class="item" data-tab="resources">{{localize "STREET_FIGHTER.Tabs.resources"}}</a>
     <a class="item" data-tab="biography">{{localize "STREET_FIGHTER.Tabs.biography"}}</a>
@@ -34,7 +34,7 @@
 
   <section class="sheet-body">
     {{!-- Traits Tab (Attributes, Abilities, Techniques, Backgrounds) --}}
-    <div class="tab" data-group="primary" data-tab="traits">
+    <div class="tab active" data-group="primary" data-tab="traits">
       {{!-- Fighting Style --}}
       <div class="traits-section">
         <h3>{{localize "STREET_FIGHTER.Item.Types.fightingStyle"}}</h3>
@@ -53,84 +53,159 @@
         </ul>
       </div>
 
-      {{!-- Attributes --}}
+      {{!-- Attributes - 3 columns by category --}}
       <div class="traits-section">
         <h3>{{localize "STREET_FIGHTER.Item.Types.attribute"}}</h3>
-        <ul class="trait-list">
-          {{#each items.attributes as |attr|}}
-          <li class="trait-item" data-item-id="{{attr.id}}">
-            <span class="trait-name">{{attr.name}}</span>
-            <div class="circle-pips" data-value="{{attr.system.value}}" data-max="10">
-              {{#times 10}}
-              <span class="pip {{#if (lte this ../attr.system.value)}}filled{{else}}empty{{/if}}"></span>
-              {{/times}}
-            </div>
-            <div class="item-controls">
-              <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
-            </div>
-          </li>
-          {{/each}}
-        </ul>
+        <div class="traits-columns">
+          {{!-- Physical --}}
+          <div class="trait-column">
+            <h4>{{localize "STREET_FIGHTER.Categories.physical"}}</h4>
+            <ul class="trait-list">
+              {{#each items.attributesByCategory.physical as |attr|}}
+              <li class="trait-item" data-item-id="{{attr.id}}">
+                <span class="trait-name">{{attr.name}}</span>
+                {{{circlePips attr.system.value 8}}}
+                {{#unless ../../isImported}}
+                <div class="item-controls">
+                  <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                </div>
+                {{/unless}}
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+          {{!-- Social --}}
+          <div class="trait-column">
+            <h4>{{localize "STREET_FIGHTER.Categories.social"}}</h4>
+            <ul class="trait-list">
+              {{#each items.attributesByCategory.social as |attr|}}
+              <li class="trait-item" data-item-id="{{attr.id}}">
+                <span class="trait-name">{{attr.name}}</span>
+                {{{circlePips attr.system.value 8}}}
+                {{#unless ../../isImported}}
+                <div class="item-controls">
+                  <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                </div>
+                {{/unless}}
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+          {{!-- Mental --}}
+          <div class="trait-column">
+            <h4>{{localize "STREET_FIGHTER.Categories.mental"}}</h4>
+            <ul class="trait-list">
+              {{#each items.attributesByCategory.mental as |attr|}}
+              <li class="trait-item" data-item-id="{{attr.id}}">
+                <span class="trait-name">{{attr.name}}</span>
+                {{{circlePips attr.system.value 8}}}
+                {{#unless ../../isImported}}
+                <div class="item-controls">
+                  <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                </div>
+                {{/unless}}
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+        </div>
       </div>
 
-      {{!-- Abilities --}}
+      {{!-- Abilities - 3 columns by category --}}
       <div class="traits-section">
         <h3>{{localize "STREET_FIGHTER.Item.Types.ability"}}</h3>
-        <ul class="trait-list">
-          {{#each items.abilities as |ability|}}
-          <li class="trait-item" data-item-id="{{ability.id}}">
-            <span class="trait-name">{{ability.name}}</span>
-            <div class="circle-pips" data-value="{{ability.system.value}}" data-max="5">
-              {{#times 5}}
-              <span class="pip {{#if (lte this ../ability.system.value)}}filled{{else}}empty{{/if}}"></span>
-              {{/times}}
-            </div>
-            <div class="item-controls">
-              <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
-            </div>
-          </li>
-          {{/each}}
-        </ul>
+        <div class="traits-columns">
+          {{!-- Talents --}}
+          <div class="trait-column">
+            <h4>{{localize "STREET_FIGHTER.Categories.talents"}}</h4>
+            <ul class="trait-list">
+              {{#each items.abilitiesByCategory.talents as |ability|}}
+              <li class="trait-item" data-item-id="{{ability.id}}">
+                <span class="trait-name">{{ability.name}}</span>
+                {{{circlePips ability.system.value 8}}}
+                {{#unless ../../isImported}}
+                <div class="item-controls">
+                  <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                </div>
+                {{/unless}}
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+          {{!-- Skills --}}
+          <div class="trait-column">
+            <h4>{{localize "STREET_FIGHTER.Categories.skills"}}</h4>
+            <ul class="trait-list">
+              {{#each items.abilitiesByCategory.skills as |ability|}}
+              <li class="trait-item" data-item-id="{{ability.id}}">
+                <span class="trait-name">{{ability.name}}</span>
+                {{{circlePips ability.system.value 8}}}
+                {{#unless ../../isImported}}
+                <div class="item-controls">
+                  <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                </div>
+                {{/unless}}
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+          {{!-- Knowledge --}}
+          <div class="trait-column">
+            <h4>{{localize "STREET_FIGHTER.Categories.knowledge"}}</h4>
+            <ul class="trait-list">
+              {{#each items.abilitiesByCategory.knowledge as |ability|}}
+              <li class="trait-item" data-item-id="{{ability.id}}">
+                <span class="trait-name">{{ability.name}}</span>
+                {{{circlePips ability.system.value 8}}}
+                {{#unless ../../isImported}}
+                <div class="item-controls">
+                  <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                </div>
+                {{/unless}}
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+        </div>
       </div>
 
-      {{!-- Techniques --}}
-      <div class="traits-section">
-        <h3>{{localize "STREET_FIGHTER.Item.Types.technique"}}</h3>
-        <ul class="trait-list">
-          {{#each items.techniques as |tech|}}
-          <li class="trait-item" data-item-id="{{tech.id}}">
-            <span class="trait-name">{{tech.name}}</span>
-            <div class="circle-pips" data-value="{{tech.system.value}}" data-max="10">
-              {{#times 10}}
-              <span class="pip {{#if (lte this ../tech.system.value)}}filled{{else}}empty{{/if}}"></span>
-              {{/times}}
-            </div>
-            <div class="item-controls">
-              <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
-            </div>
-          </li>
-          {{/each}}
-        </ul>
-      </div>
+      {{!-- Techniques and Backgrounds - side by side --}}
+      <div class="traits-row">
+        {{!-- Techniques --}}
+        <div class="traits-section traits-half">
+          <h3>{{localize "STREET_FIGHTER.Item.Types.technique"}}</h3>
+          <ul class="trait-list">
+            {{#each items.techniques as |tech|}}
+            <li class="trait-item" data-item-id="{{tech.id}}">
+              <span class="trait-name">{{tech.name}}</span>
+              {{{circlePips tech.system.value 8}}}
+              {{#unless ../isImported}}
+              <div class="item-controls">
+                <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+              </div>
+              {{/unless}}
+            </li>
+            {{/each}}
+          </ul>
+        </div>
 
-      {{!-- Backgrounds --}}
-      <div class="traits-section">
-        <h3>{{localize "STREET_FIGHTER.Item.Types.background"}}</h3>
-        <ul class="trait-list">
-          {{#each items.backgrounds as |bg|}}
-          <li class="trait-item" data-item-id="{{bg.id}}">
-            <span class="trait-name">{{bg.name}}</span>
-            <div class="circle-pips" data-value="{{bg.system.value}}" data-max="5">
-              {{#times 5}}
-              <span class="pip {{#if (lte this ../bg.system.value)}}filled{{else}}empty{{/if}}"></span>
-              {{/times}}
-            </div>
-            <div class="item-controls">
-              <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
-            </div>
-          </li>
-          {{/each}}
-        </ul>
+        {{!-- Backgrounds --}}
+        <div class="traits-section traits-half">
+          <h3>{{localize "STREET_FIGHTER.Item.Types.background"}}</h3>
+          <ul class="trait-list">
+            {{#each items.backgrounds as |bg|}}
+            <li class="trait-item" data-item-id="{{bg.id}}">
+              <span class="trait-name">{{bg.name}}</span>
+              {{{circlePips bg.system.value 5}}}
+              {{#unless ../isImported}}
+              <div class="item-controls">
+                <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+              </div>
+              {{/unless}}
+            </li>
+            {{/each}}
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -178,55 +253,35 @@
         {{!-- Health --}}
         <div class="resource-row">
           <label>{{localize "STREET_FIGHTER.Resources.health"}}</label>
-          <div class="circle-pips resource-pips" data-resource="health">
-            {{#times systemData.resources.health.max}}
-            <span class="pip {{#if (lte this (subtract ../systemData.resources.health.max ../systemData.resources.health.damageTaken))}}filled{{else}}empty{{/if}}" data-index="{{this}}"></span>
-            {{/times}}
-          </div>
+          {{{circlePips (subtract systemData.resources.health.max systemData.resources.health.damageTaken) systemData.resources.health.max class="resource-pips" dataAttrs="data-resource=\"health\""}}}
           <span class="resource-value">{{subtract systemData.resources.health.max systemData.resources.health.damageTaken}} / {{systemData.resources.health.max}}</span>
         </div>
 
         {{!-- Chi --}}
         <div class="resource-row">
           <label>{{localize "STREET_FIGHTER.Resources.chi"}}</label>
-          <div class="circle-pips resource-pips" data-resource="chi">
-            {{#times systemData.resources.chi.max}}
-            <span class="pip {{#if (lte this (subtract ../systemData.resources.chi.value ../systemData.resources.chi.spent))}}filled{{else}}empty{{/if}}" data-index="{{this}}"></span>
-            {{/times}}
-          </div>
+          {{{circlePips (subtract systemData.resources.chi.value systemData.resources.chi.spent) systemData.resources.chi.max class="resource-pips" dataAttrs="data-resource=\"chi\""}}}
           <span class="resource-value">{{subtract systemData.resources.chi.value systemData.resources.chi.spent}} / {{systemData.resources.chi.max}}</span>
         </div>
 
         {{!-- Willpower --}}
         <div class="resource-row">
           <label>{{localize "STREET_FIGHTER.Resources.willpower"}}</label>
-          <div class="circle-pips resource-pips" data-resource="willpower">
-            {{#times systemData.resources.willpower.max}}
-            <span class="pip {{#if (lte this (subtract ../systemData.resources.willpower.value ../systemData.resources.willpower.spent))}}filled{{else}}empty{{/if}}" data-index="{{this}}"></span>
-            {{/times}}
-          </div>
+          {{{circlePips (subtract systemData.resources.willpower.value systemData.resources.willpower.spent) systemData.resources.willpower.max class="resource-pips" dataAttrs="data-resource=\"willpower\""}}}
           <span class="resource-value">{{subtract systemData.resources.willpower.value systemData.resources.willpower.spent}} / {{systemData.resources.willpower.max}}</span>
         </div>
 
         {{!-- Honor --}}
         <div class="resource-row">
           <label>{{localize "STREET_FIGHTER.Renown.honor"}}</label>
-          <div class="circle-pips" data-resource="honor">
-            {{#times 10}}
-            <span class="pip {{#if (lte this ../systemData.renown.honor.permanent)}}filled{{else}}empty{{/if}}"></span>
-            {{/times}}
-          </div>
+          {{{circlePips systemData.renown.honor.permanent 10 dataAttrs="data-resource=\"honor\""}}}
           <span class="resource-value">{{systemData.renown.honor.permanent}} ({{systemData.renown.honor.temporary}})</span>
         </div>
 
         {{!-- Glory --}}
         <div class="resource-row">
           <label>{{localize "STREET_FIGHTER.Renown.glory"}}</label>
-          <div class="circle-pips" data-resource="glory">
-            {{#times 10}}
-            <span class="pip {{#if (lte this ../systemData.renown.glory.permanent)}}filled{{else}}empty{{/if}}"></span>
-            {{/times}}
-          </div>
+          {{{circlePips systemData.renown.glory.permanent 10 dataAttrs="data-resource=\"glory\""}}}
           <span class="resource-value">{{systemData.renown.glory.permanent}} ({{systemData.renown.glory.temporary}})</span>
         </div>
 
@@ -240,12 +295,35 @@
       {{!-- Divisions --}}
       <div class="traits-section">
         <h3>{{localize "STREET_FIGHTER.Item.Types.division"}}</h3>
-        <ul class="item-list">
+        <ul class="division-list">
           {{#each items.divisions as |division|}}
-          <li class="item" data-item-id="{{division.id}}">
-            <span class="item-name">{{division.name}}</span>
-            <div class="item-controls">
-              <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+          <li class="division-item" data-item-id="{{division.id}}">
+            <div class="division-header">
+              <span class="division-name">{{division.name}}</span>
+              <span class="division-rank">{{localize "STREET_FIGHTER.Division.rank"}}: {{division.system.rank}}</span>
+              {{#unless ../isImported}}
+              <div class="item-controls">
+                <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+              </div>
+              {{/unless}}
+            </div>
+            <div class="division-stats">
+              <span class="division-stat">
+                <i class="fas fa-trophy"></i>
+                {{localize "STREET_FIGHTER.Division.wins"}}: {{division.system.wins}}
+              </span>
+              <span class="division-stat">
+                <i class="fas fa-handshake"></i>
+                {{localize "STREET_FIGHTER.Division.draws"}}: {{division.system.draws}}
+              </span>
+              <span class="division-stat">
+                <i class="fas fa-times-circle"></i>
+                {{localize "STREET_FIGHTER.Division.losses"}}: {{division.system.losses}}
+              </span>
+              <span class="division-stat">
+                <i class="fas fa-fist-raised"></i>
+                {{localize "STREET_FIGHTER.Division.knockouts"}}: {{division.system.knockouts}}
+              </span>
             </div>
           </li>
           {{/each}}

@@ -22,6 +22,9 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       editItem: StreetFighterActorSheet._onEditItem,
       deleteItem: StreetFighterActorSheet._onDeleteItem,
       editImage: StreetFighterActorSheet._onEditImage,
+      incrementTrait: StreetFighterActorSheet._onIncrementTrait,
+      decrementTrait: StreetFighterActorSheet._onDecrementTrait,
+      sendTraitToChat: StreetFighterActorSheet._onSendTraitToChat,
     },
     form: {
       submitOnChange: true,
@@ -50,6 +53,46 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
   tabGroups = {
     primary: "traits",
   };
+
+  /** @inheritDoc */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    
+    // Setup tab click handlers
+    const tabs = this.element.querySelectorAll(".sheet-tabs .item");
+    tabs.forEach(tab => {
+      tab.addEventListener("click", (event) => {
+        event.preventDefault();
+        const tabName = tab.dataset.tab;
+        this._activateTab(tabName);
+      });
+    });
+
+    // Setup context menu for traits (only for non-imported characters)
+    this._setupTraitContextMenu(this.element);
+  }
+
+  /**
+   * Activate a specific tab
+   * @param {string} tabName - The name of the tab to activate
+   * @private
+   */
+  _activateTab(tabName) {
+    // Update tab buttons
+    const tabs = this.element.querySelectorAll(".sheet-tabs .item");
+    tabs.forEach(t => {
+      t.classList.toggle("active", t.dataset.tab === tabName);
+    });
+
+    // Update tab content
+    const tabContents = this.element.querySelectorAll(".tab[data-group='primary']");
+    tabContents.forEach(content => {
+      content.classList.toggle("active", content.dataset.tab === tabName);
+    });
+
+    // Store the active tab
+    this.tabGroups.primary = tabName;
+  }
 
   /** @inheritDoc */
   async _prepareContext(options) {
@@ -130,12 +173,25 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
   _prepareItems(context) {
     const fightingStyles = [];
     const specialManeuvers = [];
-    const attributes = [];
-    const abilities = [];
-    const techniques = [];
-    const backgrounds = [];
     const weapons = [];
     const divisions = [];
+    
+    // Organize attributes by category
+    const attributesByCategory = {
+      physical: [],
+      social: [],
+      mental: [],
+    };
+    
+    // Organize abilities by category
+    const abilitiesByCategory = {
+      talents: [],
+      skills: [],
+      knowledge: [],
+    };
+    
+    const techniques = [];
+    const backgrounds = [];
 
     for (const item of this.actor.items) {
       switch (item.type) {
@@ -146,10 +202,16 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
           specialManeuvers.push(item);
           break;
         case "attribute":
-          attributes.push(item);
+          const attrCategory = item.system.category || "physical";
+          if (attributesByCategory[attrCategory]) {
+            attributesByCategory[attrCategory].push(item);
+          }
           break;
         case "ability":
-          abilities.push(item);
+          const abilCategory = item.system.category || "talents";
+          if (abilitiesByCategory[abilCategory]) {
+            abilitiesByCategory[abilCategory].push(item);
+          }
           break;
         case "technique":
           techniques.push(item);
@@ -169,13 +231,34 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     return {
       fightingStyles,
       specialManeuvers,
-      attributes,
-      abilities,
+      attributesByCategory,
+      abilitiesByCategory,
       techniques,
       backgrounds,
       weapons,
       divisions,
     };
+  }
+
+  /** @inheritDoc */
+  async _onDropItem(event, data) {
+    if (!this.isEditable) return false;
+    
+    const item = await Item.implementation.fromDropData(data);
+    if (!item) return false;
+
+    // If dropping a fighting style, remove existing styles first (only one allowed)
+    if (item.type === "fightingStyle") {
+      const existingStyles = this.actor.items.filter(i => i.type === "fightingStyle");
+      if (existingStyles.length > 0) {
+        const idsToDelete = existingStyles.map(s => s.id);
+        await this.actor.deleteEmbeddedDocuments("Item", idsToDelete);
+      }
+    }
+
+    // Create the new item
+    const itemData = item.toObject();
+    return this.actor.createEmbeddedDocuments("Item", [itemData]);
   }
 
   /**
@@ -231,5 +314,206 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       callback: (path) => this.document.update({ [field]: path }),
     });
     fp.render(true);
+  }
+
+  /**
+   * Handle incrementing a trait value
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onIncrementTrait(event, target) {
+    event.preventDefault();
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    const maxValue = StreetFighterActorSheet._getTraitMaxValue(item.type);
+    const currentValue = item.system.value || 0;
+    
+    if (currentValue < maxValue) {
+      await item.update({ "system.value": currentValue + 1 });
+    }
+  }
+
+  /**
+   * Handle decrementing a trait value
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onDecrementTrait(event, target) {
+    event.preventDefault();
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    const currentValue = item.system.value || 0;
+    const minValue = item.type === "attribute" ? 1 : 0;
+    
+    if (currentValue > minValue) {
+      await item.update({ "system.value": currentValue - 1 });
+    }
+  }
+
+  /**
+   * Handle sending a trait to chat
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onSendTraitToChat(event, target) {
+    event.preventDefault();
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    const typeLabel = game.i18n.localize(`STREET_FIGHTER.Item.Types.${item.type}`);
+    const categoryLabel = item.system.category 
+      ? game.i18n.localize(`STREET_FIGHTER.Categories.${item.system.category}`)
+      : "";
+
+    const content = `
+      <div class="street-fighter chat-card">
+        <div class="card-header">
+          <h3>${item.name}</h3>
+        </div>
+        <div class="card-content">
+          <p><strong>${typeLabel}</strong>${categoryLabel ? ` (${categoryLabel})` : ""}</p>
+          <p><strong>${game.i18n.localize("STREET_FIGHTER.Common.value")}:</strong> ${item.system.value || 0}</p>
+          ${item.system.description ? `<p>${item.system.description}</p>` : ""}
+        </div>
+      </div>
+    `;
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: content,
+    });
+  }
+
+  /**
+   * Get the maximum value for a trait type
+   * @param {string} itemType - The type of item
+   * @returns {number} Maximum value
+   * @private
+   */
+  static _getTraitMaxValue(itemType) {
+    switch (itemType) {
+      case "attribute":
+      case "ability":
+      case "technique":
+        return 8;
+      case "background":
+        return 10;
+      default:
+        return 10;
+    }
+  }
+
+  /**
+   * Setup context menu for traits (right-click)
+   * @param {HTMLElement} html - The rendered HTML
+   * @private
+   */
+  _setupTraitContextMenu(html) {
+    if (this.actor.system.importData?.isImported) return;
+
+    const sheet = this;
+    const menuItems = [
+      {
+        name: game.i18n.localize("STREET_FIGHTER.ContextMenu.increment"),
+        icon: '<i class="fas fa-plus"></i>',
+        callback: (li) => {
+          const itemId = li[0]?.dataset?.itemId;
+          if (itemId) sheet._incrementTraitById(itemId);
+        },
+      },
+      {
+        name: game.i18n.localize("STREET_FIGHTER.ContextMenu.decrement"),
+        icon: '<i class="fas fa-minus"></i>',
+        callback: (li) => {
+          const itemId = li[0]?.dataset?.itemId;
+          if (itemId) sheet._decrementTraitById(itemId);
+        },
+      },
+      {
+        name: game.i18n.localize("STREET_FIGHTER.ContextMenu.sendToChat"),
+        icon: '<i class="fas fa-comment"></i>',
+        callback: (li) => {
+          const itemId = li[0]?.dataset?.itemId;
+          if (itemId) sheet._sendTraitToChatById(itemId);
+        },
+      },
+    ];
+
+    new ContextMenu(html, ".trait-item[data-item-id]", menuItems);
+  }
+
+  /**
+   * Increment a trait by its ID
+   * @param {string} itemId - The item ID
+   * @private
+   */
+  async _incrementTraitById(itemId) {
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    const maxValue = this.constructor._getTraitMaxValue(item.type);
+    const currentValue = item.system.value || 0;
+    
+    if (currentValue < maxValue) {
+      await item.update({ "system.value": currentValue + 1 });
+    }
+  }
+
+  /**
+   * Decrement a trait by its ID
+   * @param {string} itemId - The item ID
+   * @private
+   */
+  async _decrementTraitById(itemId) {
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    const currentValue = item.system.value || 0;
+    const minValue = item.type === "attribute" ? 1 : 0;
+    
+    if (currentValue > minValue) {
+      await item.update({ "system.value": currentValue - 1 });
+    }
+  }
+
+  /**
+   * Send a trait to chat by its ID
+   * @param {string} itemId - The item ID
+   * @private
+   */
+  async _sendTraitToChatById(itemId) {
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    const typeLabel = game.i18n.localize(`STREET_FIGHTER.Item.Types.${item.type}`);
+    const categoryLabel = item.system.category 
+      ? game.i18n.localize(`STREET_FIGHTER.Categories.${item.system.category}`)
+      : "";
+
+    const content = `
+      <div class="street-fighter chat-card">
+        <div class="card-header">
+          <h3>${item.name}</h3>
+        </div>
+        <div class="card-content">
+          <p><strong>${typeLabel}</strong>${categoryLabel ? ` (${categoryLabel})` : ""}</p>
+          <p><strong>${game.i18n.localize("STREET_FIGHTER.Common.value")}:</strong> ${item.system.value || 0}</p>
+          ${item.system.description ? `<p>${item.system.description}</p>` : ""}
+        </div>
+      </div>
+    `;
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: content,
+    });
   }
 }

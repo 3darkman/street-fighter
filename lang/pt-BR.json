@@ -229,7 +229,39 @@
       "fightingTeam": "Equipe de Luta",
       "stable": "Estábulo",
       "concept": "Conceito",
-      "signature": "Assinatura"
+      "signature": "Assinatura",
+      "background": "Histórico",
+      "motivations": "Motivações"
+    },
+    
+    "Categories": {
+      "physical": "Físicos",
+      "social": "Sociais",
+      "mental": "Mentais",
+      "talents": "Talentos",
+      "skills": "Perícias",
+      "knowledge": "Conhecimentos"
+    },
+    
+    "Division": {
+      "rank": "Posto",
+      "wins": "Vitórias",
+      "draws": "Empates",
+      "losses": "Derrotas",
+      "knockouts": "KO"
+    },
+    
+    "ContextMenu": {
+      "increment": "Incrementar",
+      "decrement": "Decrementar",
+      "sendToChat": "Enviar para o Chat"
+    },
+    
+    "Dialog": {
+      "DeleteItem": {
+        "Title": "Excluir Item",
+        "Content": "Tem certeza que deseja excluir {name}?"
+      }
     }
   }
 }

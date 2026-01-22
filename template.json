@@ -129,6 +129,11 @@
     },
     "division": {
       "sourceId": "",
+      "rank": "",
+      "wins": 0,
+      "draws": 0,
+      "losses": 0,
+      "knockouts": 0,
       "description": ""
     }
   }

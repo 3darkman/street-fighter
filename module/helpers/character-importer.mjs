@@ -162,6 +162,42 @@ function buildActorSystemData(charData, version) {
  */
 async function addEmbeddedItems(actor, charData) {
   const itemsToCreate = [];
+  const traitBonuses = new Map(); // Track bonuses from effects
+
+  // Process appliedEffectGroups first to collect trait bonuses and granted maneuvers
+  if (charData.appliedEffectGroups && Array.isArray(charData.appliedEffectGroups)) {
+    for (const group of charData.appliedEffectGroups) {
+      if (!group.effects || !Array.isArray(group.effects)) continue;
+      
+      for (const effect of group.effects) {
+        // Handle traitBonus effects
+        if (effect.type === "traitBonus" && effect.targets && Array.isArray(effect.targets)) {
+          for (const targetId of effect.targets) {
+            const currentBonus = traitBonuses.get(targetId) || 0;
+            traitBonuses.set(targetId, currentBonus + (effect.value || 0));
+          }
+          console.log(`Street Fighter | Applied traitBonus: ${effect.value} to ${effect.targets.join(", ")}`);
+        }
+        
+        // Handle grantManeuver effects
+        if (effect.type === "grantManeuver" && effect.targets && Array.isArray(effect.targets)) {
+          for (const maneuverId of effect.targets) {
+            const maneuverItem = findWorldItemBySourceId(maneuverId, "specialManeuver");
+            if (maneuverItem) {
+              // Check if not already added
+              const alreadyAdded = itemsToCreate.some(
+                i => i.system?.sourceId === maneuverId && i.type === "specialManeuver"
+              );
+              if (!alreadyAdded) {
+                itemsToCreate.push(maneuverItem.toObject());
+                console.log(`Street Fighter | Granted maneuver from effect: ${maneuverId}`);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   // Add fighting style as embedded item
   if (charData.styleId) {
@@ -174,22 +210,37 @@ async function addEmbeddedItems(actor, charData) {
   // Add traits from traitValues as embedded items with their values
   if (charData.traitValues && typeof charData.traitValues === "object") {
     for (const [traitSourceId, value] of Object.entries(charData.traitValues)) {
+      // Skip traits with value 0 (unless they have a bonus)
+      const bonus = traitBonuses.get(traitSourceId) || 0;
+      const totalValue = value + bonus;
+      
+      if (totalValue === 0) continue;
+      
       // Try to find the trait in world items (could be attribute, ability, technique, or background)
       const traitItem = findWorldItemBySourceId(traitSourceId, ["attribute", "ability", "technique", "background"]);
       if (traitItem) {
         const traitData = traitItem.toObject();
-        traitData.system.value = value;
+        traitData.system.value = totalValue;
         itemsToCreate.push(traitData);
+        console.log(`Street Fighter | Adding trait: ${traitSourceId} with value ${value} + bonus ${bonus} = ${totalValue}`);
+      } else {
+        console.warn(`Street Fighter | Trait not found in world items: ${traitSourceId}`);
       }
     }
   }
 
-  // Add special maneuvers
+  // Add special maneuvers from specialManeuverIds (if not already added by effects)
   if (charData.specialManeuverIds && Array.isArray(charData.specialManeuverIds)) {
     for (const maneuverId of charData.specialManeuverIds) {
-      const maneuverItem = findWorldItemBySourceId(maneuverId, "specialManeuver");
-      if (maneuverItem) {
-        itemsToCreate.push(maneuverItem.toObject());
+      // Check if not already added by grantManeuver effect
+      const alreadyAdded = itemsToCreate.some(
+        i => i.system?.sourceId === maneuverId && i.type === "specialManeuver"
+      );
+      if (!alreadyAdded) {
+        const maneuverItem = findWorldItemBySourceId(maneuverId, "specialManeuver");
+        if (maneuverItem) {
+          itemsToCreate.push(maneuverItem.toObject());
+        }
       }
     }
   }
