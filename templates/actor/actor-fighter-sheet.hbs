@@ -249,24 +249,24 @@
     <div class="tab" data-group="primary" data-tab="resources">
       <div class="resources-section">
         {{!-- Health --}}
-        <div class="resource-row">
-          <label>{{localize "STREET_FIGHTER.Resources.health"}}</label>
-          {{{circlePips (subtract systemData.resources.health.max systemData.resources.health.damageTaken) systemData.resources.health.max class="resource-pips" dataAttrs="data-resource=\"health\""}}}
-          <span class="resource-value">{{subtract systemData.resources.health.max systemData.resources.health.damageTaken}} / {{systemData.resources.health.max}}</span>
+        <div class="resource-row" data-resource="health">
+          <label class="resource-label clickable">{{localize "STREET_FIGHTER.Resources.health"}}</label>
+          {{{circlePips systemData.resources.health.value systemData.resources.health.max class="resource-pips"}}}
+          <span class="resource-value">{{systemData.resources.health.value}} / {{systemData.resources.health.max}}</span>
         </div>
 
         {{!-- Chi --}}
-        <div class="resource-row">
-          <label>{{localize "STREET_FIGHTER.Resources.chi"}}</label>
-          {{{circlePips (subtract systemData.resources.chi.value systemData.resources.chi.spent) systemData.resources.chi.max class="resource-pips" dataAttrs="data-resource=\"chi\""}}}
-          <span class="resource-value">{{subtract systemData.resources.chi.value systemData.resources.chi.spent}} / {{systemData.resources.chi.max}}</span>
+        <div class="resource-row" data-resource="chi">
+          <label class="resource-label clickable">{{localize "STREET_FIGHTER.Resources.chi"}}</label>
+          {{{circlePips systemData.resources.chi.value systemData.resources.chi.max class="resource-pips"}}}
+          <span class="resource-value">{{systemData.resources.chi.value}} / {{systemData.resources.chi.max}}</span>
         </div>
 
         {{!-- Willpower --}}
-        <div class="resource-row">
-          <label>{{localize "STREET_FIGHTER.Resources.willpower"}}</label>
-          {{{circlePips (subtract systemData.resources.willpower.value systemData.resources.willpower.spent) systemData.resources.willpower.max class="resource-pips" dataAttrs="data-resource=\"willpower\""}}}
-          <span class="resource-value">{{subtract systemData.resources.willpower.value systemData.resources.willpower.spent}} / {{systemData.resources.willpower.max}}</span>
+        <div class="resource-row" data-resource="willpower">
+          <label class="resource-label clickable">{{localize "STREET_FIGHTER.Resources.willpower"}}</label>
+          {{{circlePips systemData.resources.willpower.value systemData.resources.willpower.max class="resource-pips"}}}
+          <span class="resource-value">{{systemData.resources.willpower.value}} / {{systemData.resources.willpower.max}}</span>
         </div>
 
         {{!-- Honor --}}

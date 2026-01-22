@@ -66,19 +66,23 @@ async function importSingleCharacter(charData, version, folder) {
   const existingActor = game.actors.find(a => a.name === characterName);
   
   if (existingActor) {
-    // Update existing actor, preserving current resource spent values
+    // Update existing actor, preserving current resource values
     const currentSystem = existingActor.system;
     const newSystemData = buildActorSystemData(charData, version);
     
-    // Preserve current spent/damage values from the existing character
-    newSystemData.resources.health.damageTaken = currentSystem.resources?.health?.damageTaken || 0;
-    newSystemData.resources.chi.spent = currentSystem.resources?.chi?.spent || 0;
-    newSystemData.resources.willpower.spent = currentSystem.resources?.willpower?.spent || 0;
-    
-    // Calculate current values based on max minus spent
-    newSystemData.resources.health.value = Math.max(0, newSystemData.resources.health.max - newSystemData.resources.health.damageTaken);
-    newSystemData.resources.chi.value = Math.max(0, newSystemData.resources.chi.max - newSystemData.resources.chi.spent);
-    newSystemData.resources.willpower.value = Math.max(0, newSystemData.resources.willpower.max - newSystemData.resources.willpower.spent);
+    // Preserve current resource values from the existing character (clamped to new max)
+    newSystemData.resources.health.value = Math.min(
+      currentSystem.resources?.health?.value ?? newSystemData.resources.health.max,
+      newSystemData.resources.health.max
+    );
+    newSystemData.resources.chi.value = Math.min(
+      currentSystem.resources?.chi?.value ?? newSystemData.resources.chi.max,
+      newSystemData.resources.chi.max
+    );
+    newSystemData.resources.willpower.value = Math.min(
+      currentSystem.resources?.willpower?.value ?? newSystemData.resources.willpower.max,
+      newSystemData.resources.willpower.max
+    );
     
     // Update actor data
     await existingActor.update({
@@ -143,17 +147,14 @@ function buildActorSystemData(charData, version) {
       health: {
         value: charData.health || 10,
         max: charData.health || 10,
-        damageTaken: charData.damageTaken || 0,
       },
       chi: {
         value: charData.chi || 0,
         max: charData.chi || 0,
-        spent: charData.chiSpent || 0,
       },
       willpower: {
         value: charData.willpower || 0,
         max: charData.willpower || 0,
-        spent: charData.willpowerSpent || 0,
       },
     },
     renown: {

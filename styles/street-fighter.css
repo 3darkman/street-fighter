@@ -1429,6 +1429,16 @@ button.sf-import-characters:hover {
   font-size: 13px;
 }
 
+.resource-row label.clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.resource-row label.clickable:hover {
+  color: var(--sf-primary-light);
+}
+
 .resource-row .resource-value {
   font-size: 12px;
   color: var(--sf-text-muted);

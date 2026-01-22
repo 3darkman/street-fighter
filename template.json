@@ -20,9 +20,9 @@
         "signature": ""
       },
       "resources": {
-        "health": { "value": 10, "max": 10, "damageTaken": 0 },
-        "chi": { "value": 0, "max": 10, "spent": 0 },
-        "willpower": { "value": 0, "max": 10, "spent": 0 }
+        "health": { "value": 10, "max": 10 },
+        "chi": { "value": 0, "max": 10 },
+        "willpower": { "value": 0, "max": 10 }
       },
       "renown": {
         "honor": { "permanent": 0, "temporary": 0 },

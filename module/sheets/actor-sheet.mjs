@@ -90,6 +90,9 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     // Setup weapon accordion
     this._setupWeaponAccordion(this.element);
     
+    // Setup resource click handlers (health, chi, willpower)
+    this._setupResourceClickHandlers(this.element);
+    
     // Restore active tab after re-render
     if (this.tabGroups.primary && this.tabGroups.primary !== "traits") {
       this._activateTab(this.tabGroups.primary);
@@ -719,6 +722,54 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
         }
       });
     });
+  }
+
+  /**
+   * Setup click handlers for resource labels (health, chi, willpower)
+   * Left-click decreases value, right-click increases value
+   * @param {HTMLElement} html - The rendered HTML
+   * @private
+   */
+  _setupResourceClickHandlers(html) {
+    const resourceLabels = html.querySelectorAll(".resource-row[data-resource] .resource-label");
+    
+    resourceLabels.forEach(label => {
+      const resourceRow = label.closest(".resource-row");
+      const resourceType = resourceRow?.dataset.resource;
+      
+      if (!resourceType || !["health", "chi", "willpower"].includes(resourceType)) return;
+      
+      // Left-click: decrease value
+      label.addEventListener("click", (event) => {
+        event.preventDefault();
+        this._adjustResource(resourceType, -1);
+      });
+      
+      // Right-click: increase value
+      label.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+        this._adjustResource(resourceType, 1);
+      });
+    });
+  }
+
+  /**
+   * Adjust a resource value by a delta amount
+   * @param {string} resourceType - The resource type (health, chi, willpower)
+   * @param {number} delta - The amount to change (+1 or -1)
+   * @private
+   */
+  async _adjustResource(resourceType, delta) {
+    const resource = this.actor.system.resources[resourceType];
+    if (!resource) return;
+    
+    const currentValue = resource.value ?? 0;
+    const maxValue = resource.max ?? 10;
+    const newValue = Math.clamp(currentValue + delta, 0, maxValue);
+    
+    if (newValue !== currentValue) {
+      await this.actor.update({ [`system.resources.${resourceType}.value`]: newValue });
+    }
   }
 
   /**
