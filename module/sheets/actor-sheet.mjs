@@ -5,6 +5,8 @@
  */
 
 import { StreetFighterRollDialog, executeRoll } from "../dice/roll-dialog.mjs";
+import { calculateModifier, formatOriginalModifier } from "../helpers/utils.mjs";
+import { getTraitMaxValue, getTraitMinValue } from "../config/constants.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -246,7 +248,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     // Calculate maneuver stats
     const characterStats = this._getCharacterStats(attributesByCategory, abilitiesByCategory, techniques);
     const preparedManeuvers = specialManeuvers.map(maneuver => {
-      return this._prepareManeuverData(maneuver, characterStats);
+      return this._prepareManeuverData(maneuver, characterStats, weapons);
     });
 
     return {
@@ -270,32 +272,33 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
    * @private
    */
   _getCharacterStats(attributesByCategory, abilitiesByCategory, techniques) {
-    // Find Dexterity (physical attribute)
-    const dexterity = attributesByCategory.physical.find(a => 
-      a.system.sourceId === "dexterity" || a.name.toLowerCase() === "dexterity" || a.name.toLowerCase() === "destreza"
-    );
-    
-    // Find Strength (physical attribute)
-    const strength = attributesByCategory.physical.find(a => 
-      a.system.sourceId === "strength" || a.name.toLowerCase() === "strength" || a.name.toLowerCase() === "força"
-    );
-    
-    // Find Wits (mental attribute)
-    const wits = attributesByCategory.mental.find(a => 
-      a.system.sourceId === "wits" || a.name.toLowerCase() === "wits" || a.name.toLowerCase() === "raciocínio"
-    );
-    
-    // Find Athletics technique
-    const athletics = techniques.find(t => 
-      t.system.sourceId === "athletics" || t.name.toLowerCase() === "athletics" || t.name.toLowerCase() === "atletismo"
-    );
+    const allAttributes = [
+      ...attributesByCategory.physical,
+      ...attributesByCategory.social,
+      ...attributesByCategory.mental,
+    ];
+
+    const findTraitValue = (items, sourceId) => {
+      const item = items.find(i => i.system.sourceId === sourceId);
+      return item?.system.value || 0;
+    };
+
+    // Build techniques map with value and isWeaponTechnique flag
+    const techniquesMap = {};
+    for (const t of techniques) {
+      const key = t.system.sourceId || t.name.toLowerCase();
+      techniquesMap[key] = {
+        value: t.system.value || 0,
+        isWeaponTechnique: t.system.isWeaponTechnique || false,
+      };
+    }
 
     return {
-      dexterity: dexterity?.system.value || 0,
-      strength: strength?.system.value || 0,
-      wits: wits?.system.value || 0,
-      athletics: athletics?.system.value || 0,
-      techniques: Object.fromEntries(techniques.map(t => [t.system.sourceId || t.name.toLowerCase(), t.system.value || 0])),
+      dexterity: findTraitValue(allAttributes, "dexterity"),
+      strength: findTraitValue(allAttributes, "strength"),
+      wits: findTraitValue(allAttributes, "wits"),
+      athletics: findTraitValue(techniques, "athletics"),
+      techniques: techniquesMap,
     };
   }
 
@@ -303,27 +306,41 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
    * Prepare maneuver data with calculated stats
    * @param {Item} maneuver
    * @param {object} characterStats
+   * @param {Array} weapons - Actor's weapons
    * @returns {object}
    * @private
    */
-  _prepareManeuverData(maneuver, characterStats) {
+  _prepareManeuverData(maneuver, characterStats, weapons) {
     const category = maneuver.system.category || "";
-    const isFirearm = category.toLowerCase() === "firearm" || category.toLowerCase() === "arma de fogo";
+    const categoryKey = category.toLowerCase();
     
-    // Get technique value for this maneuver's category
-    const techniqueValue = characterStats.techniques[category.toLowerCase()] || 0;
+    // Get technique data for this maneuver's category
+    const techniqueData = characterStats.techniques[categoryKey] || { value: 0, isWeaponTechnique: false };
+    const techniqueValue = techniqueData.value;
+    const isWeaponTechnique = techniqueData.isWeaponTechnique;
     
-    // Calculate Speed: base is Dexterity (or Wits for firearms)
-    const speedBase = isFirearm ? characterStats.wits : characterStats.dexterity;
-    const calculatedSpeed = this._calculateModifier(maneuver.system.speedModifier, speedBase);
+    // Find equipped weapons for this technique
+    const equippedWeapons = isWeaponTechnique 
+      ? weapons.filter(w => w.system.isEquipped && w.system.techniqueId === categoryKey)
+      : [];
     
-    // Calculate Damage: base is Strength + Technique (or just Technique for firearms)
-    const damageBase = isFirearm ? techniqueValue : characterStats.strength + techniqueValue;
-    const calculatedDamage = this._calculateModifier(maneuver.system.damageModifier, damageBase);
+    // If exactly one weapon is equipped, use its modifiers
+    const singleEquippedWeapon = equippedWeapons.length === 1 ? equippedWeapons[0] : null;
+    const weaponSpeedMod = singleEquippedWeapon ? (parseInt(singleEquippedWeapon.system.speed) || 0) : 0;
+    const weaponDamageMod = singleEquippedWeapon ? (parseInt(singleEquippedWeapon.system.damage) || 0) : 0;
+    const weaponMovementMod = singleEquippedWeapon ? (parseInt(singleEquippedWeapon.system.movement) || 0) : 0;
     
-    // Calculate Movement: base is Athletics (or 0 for firearms)
-    const movementBase = isFirearm ? 0 : characterStats.athletics;
-    const calculatedMovement = this._calculateModifier(maneuver.system.movementModifier, movementBase);
+    // Calculate Speed: base is Dexterity (or Wits for weapon techniques)
+    const speedBase = isWeaponTechnique ? characterStats.wits : characterStats.dexterity;
+    const calculatedSpeed = calculateModifier(maneuver.system.speedModifier, speedBase + weaponSpeedMod);
+    
+    // Calculate Damage: base is Strength + Technique (or just Technique for weapon techniques)
+    const damageBase = isWeaponTechnique ? techniqueValue : characterStats.strength + techniqueValue;
+    const calculatedDamage = calculateModifier(maneuver.system.damageModifier, damageBase + weaponDamageMod);
+    
+    // Calculate Movement: base is Athletics (or 0 for weapon techniques)
+    const movementBase = isWeaponTechnique ? 0 : characterStats.athletics;
+    const calculatedMovement = calculateModifier(maneuver.system.movementModifier, movementBase + weaponMovementMod);
 
     return {
       id: maneuver.id,
@@ -333,73 +350,23 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       calculatedDamage,
       calculatedMovement,
       // Formatted original values for display in parentheses
-      originalSpeed: this._formatOriginalModifier(maneuver.system.speedModifier),
-      originalDamage: this._formatOriginalModifier(maneuver.system.damageModifier),
-      originalMovement: this._formatOriginalModifier(maneuver.system.movementModifier),
-      damageAttribute: isFirearm ? null : "strength",
-      damageTechnique: category.toLowerCase(),
+      originalSpeed: formatOriginalModifier(maneuver.system.speedModifier),
+      originalDamage: formatOriginalModifier(maneuver.system.damageModifier),
+      originalMovement: formatOriginalModifier(maneuver.system.movementModifier),
+      damageAttribute: isWeaponTechnique ? null : "strength",
+      damageTechnique: categoryKey,
+      isWeaponTechnique,
+      // Equipped weapons for this technique
+      equippedWeapons: equippedWeapons.map(w => ({
+        id: w.id,
+        name: w.name,
+        damageMod: parseInt(w.system.damage) || 0,
+        speedMod: parseInt(w.system.speed) || 0,
+        movementMod: parseInt(w.system.movement) || 0,
+      })),
     };
   }
 
-  /**
-   * Format original modifier for display in parentheses
-   * @param {string} modifierStr - The original modifier string
-   * @returns {string} Formatted string for display
-   * @private
-   */
-  _formatOriginalModifier(modifierStr) {
-    if (!modifierStr || modifierStr === "") return "—";
-    
-    // Keep +/- modifiers as-is
-    if (modifierStr.startsWith("+") || modifierStr.startsWith("-")) {
-      return modifierStr;
-    }
-    
-    // Handle special strings
-    const lowerMod = modifierStr.toLowerCase().trim();
-    if (lowerMod === "nenhum" || lowerMod === "none") return "—";
-    if (lowerMod === "um" || lowerMod === "one") return "1";
-    if (lowerMod === "dois" || lowerMod === "two") return "2";
-    
-    // Try to parse as number - keep as-is
-    const value = parseInt(modifierStr);
-    if (!isNaN(value)) return modifierStr;
-    
-    // Any other text returns "*"
-    return "*";
-  }
-
-  /**
-   * Calculate modifier value based on maneuver rules
-   * @param {string} modifierStr - The modifier string (e.g., "+2", "-1", "None")
-   * @param {number} baseStat - The base stat value
-   * @returns {string}
-   * @private
-   */
-  _calculateModifier(modifierStr, baseStat) {
-    if (!modifierStr || modifierStr === "") return "—";
-    
-    // Check if it starts with + or -
-    if (modifierStr.startsWith("+") || modifierStr.startsWith("-")) {
-      const modValue = parseInt(modifierStr);
-      if (!isNaN(modValue)) {
-        return String(baseStat + modValue);
-      }
-    }
-    
-    // Handle special strings - "Nenhum" means no value, not zero
-    const lowerMod = modifierStr.toLowerCase().trim();
-    if (lowerMod === "nenhum" || lowerMod === "none") return "—";
-    if (lowerMod === "um" || lowerMod === "one") return "1";
-    if (lowerMod === "dois" || lowerMod === "two") return "2";
-    
-    // Try to parse as number
-    const value = parseInt(modifierStr);
-    if (!isNaN(value)) return String(value);
-    
-    // Any other text returns "*"
-    return "*";
-  }
 
   /**
    * Organize and classify effects for the actor sheet
@@ -532,7 +499,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const item = this.actor.items.get(itemId);
     if (!item) return;
 
-    const maxValue = StreetFighterActorSheet._getTraitMaxValue(item.type);
+    const maxValue = getTraitMaxValue(item.type);
     const currentValue = item.system.value || 0;
     
     if (currentValue < maxValue) {
@@ -553,7 +520,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     if (!item) return;
 
     const currentValue = item.system.value || 0;
-    const minValue = item.type === "attribute" ? 1 : 0;
+    const minValue = getTraitMinValue(item.type);
     
     if (currentValue > minValue) {
       await item.update({ "system.value": currentValue - 1 });
@@ -572,48 +539,9 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const item = this.actor.items.get(itemId);
     if (!item) return;
 
-    const typeLabel = game.i18n.localize(`STREET_FIGHTER.Item.Types.${item.type}`);
-    const categoryLabel = item.system.category 
-      ? game.i18n.localize(`STREET_FIGHTER.Categories.${item.system.category}`)
-      : "";
-
-    const content = `
-      <div class="street-fighter chat-card">
-        <div class="card-header">
-          <h3>${item.name}</h3>
-        </div>
-        <div class="card-content">
-          <p><strong>${typeLabel}</strong>${categoryLabel ? ` (${categoryLabel})` : ""}</p>
-          <p><strong>${game.i18n.localize("STREET_FIGHTER.Common.value")}:</strong> ${item.system.value || 0}</p>
-          ${item.system.description ? `<p>${item.system.description}</p>` : ""}
-        </div>
-      </div>
-    `;
-
-    await ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: content,
-    });
+    await this._sendTraitToChatById(itemId);
   }
 
-  /**
-   * Get the maximum value for a trait type
-   * @param {string} itemType - The type of item
-   * @returns {number} Maximum value
-   * @private
-   */
-  static _getTraitMaxValue(itemType) {
-    switch (itemType) {
-      case "attribute":
-      case "ability":
-      case "technique":
-        return 8;
-      case "background":
-        return 10;
-      default:
-        return 10;
-    }
-  }
 
   /**
    * Setup context menu for traits (right-click)
@@ -790,26 +718,14 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const item = this.actor.items.get(itemId);
     if (!item) return;
 
-    const content = `
-      <div class="street-fighter chat-card">
-        <div class="card-header">
-          <h3>${item.name}</h3>
-        </div>
-        <div class="card-content">
-          <p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.category")}:</strong> ${item.system.category || "-"}</p>
-          <p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.speedModifier")}:</strong> ${item.system.speedModifier || "-"}</p>
-          <p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.damageModifier")}:</strong> ${item.system.damageModifier || "-"}</p>
-          <p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.movementModifier")}:</strong> ${item.system.movementModifier || "-"}</p>
-          ${item.system.chiCost ? `<p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.chiCost")}:</strong> ${item.system.chiCost}</p>` : ""}
-          ${item.system.willpowerCost ? `<p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.willpowerCost")}:</strong> ${item.system.willpowerCost}</p>` : ""}
-          ${item.system.notes ? `<p><em>${item.system.notes}</em></p>` : ""}
-        </div>
-      </div>
-    `;
+    const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/street-fighter/templates/chat/maneuver-chat-card.hbs",
+      { item }
+    );
 
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: content,
+      content,
     });
   }
 
@@ -822,7 +738,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const item = this.actor.items.get(itemId);
     if (!item) return;
 
-    const maxValue = this.constructor._getTraitMaxValue(item.type);
+    const maxValue = getTraitMaxValue(item.type);
     const currentValue = item.system.value || 0;
     
     if (currentValue < maxValue) {
@@ -840,7 +756,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     if (!item) return;
 
     const currentValue = item.system.value || 0;
-    const minValue = item.type === "attribute" ? 1 : 0;
+    const minValue = getTraitMinValue(item.type);
     
     if (currentValue > minValue) {
       await item.update({ "system.value": currentValue - 1 });
@@ -861,22 +777,14 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       ? game.i18n.localize(`STREET_FIGHTER.Categories.${item.system.category}`)
       : "";
 
-    const content = `
-      <div class="street-fighter chat-card">
-        <div class="card-header">
-          <h3>${item.name}</h3>
-        </div>
-        <div class="card-content">
-          <p><strong>${typeLabel}</strong>${categoryLabel ? ` (${categoryLabel})` : ""}</p>
-          <p><strong>${game.i18n.localize("STREET_FIGHTER.Common.value")}:</strong> ${item.system.value || 0}</p>
-          ${item.system.description ? `<p>${item.system.description}</p>` : ""}
-        </div>
-      </div>
-    `;
+    const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/street-fighter/templates/chat/trait-chat-card.hbs",
+      { item, typeLabel, categoryLabel }
+    );
 
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: content,
+      content,
     });
   }
 
@@ -1006,29 +914,30 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     // Find the attribute and technique for damage calculation
     // Damage = Strength + Technique (based on maneuver category)
     const category = maneuver.system.category || "";
-    const isFirearm = category.toLowerCase() === "firearm" || category.toLowerCase() === "arma de fogo";
+    const categoryKey = category.toLowerCase();
     
-    // Find Strength attribute
+    // Find Strength attribute and the technique for this maneuver's category
     let strengthItem = null;
     let techniqueItem = null;
     
     for (const item of this.actor.items) {
       if (item.type === "attribute") {
-        const sourceId = item.system.sourceId || item.name.toLowerCase();
-        if (sourceId === "strength" || item.name.toLowerCase() === "força") {
+        const sourceId = item.system.sourceId || "";
+        if (sourceId === "strength") {
           strengthItem = item;
         }
       }
       if (item.type === "technique") {
-        const sourceId = item.system.sourceId || item.name.toLowerCase();
-        if (sourceId === category.toLowerCase() || item.name.toLowerCase() === category.toLowerCase()) {
+        const sourceId = item.system.sourceId || "";
+        if (sourceId === categoryKey) {
           techniqueItem = item;
         }
       }
     }
 
-    // For firearms, we don't use strength
-    const attributeItem = isFirearm ? null : strengthItem;
+    // For weapon techniques, we don't use strength
+    const isWeaponTechnique = techniqueItem?.system.isWeaponTechnique || false;
+    const attributeItem = isWeaponTechnique ? null : strengthItem;
     
     // Parse damage modifier for fixed modifier
     let damageModValue = null;
@@ -1037,12 +946,33 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       damageModValue = parseInt(damageModStr);
     }
     
+    // Find equipped weapons for this technique
+    const equippedWeapons = [];
+    if (isWeaponTechnique) {
+      for (const item of this.actor.items) {
+        if (item.type === "weapon" && item.system.isEquipped && item.system.techniqueId === categoryKey) {
+          equippedWeapons.push({
+            id: item.id,
+            name: item.name,
+            damageMod: parseInt(item.system.damage) || 0,
+            // Pre-select if only one weapon is equipped
+            selected: false,
+          });
+        }
+      }
+      // If only one weapon, pre-select it
+      if (equippedWeapons.length === 1) {
+        equippedWeapons[0].selected = true;
+      }
+    }
+    
     const rollData = await StreetFighterRollDialog.create(this.actor, {
       selectedTraitId: attributeItem?.id,
       selectedTraitType: "attribute",
       preSelectedSecondTrait: techniqueItem?.id,
       maneuverName: maneuver.name,
       maneuverDamageModifier: damageModValue,
+      equippedWeapons,
       rollTitle: maneuver.name,
     });
 

@@ -246,7 +246,7 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
 
     const prerequisites = [...(this.item.system.prerequisites || [])];
     if (prerequisites.some((p) => p.type === type && p.id === id)) {
-      ui.notifications.warn("This prerequisite already exists.");
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Errors.prerequisiteExists"));
       return;
     }
 

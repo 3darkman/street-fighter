@@ -301,6 +301,12 @@
       "maneuverDamage": "Dano da Manobra"
     },
     
+    "Errors": {
+      "noFileSelected": "Por favor, selecione um arquivo para importar.",
+      "actorNotFound": "Personagem não encontrado",
+      "prerequisiteExists": "Este pré-requisito já existe."
+    },
+    
     "Settings": {
       "AutoRollDamage": {
         "Name": "Rolar Dano Automaticamente",

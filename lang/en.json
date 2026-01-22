@@ -301,6 +301,12 @@
       "maneuverDamage": "Maneuver Damage"
     },
     
+    "Errors": {
+      "noFileSelected": "Please select a file to import.",
+      "actorNotFound": "Actor not found",
+      "prerequisiteExists": "This prerequisite already exists."
+    },
+    
     "Settings": {
       "AutoRollDamage": {
         "Name": "Auto Roll Damage",

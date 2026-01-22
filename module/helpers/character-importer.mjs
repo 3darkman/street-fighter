@@ -4,22 +4,7 @@
  * @author Kirlian Silvestre
  */
 
-/**
- * Find a world item by its sourceId
- * @param {string} sourceId - The sourceId to search for
- * @param {string|string[]} types - Optional item type(s) to filter by
- * @returns {Item|null}
- */
-function findWorldItemBySourceId(sourceId, types = null) {
-  if (!sourceId) return null;
-  
-  const typeArray = types ? (Array.isArray(types) ? types : [types]) : null;
-  
-  return game.items.find((item) => {
-    if (typeArray && !typeArray.includes(item.type)) return false;
-    return item.system.sourceId === sourceId;
-  }) || null;
-}
+import { findWorldItemBySourceId } from "./utils.mjs";
 
 /**
  * Import characters from a .fscharacters file
@@ -302,7 +287,7 @@ export function showCharacterImportDialog() {
           const fileInput = html.find('input[name="characterFile"]')[0];
           
           if (!fileInput.files.length) {
-            ui.notifications.error("Please select a file to import.");
+            ui.notifications.error(game.i18n.localize("STREET_FIGHTER.Errors.noFileSelected"));
             return;
           }
 

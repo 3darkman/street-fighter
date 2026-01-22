@@ -1,0 +1,20 @@
+<div class="street-fighter chat-card">
+  <div class="card-header">
+    <h3>{{item.name}}</h3>
+  </div>
+  <div class="card-content">
+    <p><strong>{{localize "STREET_FIGHTER.SpecialManeuver.category"}}:</strong> {{item.system.category}}</p>
+    <p><strong>{{localize "STREET_FIGHTER.SpecialManeuver.speedModifier"}}:</strong> {{item.system.speedModifier}}</p>
+    <p><strong>{{localize "STREET_FIGHTER.SpecialManeuver.damageModifier"}}:</strong> {{item.system.damageModifier}}</p>
+    <p><strong>{{localize "STREET_FIGHTER.SpecialManeuver.movementModifier"}}:</strong> {{item.system.movementModifier}}</p>
+    {{#if item.system.chiCost}}
+    <p><strong>{{localize "STREET_FIGHTER.SpecialManeuver.chiCost"}}:</strong> {{item.system.chiCost}}</p>
+    {{/if}}
+    {{#if item.system.willpowerCost}}
+    <p><strong>{{localize "STREET_FIGHTER.SpecialManeuver.willpowerCost"}}:</strong> {{item.system.willpowerCost}}</p>
+    {{/if}}
+    {{#if item.system.notes}}
+    <p><em>{{item.system.notes}}</em></p>
+    {{/if}}
+  </div>
+</div>

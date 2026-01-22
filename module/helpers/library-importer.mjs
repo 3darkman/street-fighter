@@ -4,6 +4,8 @@
  * @author Kirlian Silvestre
  */
 
+import { findWorldItemBySourceId, getWorldItemId, createActiveEffectsFromData } from "./utils.mjs";
+
 /**
  * Import a .fslibrary file and create items in Foundry
  * Uses library name from JSON as main folder, creates subfolders by item type
@@ -141,34 +143,6 @@ async function getOrCreateSubfolder(name, parent) {
   return getOrCreateFolder(name, parent);
 }
 
-/**
- * Find a world item by its sourceId
- * @param {string} sourceId - The sourceId to search for
- * @param {string|string[]} types - Optional item type(s) to filter by
- * @returns {Item|null}
- */
-function findWorldItemBySourceId(sourceId, types = null) {
-  if (!sourceId) return null;
-  
-  const typeArray = types ? (Array.isArray(types) ? types : [types]) : null;
-  
-  return game.items.find((item) => {
-    const matchesSourceId = item.system.sourceId === sourceId;
-    const matchesType = !typeArray || typeArray.includes(item.type);
-    return matchesSourceId && matchesType;
-  });
-}
-
-/**
- * Get the Foundry item ID from a sourceId
- * @param {string} sourceId - The sourceId to search for
- * @param {string|string[]} types - Optional item type(s) to filter by
- * @returns {string|null}
- */
-function getWorldItemId(sourceId, types = null) {
-  const item = findWorldItemBySourceId(sourceId, types);
-  return item?.id || null;
-}
 
 /**
  * Create a Division item from library data
@@ -207,23 +181,7 @@ async function createFightingStyleItem(data, folder) {
     },
   };
   const item = await Item.create(itemData);
-
-  // Create Active Effects from the effects array if present
-  if (data.effects && Array.isArray(data.effects) && data.effects.length > 0) {
-    const activeEffects = data.effects.map((effect) => ({
-      name: effect.type || "Effect",
-      icon: "icons/svg/aura.svg",
-      origin: item.uuid,
-      changes: [
-        {
-          key: `system.${effect.type}`,
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: JSON.stringify({ targets: effect.targets, value: effect.value }),
-        },
-      ],
-    }));
-    await item.createEmbeddedDocuments("ActiveEffect", activeEffects);
-  }
+  await createActiveEffectsFromData(item, data.effects);
 }
 
 /**
@@ -290,23 +248,7 @@ async function createSpecialManeuverItem(data, folder) {
     },
   };
   const item = await Item.create(itemData);
-
-  // Create Active Effects from the effects array if present
-  if (data.effects && Array.isArray(data.effects) && data.effects.length > 0) {
-    const activeEffects = data.effects.map((effect) => ({
-      name: effect.type || "Effect",
-      icon: "icons/svg/aura.svg",
-      origin: item.uuid,
-      changes: [
-        {
-          key: `system.${effect.type}`,
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: JSON.stringify({ targets: effect.targets, value: effect.value }),
-        },
-      ],
-    }));
-    await item.createEmbeddedDocuments("ActiveEffect", activeEffects);
-  }
+  await createActiveEffectsFromData(item, data.effects);
 }
 
 /**
@@ -372,23 +314,7 @@ async function createTraitItem(data, folders) {
   }
 
   const item = await Item.create(baseData);
-
-  // Create Active Effects from the effects array if present
-  if (data.effects && Array.isArray(data.effects) && data.effects.length > 0) {
-    const activeEffects = data.effects.map((effect) => ({
-      name: effect.type || "Effect",
-      icon: "icons/svg/aura.svg",
-      origin: item.uuid,
-      changes: [
-        {
-          key: `system.${effect.type}`,
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: JSON.stringify({ targets: effect.targets, value: effect.value }),
-        },
-      ],
-    }));
-    await item.createEmbeddedDocuments("ActiveEffect", activeEffects);
-  }
+  await createActiveEffectsFromData(item, data.effects);
 
   return itemType;
 }
@@ -444,7 +370,7 @@ export function showImportDialog() {
           const fileInput = html.find('input[name="libraryFile"]')[0];
           
           if (!fileInput.files.length) {
-            ui.notifications.error("Please select a file to import.");
+            ui.notifications.error(game.i18n.localize("STREET_FIGHTER.Errors.noFileSelected"));
             return;
           }
 

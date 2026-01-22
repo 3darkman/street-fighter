@@ -21,6 +21,8 @@ export async function preloadHandlebarsTemplates() {
     "systems/street-fighter/templates/chat/item-card.hbs",
     "systems/street-fighter/templates/chat/roll-card.hbs",
     "systems/street-fighter/templates/chat/roll-result.hbs",
+    "systems/street-fighter/templates/chat/trait-chat-card.hbs",
+    "systems/street-fighter/templates/chat/maneuver-chat-card.hbs",
     "systems/street-fighter/templates/dialog/roll-dialog.hbs",
   ];
 

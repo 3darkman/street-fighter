@@ -21,6 +21,8 @@ import { StreetFighterCombatant } from "./combat/combatant.mjs";
 import { showImportDialog } from "./helpers/library-importer.mjs";
 import { showCharacterImportDialog } from "./helpers/character-importer.mjs";
 import { executeRoll } from "./dice/roll-dialog.mjs";
+import { createImportButton } from "./helpers/utils.mjs";
+import { DIFFICULTY } from "./config/constants.mjs";
 
 Hooks.once("init", async () => {
   console.log("Street Fighter | Initializing Street Fighter RPG System");
@@ -66,14 +68,12 @@ Hooks.once("ready", () => {
 });
 
 Hooks.on("renderItemDirectory", (app, html, data) => {
-  const button = document.createElement("button");
-  button.className = "sf-import-library";
-  button.type = "button";
-  button.innerHTML = `<i class="fas fa-file-import"></i> ${game.i18n.localize("STREET_FIGHTER.Library.import")}`;
-  
-  button.addEventListener("click", () => {
-    game.streetfighter.showImportDialog();
-  });
+  const button = createImportButton(
+    "sf-import-library",
+    "STREET_FIGHTER.Library.import",
+    "fas fa-file-import",
+    () => game.streetfighter.showImportDialog()
+  );
 
   const actionButtons = html.querySelector(".directory-header .action-buttons");
   if (actionButtons) {
@@ -82,14 +82,12 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
 });
 
 Hooks.on("renderActorDirectory", (app, html, data) => {
-  const button = document.createElement("button");
-  button.className = "sf-import-characters";
-  button.type = "button";
-  button.innerHTML = `<i class="fas fa-file-import"></i> ${game.i18n.localize("STREET_FIGHTER.Character.import")}`;
-  
-  button.addEventListener("click", () => {
-    game.streetfighter.showCharacterImportDialog();
-  });
+  const button = createImportButton(
+    "sf-import-characters",
+    "STREET_FIGHTER.Character.import",
+    "fas fa-file-import",
+    () => game.streetfighter.showCharacterImportDialog()
+  );
 
   const actionButtons = html.querySelector(".directory-header .action-buttons");
   if (actionButtons) {
@@ -109,12 +107,12 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
     const actorId = card.dataset.actorId;
     const attributeId = card.dataset.attributeId;
     const secondTraitId = card.dataset.secondTraitId;
-    const difficulty = parseInt(card.dataset.difficulty) || 6;
+    const difficulty = parseInt(card.dataset.difficulty) || DIFFICULTY.default;
     const modifier = parseInt(card.dataset.modifier) || 0;
 
     const actor = game.actors.get(actorId);
     if (!actor) {
-      ui.notifications.warn("Actor not found");
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Errors.actorNotFound"));
       return;
     }
 

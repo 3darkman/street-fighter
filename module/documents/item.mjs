@@ -4,6 +4,8 @@
  * @extends {Item}
  */
 
+import { generateSourceId } from "../helpers/utils.mjs";
+
 export class StreetFighterItem extends Item {
   /** @override */
   async _preCreate(data, options, user) {
@@ -11,26 +13,8 @@ export class StreetFighterItem extends Item {
 
     // Auto-generate sourceId if not provided
     if (!data.system?.sourceId && data.name) {
-      const sourceId = this._generateSourceId(data.name);
-      this.updateSource({ "system.sourceId": sourceId });
+      this.updateSource({ "system.sourceId": generateSourceId(data.name) });
     }
-  }
-
-  /**
-   * Generate a sourceId from a name
-   * Converts to lowercase, removes accents, replaces spaces with underscores, adds _manual suffix
-   * @param {string} name - The item name
-   * @returns {string} - The generated sourceId
-   * @private
-   */
-  _generateSourceId(name) {
-    const baseId = name
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, "_")
-      .replace(/[^a-z0-9_]/g, "");
-    return `${baseId}_foundry`;
   }
 
   /** @override */

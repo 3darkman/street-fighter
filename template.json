@@ -36,7 +36,6 @@
       "sessionRecords": [],
       "languages": [],
       "combos": [],
-      "maneuverWeaponBindings": {},
       "biography": "",
       "background": "",
       "motivations": "",
@@ -125,6 +124,7 @@
       "damage": "",
       "movement": "",
       "special": "",
+      "isEquipped": false,
       "description": ""
     },
     "division": {

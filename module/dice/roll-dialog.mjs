@@ -3,6 +3,8 @@
  * @author Kirlian Silvestre
  */
 
+import { DIFFICULTY, clampDifficulty } from "../config/constants.mjs";
+
 const { DialogV2 } = foundry.applications.api;
 
 export class StreetFighterRollDialog extends DialogV2 {
@@ -16,16 +18,11 @@ export class StreetFighterRollDialog extends DialogV2 {
    * @returns {Promise<object|null>} Roll data or null if cancelled
    */
   static async create(actor, options = {}) {
-    console.log("StreetFighterRollDialog.create called", { actor, options });
-    
     const dialogData = this._prepareDialogData(actor, options);
-    console.log("Dialog data prepared:", dialogData);
-    
     const content = await foundry.applications.handlebars.renderTemplate(
       "systems/street-fighter/templates/dialog/roll-dialog.hbs",
       dialogData
     );
-    console.log("Template rendered, content length:", content?.length);
 
     let formData = null;
     let dialogElement = null;
@@ -34,7 +31,6 @@ export class StreetFighterRollDialog extends DialogV2 {
     const dialogTitle = options.rollTitle || game.i18n.localize("STREET_FIGHTER.Roll.title");
 
     try {
-      console.log("About to call DialogV2.prompt");
       const result = await DialogV2.prompt({
         window: { 
           title: dialogTitle,
@@ -51,20 +47,16 @@ export class StreetFighterRollDialog extends DialogV2 {
           label: game.i18n.localize("STREET_FIGHTER.Roll.roll"),
           icon: "fas fa-dice",
           callback: (event, button, dialog) => {
-            console.log("Roll button callback", { event, button, dialog });
             dialogElement = dialog.element;
             const form = dialog.element.querySelector("form");
             if (form) {
               formData = new FormData(form);
-              console.log("FormData captured");
             }
             return formData;
           },
         },
         rejectClose: false,
       });
-
-      console.log("DialogV2.prompt result:", result, "formData:", formData);
 
       if (!formData) return null;
 
@@ -144,7 +136,7 @@ export class StreetFighterRollDialog extends DialogV2 {
     // Get applicable effects (future implementation)
     const effects = [];
 
-    // Prepare fixed modifiers (from maneuvers, etc.)
+    // Prepare fixed modifiers (from maneuvers, weapons, etc.)
     const fixedModifiers = [];
     if (options.maneuverDamageModifier !== undefined && options.maneuverDamageModifier !== null) {
       const modValue = parseInt(options.maneuverDamageModifier);
@@ -157,6 +149,21 @@ export class StreetFighterRollDialog extends DialogV2 {
         });
       }
     }
+    
+    // Add equipped weapons as fixed modifiers
+    if (options.equippedWeapons && Array.isArray(options.equippedWeapons)) {
+      for (const weapon of options.equippedWeapons) {
+        const modValue = weapon.damageMod || 0;
+        fixedModifiers.push({
+          name: weapon.name,
+          value: modValue,
+          displayValue: modValue >= 0 ? `+${modValue}` : `${modValue}`,
+          checked: weapon.selected || false,
+          isWeapon: true,
+          weaponId: weapon.id,
+        });
+      }
+    }
 
     return {
       actor,
@@ -166,7 +173,7 @@ export class StreetFighterRollDialog extends DialogV2 {
       backgrounds,
       effects,
       fixedModifiers,
-      difficulty: 6,
+      difficulty: DIFFICULTY.default,
       selectedTraitType: options.selectedTraitType,
       preSelectedSecondTrait: options.preSelectedSecondTrait,
     };
@@ -184,8 +191,8 @@ export class StreetFighterRollDialog extends DialogV2 {
   static _processFormData(formData, actor, dialogElement, rollTitle) {
     const attributeId = formData.get("attribute");
     const secondTraitId = formData.get("secondTrait");
-    const rawDifficulty = parseInt(formData.get("difficulty")) || 6;
-    const difficulty = Math.max(2, Math.min(10, rawDifficulty));
+    const rawDifficulty = parseInt(formData.get("difficulty")) || DIFFICULTY.default;
+    const difficulty = clampDifficulty(rawDifficulty);
     const modifier = parseInt(formData.get("modifier")) || 0;
 
     // Calculate fixed modifiers from checked checkboxes
@@ -240,10 +247,7 @@ export class StreetFighterRollDialog extends DialogV2 {
    * @private
    */
   static _setupDialogListeners(html) {
-    if (!html) {
-      console.warn("Roll Dialog: html is null");
-      return;
-    }
+    if (!html) return;
     
     const attributeSelect = html.querySelector('select[name="attribute"]');
     const secondTraitSelect = html.querySelector('select[name="secondTrait"]');
@@ -252,12 +256,7 @@ export class StreetFighterRollDialog extends DialogV2 {
     const poolDisplay = html.querySelector("#dicePoolTotal");
     const fixedModCheckboxes = html.querySelectorAll('.fixed-modifier-item input[type="checkbox"]');
     
-    console.log("Roll Dialog elements:", { attributeSelect, secondTraitSelect, modifierInput, difficultyInput, poolDisplay });
-    
-    if (!difficultyInput) {
-      console.warn("Roll Dialog: difficultyInput not found");
-      return;
-    }
+    if (!difficultyInput) return;
 
     const updatePool = () => {
       const attrOption = attributeSelect.selectedOptions[0];
@@ -279,12 +278,11 @@ export class StreetFighterRollDialog extends DialogV2 {
       poolDisplay.textContent = total;
     };
 
-    // Clamp difficulty between 2 and 10
-    const clampDifficulty = () => {
+    const clampDifficultyInput = () => {
       let value = parseInt(difficultyInput.value);
       if (isNaN(value)) return;
-      if (value < 2) difficultyInput.value = 2;
-      if (value > 10) difficultyInput.value = 10;
+      if (value < DIFFICULTY.min) difficultyInput.value = DIFFICULTY.min;
+      if (value > DIFFICULTY.max) difficultyInput.value = DIFFICULTY.max;
     };
 
     attributeSelect?.addEventListener("change", updatePool);
@@ -297,9 +295,9 @@ export class StreetFighterRollDialog extends DialogV2 {
     });
     
     // Multiple events to catch all input methods
-    difficultyInput?.addEventListener("input", clampDifficulty);
-    difficultyInput?.addEventListener("change", clampDifficulty);
-    difficultyInput?.addEventListener("keyup", clampDifficulty);
+    difficultyInput?.addEventListener("input", clampDifficultyInput);
+    difficultyInput?.addEventListener("change", clampDifficultyInput);
+    difficultyInput?.addEventListener("keyup", clampDifficultyInput);
 
     // Initial update
     updatePool();

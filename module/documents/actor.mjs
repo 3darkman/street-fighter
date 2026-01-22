@@ -56,24 +56,23 @@ export class StreetFighterActor extends Actor {
     const dexterity = this._getTraitValue("dexterity");
     const stamina = this._getTraitValue("stamina");
 
+    // Initiative = Wits + Dexterity
     systemData.combat.initiative = wits + dexterity;
-    systemData.combat.defense = Math.floor((dexterity + wits) / 2);
-    systemData.combat.soak = Math.floor(stamina / 2);
+    // Soak = Stamina (not half)
+    systemData.combat.soak = stamina;
   }
 
   /**
    * Prepare fighter-specific data
+   * Note: health.max, chi.max, willpower.max come from character data (imported or manual)
+   * They are NOT calculated from attributes
    * @param {object} systemData
    * @private
    */
   _prepareFighterData(systemData) {
-    // Get attribute/technique values from embedded items
-    const stamina = this._getTraitValue("stamina");
-    const focus = this._getTraitValue("focus");
-    const intelligence = this._getTraitValue("intelligence");
-
-    systemData.resources.health.max = 10 + stamina * 2 + focus;
-    systemData.resources.chi.max = 5 + focus + intelligence;
+    // Resource max values come from the character data, not calculated
+    // For imported characters: values come from the import
+    // For manual characters: values are set directly by the user
   }
 
   /**
