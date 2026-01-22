@@ -20,6 +20,7 @@ import { StreetFighterCombatant } from "./combat/combatant.mjs";
 
 import { showImportDialog } from "./helpers/library-importer.mjs";
 import { showCharacterImportDialog } from "./helpers/character-importer.mjs";
+import { executeRoll } from "./dice/roll-dialog.mjs";
 
 Hooks.once("init", async () => {
   console.log("Street Fighter | Initializing Street Fighter RPG System");
@@ -94,4 +95,48 @@ Hooks.on("renderActorDirectory", (app, html, data) => {
   if (actionButtons) {
     actionButtons.prepend(button);
   }
+});
+
+Hooks.on("renderChatMessage", (message, html, data) => {
+  const element = html instanceof HTMLElement ? html : html[0] ?? html;
+  if (!element?.querySelector) return;
+  
+  const rerollButton = element.querySelector(".reroll-button");
+  if (!rerollButton) return;
+
+  rerollButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const card = element.querySelector(".roll-result");
+    if (!card) return;
+
+    const actorId = card.dataset.actorId;
+    const attributeId = card.dataset.attributeId;
+    const secondTraitId = card.dataset.secondTraitId;
+    const difficulty = parseInt(card.dataset.difficulty) || 6;
+    const modifier = parseInt(card.dataset.modifier) || 0;
+
+    const actor = game.actors.get(actorId);
+    if (!actor) {
+      ui.notifications.warn("Actor not found");
+      return;
+    }
+
+    const attribute = actor.items.get(attributeId);
+    const secondTrait = actor.items.get(secondTraitId);
+
+    const attributeValue = attribute?.system.value || 0;
+    const secondTraitValue = secondTrait?.system.value || 0;
+    const dicePool = attributeValue + secondTraitValue + modifier;
+
+    const rollData = {
+      actor,
+      attribute: attribute ? { id: attribute.id, name: attribute.name, value: attributeValue } : null,
+      secondTrait: secondTrait ? { id: secondTrait.id, name: secondTrait.name, value: secondTraitValue, type: secondTrait.type } : null,
+      difficulty,
+      modifier,
+      dicePool: Math.max(0, dicePool),
+    };
+
+    await executeRoll(rollData);
+  });
 });

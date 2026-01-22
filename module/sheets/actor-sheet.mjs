@@ -4,6 +4,8 @@
  * @extends {ActorSheetV2}
  */
 
+import { StreetFighterRollDialog, executeRoll } from "../dice/roll-dialog.mjs";
+
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -29,6 +31,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       editEffect: StreetFighterActorSheet._onEditEffect,
       deleteEffect: StreetFighterActorSheet._onDeleteEffect,
       toggleEffect: StreetFighterActorSheet._onToggleEffect,
+      rollTrait: StreetFighterActorSheet._onRollTrait,
     },
     form: {
       submitOnChange: true,
@@ -477,7 +480,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
         name: game.i18n.localize("STREET_FIGHTER.ContextMenu.increment"),
         icon: '<i class="fas fa-plus"></i>',
         callback: (li) => {
-          const itemId = li[0]?.dataset?.itemId;
+          const itemId = li.dataset?.itemId;
           if (itemId) sheet._incrementTraitById(itemId);
         },
       });
@@ -485,7 +488,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
         name: game.i18n.localize("STREET_FIGHTER.ContextMenu.decrement"),
         icon: '<i class="fas fa-minus"></i>',
         callback: (li) => {
-          const itemId = li[0]?.dataset?.itemId;
+          const itemId = li.dataset?.itemId;
           if (itemId) sheet._decrementTraitById(itemId);
         },
       });
@@ -496,12 +499,12 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       name: game.i18n.localize("STREET_FIGHTER.ContextMenu.sendToChat"),
       icon: '<i class="fas fa-comment"></i>',
       callback: (li) => {
-        const itemId = li[0]?.dataset?.itemId;
+        const itemId = li.dataset?.itemId;
         if (itemId) sheet._sendTraitToChatById(itemId);
       },
     });
 
-    new ContextMenu(html, ".trait-item[data-item-id]", menuItems);
+    new foundry.applications.ux.ContextMenu.implementation(html, ".trait-item[data-item-id]", menuItems, { jQuery: false });
   }
 
   /**
@@ -652,5 +655,33 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     if (!effect) return;
 
     await effect.update({ disabled: !effect.disabled });
+  }
+
+  /**
+   * Handle clicking a trait to open roll dialog
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onRollTrait(event, target) {
+    event.preventDefault();
+    console.log("_onRollTrait called", { event, target });
+    
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    console.log("itemId:", itemId);
+    
+    const item = this.actor.items.get(itemId);
+    console.log("item:", item);
+
+    if (!item) return;
+
+    const rollData = await StreetFighterRollDialog.create(this.actor, {
+      selectedTraitId: item.id,
+      selectedTraitType: item.type,
+    });
+
+    if (rollData) {
+      await executeRoll(rollData);
+    }
   }
 }

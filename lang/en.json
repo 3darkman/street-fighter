@@ -274,6 +274,50 @@
       "add": "Add Effect",
       "new": "New Effect",
       "toggle": "Toggle Effect"
+    },
+    
+    "Roll": {
+      "title": "Dice Roll",
+      "click": "Click to roll",
+      "attribute": "Attribute",
+      "secondTrait": "Second Trait",
+      "selectAttribute": "Select attribute...",
+      "selectTrait": "Select trait...",
+      "dicePool": "Dice Pool",
+      "difficulty": "Difficulty",
+      "difficultyShort": "Diff.",
+      "modifier": "Modifier",
+      "activeEffects": "Active Effects",
+      "roll": "Roll",
+      "noDice": "No dice to roll!",
+      "success": "Success",
+      "failure": "Failure",
+      "criticalFailure": "Critical Failure!",
+      "successCount": "{count} Success(es)",
+      "onesRemoved": "{count} success(es) removed by 1s",
+      "reroll": "Reroll"
+    },
+    
+    "Settings": {
+      "AutoRollDamage": {
+        "Name": "Auto Roll Damage",
+        "Hint": "Automatically roll damage when an attack succeeds."
+      },
+      "ShowCombatAnimations": {
+        "Name": "Show Combat Animations",
+        "Hint": "Display animations during combat actions."
+      },
+      "OnesRemoveSuccesses": {
+        "Name": "Ones Remove Successes",
+        "Hint": "Each die showing 1 removes one success from the roll."
+      },
+      "CriticalFailureRule": {
+        "Name": "Critical Failure Rule",
+        "Hint": "Determines when a roll is considered a critical failure.",
+        "MoreOnesThanSuccesses": "More 1s than successes (and no net successes)",
+        "OnesWithNoSuccesses": "Any 1s with no successes",
+        "Disabled": "Disabled"
+      }
     }
   }
 }

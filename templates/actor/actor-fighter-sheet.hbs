@@ -53,7 +53,7 @@
             <ul class="trait-list">
               {{#each items.attributesByCategory.physical as |attr|}}
               <li class="trait-item" data-item-id="{{attr.id}}">
-                <span class="trait-name">{{attr.name}}</span>
+                <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{attr.name}}</a>
                 {{{circlePips attr.system.value 8}}}
                 {{#unless ../../isImported}}
                 <div class="item-controls">
@@ -70,7 +70,7 @@
             <ul class="trait-list">
               {{#each items.attributesByCategory.social as |attr|}}
               <li class="trait-item" data-item-id="{{attr.id}}">
-                <span class="trait-name">{{attr.name}}</span>
+                <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{attr.name}}</a>
                 {{{circlePips attr.system.value 8}}}
                 {{#unless ../../isImported}}
                 <div class="item-controls">
@@ -87,7 +87,7 @@
             <ul class="trait-list">
               {{#each items.attributesByCategory.mental as |attr|}}
               <li class="trait-item" data-item-id="{{attr.id}}">
-                <span class="trait-name">{{attr.name}}</span>
+                <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{attr.name}}</a>
                 {{{circlePips attr.system.value 8}}}
                 {{#unless ../../isImported}}
                 <div class="item-controls">
@@ -111,7 +111,7 @@
             <ul class="trait-list">
               {{#each items.abilitiesByCategory.talents as |ability|}}
               <li class="trait-item" data-item-id="{{ability.id}}">
-                <span class="trait-name">{{ability.name}}</span>
+                <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{ability.name}}</a>
                 {{{circlePips ability.system.value 8}}}
                 {{#unless ../../isImported}}
                 <div class="item-controls">
@@ -128,7 +128,7 @@
             <ul class="trait-list">
               {{#each items.abilitiesByCategory.skills as |ability|}}
               <li class="trait-item" data-item-id="{{ability.id}}">
-                <span class="trait-name">{{ability.name}}</span>
+                <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{ability.name}}</a>
                 {{{circlePips ability.system.value 8}}}
                 {{#unless ../../isImported}}
                 <div class="item-controls">
@@ -145,7 +145,7 @@
             <ul class="trait-list">
               {{#each items.abilitiesByCategory.knowledge as |ability|}}
               <li class="trait-item" data-item-id="{{ability.id}}">
-                <span class="trait-name">{{ability.name}}</span>
+                <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{ability.name}}</a>
                 {{{circlePips ability.system.value 8}}}
                 {{#unless ../../isImported}}
                 <div class="item-controls">
@@ -167,7 +167,7 @@
           <ul class="trait-list">
             {{#each items.techniques as |tech|}}
             <li class="trait-item" data-item-id="{{tech.id}}">
-              <span class="trait-name">{{tech.name}}</span>
+              <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{tech.name}}</a>
               {{{circlePips tech.system.value 8}}}
               {{#unless ../isImported}}
               <div class="item-controls">
@@ -185,7 +185,7 @@
           <ul class="trait-list">
             {{#each items.backgrounds as |bg|}}
             <li class="trait-item" data-item-id="{{bg.id}}">
-              <span class="trait-name">{{bg.name}}</span>
+              <a class="trait-name rollable" data-action="rollTrait" title="{{localize 'STREET_FIGHTER.Roll.click'}}">{{bg.name}}</a>
               {{{circlePips bg.system.value 5}}}
               {{#unless ../isImported}}
               <div class="item-controls">

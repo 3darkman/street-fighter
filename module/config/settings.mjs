@@ -12,21 +12,27 @@ export function registerSettings() {
     default: "",
   });
 
-  game.settings.register("street-fighter", "autoRollDamage", {
-    name: "STREET_FIGHTER.Settings.AutoRollDamage.Name",
-    hint: "STREET_FIGHTER.Settings.AutoRollDamage.Hint",
+
+  game.settings.register("street-fighter", "onesRemoveSuccesses", {
+    name: "STREET_FIGHTER.Settings.OnesRemoveSuccesses.Name",
+    hint: "STREET_FIGHTER.Settings.OnesRemoveSuccesses.Hint",
     scope: "world",
     config: true,
     type: Boolean,
-    default: false,
+    default: true,
   });
 
-  game.settings.register("street-fighter", "showCombatAnimations", {
-    name: "STREET_FIGHTER.Settings.ShowCombatAnimations.Name",
-    hint: "STREET_FIGHTER.Settings.ShowCombatAnimations.Hint",
-    scope: "client",
+  game.settings.register("street-fighter", "criticalFailureRule", {
+    name: "STREET_FIGHTER.Settings.CriticalFailureRule.Name",
+    hint: "STREET_FIGHTER.Settings.CriticalFailureRule.Hint",
+    scope: "world",
     config: true,
-    type: Boolean,
-    default: true,
+    type: String,
+    choices: {
+      "moreOnesThanSuccesses": "STREET_FIGHTER.Settings.CriticalFailureRule.MoreOnesThanSuccesses",
+      "onesWithNoSuccesses": "STREET_FIGHTER.Settings.CriticalFailureRule.OnesWithNoSuccesses",
+      "disabled": "STREET_FIGHTER.Settings.CriticalFailureRule.Disabled",
+    },
+    default: "moreOnesThanSuccesses",
   });
 }

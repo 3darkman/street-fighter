@@ -274,6 +274,50 @@
       "add": "Adicionar Efeito",
       "new": "Novo Efeito",
       "toggle": "Alternar Efeito"
+    },
+    
+    "Roll": {
+      "title": "Rolagem de Dados",
+      "click": "Clique para rolar",
+      "attribute": "Atributo",
+      "secondTrait": "Segundo Trait",
+      "selectAttribute": "Selecione o atributo...",
+      "selectTrait": "Selecione o trait...",
+      "dicePool": "Parada de Dados",
+      "difficulty": "Dificuldade",
+      "difficultyShort": "Dif.",
+      "modifier": "Modificador",
+      "activeEffects": "Efeitos Ativos",
+      "roll": "Rolar",
+      "noDice": "Nenhum dado para rolar!",
+      "success": "Sucesso",
+      "failure": "Falha",
+      "criticalFailure": "Falha Crítica!",
+      "successCount": "{count} Sucesso(s)",
+      "onesRemoved": "{count} sucesso(s) removido(s) por 1s",
+      "reroll": "Rolar Novamente"
+    },
+    
+    "Settings": {
+      "AutoRollDamage": {
+        "Name": "Rolar Dano Automaticamente",
+        "Hint": "Rola o dano automaticamente quando um ataque é bem-sucedido."
+      },
+      "ShowCombatAnimations": {
+        "Name": "Mostrar Animações de Combate",
+        "Hint": "Exibe animações durante ações de combate."
+      },
+      "OnesRemoveSuccesses": {
+        "Name": "1s Removem Sucessos",
+        "Hint": "Cada dado mostrando 1 remove um sucesso da rolagem."
+      },
+      "CriticalFailureRule": {
+        "Name": "Regra de Falha Crítica",
+        "Hint": "Determina quando uma rolagem é considerada falha crítica.",
+        "MoreOnesThanSuccesses": "Mais 1s que sucessos (e nenhum sucesso líquido)",
+        "OnesWithNoSuccesses": "Qualquer 1 sem nenhum sucesso",
+        "Disabled": "Desativado"
+      }
     }
   }
 }

@@ -20,6 +20,8 @@ export async function preloadHandlebarsTemplates() {
     "systems/street-fighter/templates/item/item-division-sheet.hbs",
     "systems/street-fighter/templates/chat/item-card.hbs",
     "systems/street-fighter/templates/chat/roll-card.hbs",
+    "systems/street-fighter/templates/chat/roll-result.hbs",
+    "systems/street-fighter/templates/dialog/roll-dialog.hbs",
   ];
 
   return foundry.applications.handlebars.loadTemplates(templatePaths);

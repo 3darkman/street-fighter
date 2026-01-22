@@ -1,0 +1,76 @@
+<div class="street-fighter chat-card roll-result {{resultType}}"
+     data-actor-id="{{actor.id}}"
+     data-attribute-id="{{attribute.id}}"
+     data-second-trait-id="{{secondTrait.id}}"
+     data-difficulty="{{difficulty}}"
+     data-modifier="{{modifier}}">
+  <div class="card-header">
+    <h3>{{localize "STREET_FIGHTER.Roll.title"}}</h3>
+    <button type="button" class="reroll-button" data-tooltip="{{localize 'STREET_FIGHTER.Roll.reroll'}}">
+      <i class="fas fa-redo"></i>
+    </button>
+  </div>
+
+  <div class="card-content">
+    {{!-- Roll Info --}}
+    <div class="roll-info">
+      {{#if attribute}}
+      <div class="roll-trait">
+        <span class="trait-label">{{attribute.name}}</span>
+        <span class="trait-value">{{attribute.value}}</span>
+      </div>
+      {{/if}}
+      
+      {{#if secondTrait}}
+      <span class="roll-plus">+</span>
+      <div class="roll-trait">
+        <span class="trait-label">{{secondTrait.name}}</span>
+        <span class="trait-value">{{secondTrait.value}}</span>
+      </div>
+      {{/if}}
+
+      {{#if modifier}}
+      <span class="roll-plus">{{#if (gt modifier 0)}}+{{/if}}</span>
+      <div class="roll-trait modifier">
+        <span class="trait-label">{{localize "STREET_FIGHTER.Roll.modifier"}}</span>
+        <span class="trait-value">{{modifier}}</span>
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="roll-summary">
+      <span class="dice-pool">{{dicePool}}d10</span>
+      <span class="difficulty">{{localize "STREET_FIGHTER.Roll.difficultyShort"}} {{difficulty}}</span>
+    </div>
+
+    {{!-- Dice Results --}}
+    <div class="dice-results">
+      {{#each diceResults}}
+      <span class="die d10 {{this.cssClass}}" data-value="{{this.value}}">{{this.value}}</span>
+      {{/each}}
+    </div>
+
+    {{!-- Result Summary --}}
+    <div class="roll-result-summary {{resultType}}">
+      {{#if onesRemoveSuccesses}}
+      {{#if onesRemoved}}
+      <div class="ones-removed">
+        <i class="fas fa-minus-circle"></i>
+        {{localize "STREET_FIGHTER.Roll.onesRemoved" count=onesRemoved}}
+      </div>
+      {{/if}}
+      {{/if}}
+
+      <div class="final-result">
+        {{#if isCriticalFailure}}
+        <i class="fas fa-skull"></i>
+        {{else if (gt finalSuccesses 0)}}
+        <i class="fas fa-check-circle"></i>
+        {{else}}
+        <i class="fas fa-times-circle"></i>
+        {{/if}}
+        <span class="result-label">{{resultLabel}}</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -4,8 +4,8 @@
  */
 
 :root {
-  --sf-primary: #d32f2f;
-  --sf-primary-dark: #9a0007;
+  --sf-primary: #d15050;
+  --sf-primary-dark: #fc0915;
   --sf-primary-light: #ff6659;
   --sf-secondary: #1976d2;
   --sf-secondary-dark: #004ba0;
@@ -1499,4 +1499,347 @@ button.sf-import-characters:hover {
 
 .effect-add button:hover {
   background: var(--sf-primary-dark);
+}
+
+/* ==================== */
+/* Rollable Traits      */
+/* ==================== */
+
+.trait-name.rollable {
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--sf-text);
+  transition: color 0.2s ease;
+}
+
+.trait-name.rollable:hover {
+  color: var(--sf-primary);
+  text-decoration: underline;
+}
+
+/* ==================== */
+/* Roll Dialog          */
+/* ==================== */
+
+.roll-dialog-window {
+  min-width: 400px;
+}
+
+.roll-dialog {
+  padding: 12px;
+}
+
+.roll-dialog .roll-traits {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.roll-dialog .trait-select {
+  flex: 1;
+}
+
+.roll-dialog .trait-select label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--sf-text-muted);
+}
+
+.roll-dialog .trait-dropdown {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  background: var(--sf-surface);
+  font-size: 13px;
+}
+
+.roll-dialog .trait-plus {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--sf-primary);
+  padding-top: 20px;
+}
+
+.roll-dialog .dice-pool-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--sf-surface-light);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.roll-dialog .pool-label {
+  font-weight: bold;
+  color: var(--sf-text-muted);
+}
+
+.roll-dialog .pool-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--sf-primary);
+}
+
+.roll-dialog .pool-dice {
+  font-size: 16px;
+  color: var(--sf-text-muted);
+}
+
+.roll-dialog .roll-difficulty,
+.roll-dialog .roll-modifier {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.roll-dialog .roll-difficulty label,
+.roll-dialog .roll-modifier label {
+  flex: 1;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.roll-dialog .roll-difficulty input,
+.roll-dialog .roll-modifier input {
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.roll-dialog .roll-effects {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sf-border);
+}
+
+.roll-dialog .roll-effects h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: var(--sf-text-muted);
+}
+
+.roll-dialog .effect-modifiers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.roll-dialog .effect-modifier {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.roll-dialog .effect-modifier label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.roll-dialog .effect-modifier img {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+}
+
+/* ==================== */
+/* Roll Result Chat     */
+/* ==================== */
+
+.street-fighter.chat-card.roll-result {
+  background: #ffffff;
+}
+
+.roll-result .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--sf-primary);
+  color: white;
+  padding: 8px 12px;
+}
+
+.roll-result .card-header h3 {
+  margin: 0;
+  font-size: 14px;
+  flex: 1;
+}
+
+.roll-result .reroll-button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.roll-result .reroll-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: white;
+}
+
+.roll-result .reroll-button i {
+  font-size: 12px;
+}
+
+.roll-result .card-content {
+  padding: 12px;
+}
+
+.roll-result .roll-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.roll-result .roll-trait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+}
+
+.roll-result .roll-trait.modifier {
+  background: #e3f2fd;
+}
+
+.roll-result .trait-label {
+  font-size: 11px;
+  color: var(--sf-text);
+}
+
+.roll-result .trait-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--sf-primary);
+}
+
+.roll-result .roll-plus {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--sf-text-muted);
+}
+
+.roll-result .roll-summary {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--sf-text-muted);
+}
+
+.roll-result .dice-pool {
+  font-weight: bold;
+}
+
+.roll-result .dice-results {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.roll-result .die {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+  background: white;
+  border: 2px solid #ccc;
+  color: #333;
+}
+
+.roll-result .die.success {
+  background: #c8e6c9;
+  border-color: #4caf50;
+  color: #2e7d32;
+}
+
+.roll-result .die.failure {
+  background: #ffcdd2;
+  border-color: #f44336;
+  color: #c62828;
+}
+
+.roll-result .roll-result-summary {
+  text-align: center;
+  padding: 12px;
+  border-radius: 6px;
+  background: #f5f5f5;
+}
+
+.roll-result .ones-removed {
+  font-size: 11px;
+  color: #c62828;
+  margin-bottom: 6px;
+}
+
+.roll-result .ones-removed i {
+  margin-right: 4px;
+}
+
+.roll-result .final-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.roll-result.success .roll-result-summary {
+  background: #e8f5e9;
+}
+
+.roll-result.success .final-result {
+  color: #2e7d32;
+}
+
+.roll-result.failure .roll-result-summary {
+  background: #fafafa;
+}
+
+.roll-result.failure .final-result {
+  color: #757575;
+}
+
+.roll-result.criticalFailure .roll-result-summary {
+  background: #ffebee;
+}
+
+.roll-result.criticalFailure .final-result {
+  color: #c62828;
 }

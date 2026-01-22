@@ -1,0 +1,84 @@
+<form class="street-fighter roll-dialog">
+  <div class="roll-traits">
+    {{!-- First Trait (Attribute) --}}
+    <div class="trait-select">
+      <label>{{localize "STREET_FIGHTER.Roll.attribute"}}</label>
+      <select name="attribute" class="trait-dropdown">
+        <option value="">{{localize "STREET_FIGHTER.Roll.selectAttribute"}}</option>
+        {{#each attributes}}
+        <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.selected}}selected{{/if}}>
+          {{this.name}} ({{this.system.value}})
+        </option>
+        {{/each}}
+      </select>
+    </div>
+
+    <div class="trait-plus">+</div>
+
+    {{!-- Second Trait (Ability/Technique/Background) --}}
+    <div class="trait-select">
+      <label>{{localize "STREET_FIGHTER.Roll.secondTrait"}}</label>
+      <select name="secondTrait" class="trait-dropdown">
+        <option value="">{{localize "STREET_FIGHTER.Roll.selectTrait"}}</option>
+        <optgroup label="{{localize 'STREET_FIGHTER.Item.Types.ability'}}">
+          {{#each abilities}}
+          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.selected}}selected{{/if}}>
+            {{this.name}} ({{this.system.value}})
+          </option>
+          {{/each}}
+        </optgroup>
+        <optgroup label="{{localize 'STREET_FIGHTER.Item.Types.technique'}}">
+          {{#each techniques}}
+          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.selected}}selected{{/if}}>
+            {{this.name}} ({{this.system.value}})
+          </option>
+          {{/each}}
+        </optgroup>
+        <optgroup label="{{localize 'STREET_FIGHTER.Item.Types.background'}}">
+          {{#each backgrounds}}
+          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.selected}}selected{{/if}}>
+            {{this.name}} ({{this.system.value}})
+          </option>
+          {{/each}}
+        </optgroup>
+      </select>
+    </div>
+  </div>
+
+  {{!-- Dice Pool Summary --}}
+  <div class="dice-pool-summary">
+    <span class="pool-label">{{localize "STREET_FIGHTER.Roll.dicePool"}}:</span>
+    <span class="pool-value" id="dicePoolTotal">0</span>
+    <span class="pool-dice">d10</span>
+  </div>
+
+  {{!-- Difficulty --}}
+  <div class="roll-difficulty">
+    <label>{{localize "STREET_FIGHTER.Roll.difficulty"}}</label>
+    <input type="number" name="difficulty" value="{{difficulty}}" min="2" max="10" />
+  </div>
+
+  {{!-- Modifier --}}
+  <div class="roll-modifier">
+    <label>{{localize "STREET_FIGHTER.Roll.modifier"}}</label>
+    <input type="number" name="modifier" value="0" />
+  </div>
+
+  {{!-- Active Effects (future implementation) --}}
+  {{#if effects.length}}
+  <div class="roll-effects">
+    <h4>{{localize "STREET_FIGHTER.Roll.activeEffects"}}</h4>
+    <ul class="effect-modifiers">
+      {{#each effects}}
+      <li class="effect-modifier">
+        <input type="checkbox" name="effect-{{this.id}}" id="effect-{{this.id}}" checked />
+        <label for="effect-{{this.id}}">
+          <img src="{{this.icon}}" alt="{{this.name}}" />
+          {{this.name}} ({{this.modifier}})
+        </label>
+      </li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+</form>
