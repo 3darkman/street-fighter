@@ -182,6 +182,29 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
     const secondTraitId = card.dataset.secondTraitId;
     const difficulty = parseInt(card.dataset.difficulty) || DIFFICULTY.default;
     const modifier = parseInt(card.dataset.modifier) || 0;
+    const dicePool = parseInt(card.dataset.dicePool) || 0;
+    const rollTitle = card.dataset.rollTitle || null;
+    const targetTokenId = card.dataset.targetTokenId || null;
+    const targetActorId = card.dataset.targetActorId || null;
+    const targetName = card.dataset.targetName || null;
+    const attributeValue = parseInt(card.dataset.attributeValue) || 0;
+    const attributeName = card.dataset.attributeName || null;
+    const secondTraitValue = parseInt(card.dataset.secondTraitValue) || 0;
+    const secondTraitName = card.dataset.secondTraitName || null;
+    const secondTraitType = card.dataset.secondTraitType || null;
+    const isDamageRoll = card.dataset.isDamageRoll === "true";
+
+    // Parse modifiers from JSON
+    let fixedModifiers = [];
+    let effectModifiers = [];
+    try {
+      const fixedModifiersStr = card.dataset.fixedModifiers;
+      const effectModifiersStr = card.dataset.effectModifiers;
+      if (fixedModifiersStr) fixedModifiers = JSON.parse(fixedModifiersStr);
+      if (effectModifiersStr) effectModifiers = JSON.parse(effectModifiersStr);
+    } catch (e) {
+      console.warn("Street Fighter | Failed to parse modifiers for reroll", e);
+    }
 
     const actor = game.actors.get(actorId);
     if (!actor) {
@@ -189,20 +212,20 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       return;
     }
 
-    const attribute = actor.items.get(attributeId);
-    const secondTrait = actor.items.get(secondTraitId);
-
-    const attributeValue = attribute?.system.value || 0;
-    const secondTraitValue = secondTrait?.system.value || 0;
-    const dicePool = attributeValue + secondTraitValue + modifier;
-
     const rollData = {
       actor,
-      attribute: attribute ? { id: attribute.id, name: attribute.name, value: attributeValue } : null,
-      secondTrait: secondTrait ? { id: secondTrait.id, name: secondTrait.name, value: secondTraitValue, type: secondTrait.type } : null,
+      attribute: attributeId ? { id: attributeId, name: attributeName, value: attributeValue } : null,
+      secondTrait: secondTraitId ? { id: secondTraitId, name: secondTraitName, value: secondTraitValue, type: secondTraitType } : null,
       difficulty,
       modifier,
+      fixedModifiers,
+      effectModifiers,
       dicePool: Math.max(0, dicePool),
+      rollTitle,
+      targetTokenId,
+      targetActorId,
+      targetName,
+      isDamageRoll,
     };
 
     await executeRoll(rollData);

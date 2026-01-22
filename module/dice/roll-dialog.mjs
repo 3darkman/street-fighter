@@ -61,7 +61,7 @@ export class StreetFighterRollDialog extends DialogV2 {
 
       if (!formData) return null;
 
-      return this._processFormData(formData, actor, dialogElement, options.rollTitle);
+      return this._processFormData(formData, actor, dialogElement, options);
     } catch (error) {
       console.error("Error in roll dialog:", error);
       return null;
@@ -256,11 +256,12 @@ export class StreetFighterRollDialog extends DialogV2 {
    * @param {FormData} formData
    * @param {Actor} actor
    * @param {HTMLElement} dialogElement
-   * @param {string} rollTitle - Custom title for the roll
+   * @param {object} options - Dialog options
    * @returns {object}
    * @private
    */
-  static _processFormData(formData, actor, dialogElement, rollTitle) {
+  static _processFormData(formData, actor, dialogElement, options) {
+    const rollTitle = options.rollTitle;
     const attributeId = formData.get("attribute");
     const secondTraitId = formData.get("secondTrait");
     const rawDifficulty = parseInt(formData.get("difficulty")) || DIFFICULTY.default;
@@ -337,15 +338,19 @@ export class StreetFighterRollDialog extends DialogV2 {
       });
     }
 
-    // Get target info if available
+    // Get target info only for damage rolls (maneuvers)
     let targetTokenId = null;
     let targetActorId = null;
     let targetName = null;
-    const firstTarget = game.user.targets.first();
-    if (firstTarget?.actor) {
-      targetTokenId = firstTarget.id;
-      targetActorId = firstTarget.actor.id;
-      targetName = firstTarget.actor.name;
+    const isDamageRoll = options.isDamageRoll || false;
+    
+    if (isDamageRoll) {
+      const firstTarget = game.user.targets.first();
+      if (firstTarget?.actor) {
+        targetTokenId = firstTarget.id;
+        targetActorId = firstTarget.actor.id;
+        targetName = firstTarget.actor.name;
+      }
     }
 
     return {
@@ -361,6 +366,7 @@ export class StreetFighterRollDialog extends DialogV2 {
       targetTokenId,
       targetActorId,
       targetName,
+      isDamageRoll,
     };
   }
 
@@ -515,7 +521,7 @@ export async function executeRoll(rollData) {
     return;
   }
 
-  const { actor, attribute, secondTrait, difficulty, modifier, fixedModifiers, effectModifiers, dicePool, rollTitle, targetTokenId, targetActorId, targetName } = rollData;
+  const { actor, attribute, secondTrait, difficulty, modifier, fixedModifiers, effectModifiers, dicePool, rollTitle, targetTokenId, targetActorId, targetName, isDamageRoll } = rollData;
 
   // Get system settings
   const onesRemoveSuccesses = game.settings.get("street-fighter", "onesRemoveSuccesses");
@@ -599,7 +605,8 @@ export async function executeRoll(rollData) {
     targetTokenId,
     targetActorId,
     targetName,
-    canApplyDamage: finalSuccesses > 0 && targetActorId,
+    isDamageRoll: isDamageRoll || false,
+    canApplyDamage: isDamageRoll && finalSuccesses > 0 && targetActorId,
   };
 
   const content = await foundry.applications.handlebars.renderTemplate(

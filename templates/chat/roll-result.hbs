@@ -6,7 +6,20 @@
      data-modifier="{{modifier}}"
      data-target-token-id="{{targetTokenId}}"
      data-target-actor-id="{{targetActorId}}"
-     data-damage="{{finalSuccesses}}">
+     data-target-name="{{targetName}}"
+     data-damage="{{finalSuccesses}}"
+     data-roll-title="{{rollTitle}}"
+     data-dice-pool="{{dicePool}}"
+     data-fixed-modifiers="{{json fixedModifiers}}"
+     data-effect-modifiers="{{json effectModifiers}}"
+     data-attribute-value="{{attribute.value}}"
+     data-second-trait-value="{{secondTrait.value}}"
+     data-second-trait-type="{{secondTrait.type}}"
+     data-attribute-name="{{attribute.name}}"
+     data-second-trait-name="{{secondTrait.name}}"
+     data-has-target="{{#if targetActorId}}true{{else}}false{{/if}}"
+     data-is-damage-roll="{{#if isDamageRoll}}true{{else}}false{{/if}}"
+     >
   <div class="card-header">
     <h3>{{rollTitle}}</h3>
     <button type="button" class="reroll-button" data-tooltip="{{localize 'STREET_FIGHTER.Roll.reroll'}}">

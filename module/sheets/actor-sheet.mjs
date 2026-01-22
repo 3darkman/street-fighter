@@ -1135,6 +1135,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       targetSoak,
       targetName,
       rollTitle: maneuver.name,
+      isDamageRoll: true,
     });
 
     if (rollData) {

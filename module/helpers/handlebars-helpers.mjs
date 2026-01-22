@@ -120,8 +120,10 @@ export function registerHandlebarsHelpers() {
   });
 
   Handlebars.registerHelper("json", function (value) {
-    if (value === null || value === undefined) return "";
-    return JSON.stringify(value, null, 2);
+    if (value === null || value === undefined) return "[]";
+    // Use Handlebars.SafeString to prevent double-escaping, but escape for HTML attribute
+    const jsonStr = JSON.stringify(value);
+    return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(jsonStr));
   });
 
   Handlebars.registerHelper("checked", function (value) {
