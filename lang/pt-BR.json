@@ -336,7 +336,11 @@
       "reroll": "Rolar Novamente",
       "fixedModifiers": "Modificadores Fixos",
       "maneuverDamage": "Dano da Manobra",
-      "targetSoak": "Absorção de {name}"
+      "targetSoak": "Absorção de {name}",
+      "applyDamage": "Aplicar Dano",
+      "applyDamageTo": "Aplicar dano em {name}",
+      "damageApplied": "{damage} de dano aplicado em {name}",
+      "noDamageToApply": "Nenhum dano para aplicar"
     },
     
     "Errors": {

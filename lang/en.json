@@ -336,7 +336,11 @@
       "reroll": "Reroll",
       "fixedModifiers": "Fixed Modifiers",
       "maneuverDamage": "Maneuver Damage",
-      "targetSoak": "{name}'s Soak"
+      "targetSoak": "{name}'s Soak",
+      "applyDamage": "Apply Damage",
+      "applyDamageTo": "Apply damage to {name}",
+      "damageApplied": "{damage} damage applied to {name}",
+      "noDamageToApply": "No damage to apply"
     },
     
     "Errors": {

@@ -337,6 +337,17 @@ export class StreetFighterRollDialog extends DialogV2 {
       });
     }
 
+    // Get target info if available
+    let targetTokenId = null;
+    let targetActorId = null;
+    let targetName = null;
+    const firstTarget = game.user.targets.first();
+    if (firstTarget?.actor) {
+      targetTokenId = firstTarget.id;
+      targetActorId = firstTarget.actor.id;
+      targetName = firstTarget.actor.name;
+    }
+
     return {
       actor,
       attribute: attribute ? { id: attribute.id, name: attribute.name, value: attributeValue } : null,
@@ -347,6 +358,9 @@ export class StreetFighterRollDialog extends DialogV2 {
       effectModifiers: activeEffectModifiers,
       dicePool: Math.max(0, dicePool),
       rollTitle,
+      targetTokenId,
+      targetActorId,
+      targetName,
     };
   }
 
@@ -501,7 +515,7 @@ export async function executeRoll(rollData) {
     return;
   }
 
-  const { actor, attribute, secondTrait, difficulty, modifier, fixedModifiers, effectModifiers, dicePool, rollTitle } = rollData;
+  const { actor, attribute, secondTrait, difficulty, modifier, fixedModifiers, effectModifiers, dicePool, rollTitle, targetTokenId, targetActorId, targetName } = rollData;
 
   // Get system settings
   const onesRemoveSuccesses = game.settings.get("street-fighter", "onesRemoveSuccesses");
@@ -570,7 +584,7 @@ export async function executeRoll(rollData) {
     modifier,
     fixedModifiers: fixedModifiers || [],
     effectModifiers: effectModifiers || [],
-    hasModifiers: fixedModifiers.length > 0 || effectModifiers.length > 0,
+    hasModifiers: (fixedModifiers?.length > 0) || (effectModifiers?.length > 0),
     dicePool,
     diceResults,
     successes,
@@ -582,6 +596,10 @@ export async function executeRoll(rollData) {
     onesRemoveSuccesses,
     isCriticalFailure,
     rollTitle: rollTitle || game.i18n.localize("STREET_FIGHTER.Roll.title"),
+    targetTokenId,
+    targetActorId,
+    targetName,
+    canApplyDamage: finalSuccesses > 0 && targetActorId,
   };
 
   const content = await foundry.applications.handlebars.renderTemplate(

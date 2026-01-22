@@ -3,7 +3,10 @@
      data-attribute-id="{{attribute.id}}"
      data-second-trait-id="{{secondTrait.id}}"
      data-difficulty="{{difficulty}}"
-     data-modifier="{{modifier}}">
+     data-modifier="{{modifier}}"
+     data-target-token-id="{{targetTokenId}}"
+     data-target-actor-id="{{targetActorId}}"
+     data-damage="{{finalSuccesses}}">
   <div class="card-header">
     <h3>{{rollTitle}}</h3>
     <button type="button" class="reroll-button" data-tooltip="{{localize 'STREET_FIGHTER.Roll.reroll'}}">
@@ -86,5 +89,15 @@
         <span class="result-label">{{resultLabel}}</span>
       </div>
     </div>
+
+    {{!-- Apply Damage Button --}}
+    {{#if canApplyDamage}}
+    <div class="roll-actions">
+      <button type="button" class="apply-damage-button" data-tooltip="{{localize 'STREET_FIGHTER.Roll.applyDamageTo' name=targetName}}">
+        <i class="fas fa-heart-broken"></i>
+        {{localize "STREET_FIGHTER.Roll.applyDamage"}} ({{finalSuccesses}})
+      </button>
+    </div>
+    {{/if}}
   </div>
 </div>

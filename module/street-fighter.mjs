@@ -132,6 +132,43 @@ Hooks.on("renderActorDirectory", (app, html, data) => {
 });
 
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
+  // Apply Damage button handler
+  const applyDamageButton = html.querySelector(".apply-damage-button");
+  if (applyDamageButton) {
+    applyDamageButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const card = html.querySelector(".roll-result");
+      if (!card) return;
+
+      const targetActorId = card.dataset.targetActorId;
+      const damage = parseInt(card.dataset.damage) || 0;
+
+      if (!targetActorId || damage <= 0) {
+        ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Roll.noDamageToApply"));
+        return;
+      }
+
+      const targetActor = game.actors.get(targetActorId);
+      if (!targetActor) {
+        ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Errors.actorNotFound"));
+        return;
+      }
+
+      await targetActor.applyDamage(damage);
+      
+      ui.notifications.info(
+        game.i18n.format("STREET_FIGHTER.Roll.damageApplied", { 
+          damage: damage, 
+          name: targetActor.name 
+        })
+      );
+
+      // Disable button after use
+      applyDamageButton.disabled = true;
+      applyDamageButton.classList.add("applied");
+    });
+  }
+
   const rerollButton = html.querySelector(".reroll-button");
   if (!rerollButton) return;
 
