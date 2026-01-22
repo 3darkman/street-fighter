@@ -23,10 +23,14 @@ export async function preloadHandlebarsTemplates() {
     "systems/street-fighter/templates/chat/roll-result.hbs",
     "systems/street-fighter/templates/chat/trait-chat-card.hbs",
     "systems/street-fighter/templates/chat/maneuver-chat-card.hbs",
+    "systems/street-fighter/templates/chat/maneuver-reveal-card.hbs",
     "systems/street-fighter/templates/dialog/roll-dialog.hbs",
     "systems/street-fighter/templates/effects/effect-config.hbs",
     "systems/street-fighter/templates/effects/effect-changes-tab.hbs",
     "systems/street-fighter/templates/item/partials/item-effects-tab.hbs",
+    "systems/street-fighter/templates/combat/combat-tracker.hbs",
+    "systems/street-fighter/templates/combat/maneuver-selection-dialog.hbs",
+    "systems/street-fighter/templates/combat/action-turn-dialog.hbs",
   ];
 
   return foundry.applications.handlebars.loadTemplates(templatePaths);

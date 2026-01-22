@@ -363,7 +363,76 @@
         "MoreOnesThanSuccesses": "Mais 1s que sucessos (e nenhum sucesso líquido)",
         "OnesWithNoSuccesses": "Qualquer 1 sem nenhum sucesso",
         "Disabled": "Desativado"
+      },
+      "HidePlayerManeuversFromGM": {
+        "Name": "Esconder Manobras dos Jogadores do GM",
+        "Hint": "Quando ativado, o GM não pode ver as manobras selecionadas dos jogadores online até que sejam reveladas. Isso preserva o elemento surpresa do combate."
       }
+    },
+
+    "Combat": {
+      "Phase": {
+        "Setup": "Preparação",
+        "Selection": "Fase de Seleção",
+        "Execution": "Fase de Execução"
+      },
+      "Status": {
+        "Pending": "Pendente",
+        "Ready": "Pronto",
+        "Selecting": "Selecionando...",
+        "Waiting": "Aguardando",
+        "Acting": "Agindo",
+        "Revealed": "Revelado",
+        "Interrupted": "Interrompido",
+        "Completed": "Concluído",
+        "Skipped": "Pulado"
+      },
+      "StartTurn": "Iniciar Turno",
+      "StartExecution": "Iniciar Execução",
+      "NextTurn": "Próximo Turno",
+      "CompleteAction": "Completar Ação",
+      "SelectManeuver": "Selecionar Manobra",
+      "ChangeManeuver": "Alterar Manobra",
+      "SelectManeuverTitle": "Selecione Sua Manobra",
+      "SelectManeuverFor": "Selecionar Manobra para {name}",
+      "CurrentSelection": "Seleção Atual",
+      "NoManeuversAvailable": "Nenhuma manobra disponível para este personagem.",
+      "ManeuverSelected": "Manobra selecionada: {name}",
+      "CannotAffordManeuver": "Você não pode pagar o custo desta manobra.",
+      "CannotAfford": "Custo Insuficiente",
+      "Speed": "Velocidade",
+      "Damage": "Dano",
+      "Movement": "Movimento",
+      "YourTurn": "Sua Vez!",
+      "YourTurnTitle": "Vez de {name}",
+      "SelectedManeuver": "Manobra Selecionada",
+      "RevealManeuver": "Revelar Manobra",
+      "SkipTurn": "Pular Turno",
+      "SkipTurnTitle": "Pular Turno",
+      "SkipTurnConfirm": "Tem certeza que deseja pular seu turno?",
+      "ManeuverRevealed": "Manobra Revelada!",
+      "ProceedWithRoll": "Você pode prosseguir com sua rolagem.",
+      "MoveBeforeRevealHint": "Você pode se mover no mapa antes de revelar sua manobra.",
+      "NoManeuverSelected": "Nenhuma manobra selecionada!",
+      "Interrupt": "Interromper",
+      "InterruptTitle": "Interromper Ação",
+      "InterruptConfirm": "{name} irá interromper a ação de {target}. Continuar?",
+      "InterruptionNotification": "{interruptor} interrompe {interrupted}!",
+      "Uses": "usa",
+      "OnlyGMCanStartTurn": "Apenas o GM pode iniciar um novo turno.",
+      "OnlyGMCanStartExecution": "Apenas o GM pode iniciar a fase de execução.",
+      "OnlyGMCanAdvanceTurn": "Apenas o GM pode avançar para o próximo turno.",
+      "NotAllSelectionsComplete": "Nem todos os combatentes selecionaram suas manobras.",
+      "NotAllActionsComplete": "Nem todos os combatentes completaram suas ações.",
+      "NotYourCombatant": "Você não controla este combatente.",
+      "NotInSelectionPhase": "O combate não está na fase de seleção.",
+      "InvalidInterruption": "Tentativa de interrupção inválida.",
+      "CannotInterrupt": "Você não pode interromper este combatente.",
+      "ActionAlreadyCompleted": "Esta ação já foi completada.",
+      "SelectionPhaseStarted": "Fase de seleção iniciada. Escolham suas manobras!",
+      "ExecutionPhaseStarted": "Fase de execução iniciada. As ações começam!",
+      "ResetSelections": "Resetar todas as seleções e iniciar um novo turno",
+      "OpenTurnDialog": "Abrir diálogo de turno"
     }
   }
 }

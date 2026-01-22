@@ -17,7 +17,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
   static DEFAULT_OPTIONS = {
     classes: ["street-fighter", "sheet", "actor"],
     position: {
-      width: 720,
+      width: 800,
       height: 680,
     },
     window: {

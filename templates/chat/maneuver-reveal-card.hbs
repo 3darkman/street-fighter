@@ -1,0 +1,58 @@
+<div class="sf-maneuver-reveal-card chat-card">
+  <header class="sf-reveal-header">
+    <h3 class="sf-reveal-title">
+      <i class="fas fa-fist-raised"></i>
+      {{localize "STREET_FIGHTER.Combat.ManeuverRevealed"}}
+    </h3>
+  </header>
+
+  <section class="sf-reveal-content">
+    <div class="sf-combatant-info">
+      <span class="sf-combatant-name">{{combatantName}}</span>
+      <span class="sf-reveal-uses">{{localize "STREET_FIGHTER.Combat.Uses"}}</span>
+    </div>
+
+    <div class="sf-maneuver-card-inline">
+      <div class="sf-maneuver-row">
+        <span class="sf-maneuver-name">{{maneuver.name}}</span>
+        <div class="sf-maneuver-stats-inline">
+          {{#if maneuver.category}}
+          <span class="sf-maneuver-category">{{maneuver.category}}</span>
+          {{/if}}
+          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Speed'}}">
+            <i class="fas fa-bolt"></i> {{maneuver.speed}}
+          </span>
+          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Damage'}}">
+            <i class="fas fa-fist-raised"></i> {{maneuver.damage}}
+          </span>
+          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Movement'}}">
+            <i class="fas fa-running"></i> {{maneuver.movement}}
+          </span>
+        </div>
+
+        {{#if maneuver.chiCost}}
+        <span class="sf-cost-badge sf-cost-chi" title="{{localize 'STREET_FIGHTER.Resources.chi'}}">
+          <i class="fas fa-yin-yang"></i> {{maneuver.chiCost}}
+        </span>
+        {{/if}}
+        {{#if maneuver.willpowerCost}}
+        <span class="sf-cost-badge sf-cost-willpower" title="{{localize 'STREET_FIGHTER.Resources.willpower'}}">
+          <i class="fas fa-brain"></i> {{maneuver.willpowerCost}}
+        </span>
+        {{/if}}
+
+        {{#if maneuver.notes}}
+        <span class="sf-maneuver-expand-chat" data-action="toggleNotes"><i class="fas fa-chevron-down"></i></span>
+        {{/if}}
+      </div>
+
+      {{#if maneuver.notes}}
+      <div class="sf-maneuver-notes collapsed">
+        <div class="sf-notes-content-chat">
+          <p>{{maneuver.notes}}</p>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+  </section>
+</div>

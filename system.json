@@ -3,6 +3,7 @@
   "title": "Street Fighter RPG",
   "description": "Sistema de RPG baseado no universo Street Fighter para Foundry VTT.",
   "version": "1.0.0",
+  "socket": true,
   "compatibility": {
     "minimum": "13",
     "verified": "13"

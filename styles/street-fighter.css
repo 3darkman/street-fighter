@@ -2607,3 +2607,1067 @@ button.sf-import-characters:hover {
   font-style: italic;
   margin-bottom: 8px;
 }
+
+/* ==================== */
+/* Combat Tracker       */
+/* ==================== */
+
+.sf-combat-tracker {
+  background: var(--sf-background);
+  color: var(--sf-text);
+}
+
+.sf-combat-tracker .combat-tracker-header {
+  padding: 8px;
+  background: var(--sf-surface);
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.sf-phase-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.sf-phase-indicator.sf-phase-setup {
+  background: var(--sf-surface-light);
+  color: var(--sf-text-muted);
+}
+
+.sf-phase-indicator.sf-phase-selection {
+  background: rgba(25, 118, 210, 0.2);
+  color: var(--sf-secondary-light);
+  border: 1px solid var(--sf-secondary);
+}
+
+.sf-phase-indicator.sf-phase-execution {
+  background: rgba(209, 80, 80, 0.2);
+  color: var(--sf-primary-light);
+  border: 1px solid var(--sf-primary);
+}
+
+.sf-round-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--sf-surface);
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.sf-round-label {
+  color: var(--sf-text-muted);
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.sf-round-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--sf-primary);
+}
+
+.sf-gm-controls {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--sf-surface-light);
+  border-bottom: 1px solid var(--sf-border);
+}
+
+.sf-control-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.sf-control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sf-start-turn {
+  background: var(--sf-secondary);
+  color: white;
+}
+
+.sf-start-turn:hover:not(:disabled) {
+  background: var(--sf-secondary-light);
+}
+
+.sf-start-execution {
+  background: var(--sf-primary);
+  color: white;
+}
+
+.sf-start-execution:hover:not(:disabled) {
+  background: var(--sf-primary-light);
+}
+
+.sf-next-turn {
+  background: var(--sf-success);
+  color: white;
+}
+
+.sf-next-turn:hover:not(:disabled) {
+  background: #66bb6a;
+}
+
+.sf-complete-action {
+  background: var(--sf-accent);
+  color: var(--sf-background);
+}
+
+.sf-complete-action:hover:not(:disabled) {
+  background: #ffca28;
+}
+
+/* Combatant List */
+.sf-combat-tracker .combatant-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sf-combat-tracker .combatant {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-bottom: 1px solid var(--sf-border);
+  transition: all 0.2s ease;
+}
+
+.sf-combat-tracker .combatant:hover {
+  background: var(--sf-surface-light);
+}
+
+.sf-combat-tracker .combatant.sf-acting {
+  background: rgba(209, 80, 80, 0.15);
+  border-left: 3px solid var(--sf-primary);
+}
+
+.sf-combat-tracker .combatant.sf-completed {
+  opacity: 0.6;
+}
+
+.sf-combat-tracker .combatant.sf-interrupted {
+  background: rgba(255, 152, 0, 0.1);
+  border-left: 3px solid var(--sf-warning);
+}
+
+.sf-combat-tracker .combatant.defeated {
+  opacity: 0.4;
+}
+
+.sf-combat-tracker .combatant.sf-hidden {
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgba(128, 128, 128, 0.1) 5px,
+    rgba(128, 128, 128, 0.1) 10px
+  );
+  border-left: 3px solid var(--sf-text-muted);
+}
+
+.sf-combat-tracker .combatant-image {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.sf-combat-tracker .combatant-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 2px solid var(--sf-border);
+}
+
+.sf-acting-indicator {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  background: var(--sf-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1.5s infinite;
+}
+
+.sf-acting-indicator i {
+  font-size: 10px;
+  color: white;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.sf-combat-tracker .combatant-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sf-combat-tracker .combatant-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sf-speed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  background: var(--sf-surface-light);
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: normal;
+  color: var(--sf-text-muted);
+}
+
+.sf-combat-tracker .combatant-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--sf-text-muted);
+}
+
+.sf-status-ready { color: var(--sf-success); }
+.sf-status-pending { color: var(--sf-text-muted); }
+.sf-status-acting { color: var(--sf-primary); }
+.sf-status-completed { color: var(--sf-success); }
+.sf-status-skipped { color: var(--sf-text-muted); }
+.sf-status-interrupted { color: var(--sf-warning); }
+
+/* Combatant Controls */
+.sf-combatant-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.sf-maneuver-btn,
+.sf-interrupt-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sf-maneuver-btn {
+  background: var(--sf-secondary);
+  color: white;
+}
+
+.sf-maneuver-btn:hover {
+  background: var(--sf-secondary-light);
+}
+
+.sf-maneuver-btn.sf-ready {
+  background: var(--sf-success);
+}
+
+.sf-interrupt-btn {
+  background: var(--sf-warning);
+  color: var(--sf-background);
+}
+
+.sf-interrupt-btn:hover {
+  background: #ffb74d;
+}
+
+/* Footer */
+.sf-combat-tracker .combat-tracker-footer {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  background: var(--sf-surface);
+  border-top: 1px solid var(--sf-border);
+}
+
+.sf-combat-tracker .combat-control {
+  flex: 1;
+  padding: 6px;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  color: var(--sf-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sf-combat-tracker .combat-control:hover {
+  background: var(--sf-primary);
+  color: white;
+  border-color: var(--sf-primary);
+}
+
+.sf-combat-tracker .no-combat {
+  padding: 20px;
+  text-align: center;
+}
+
+.sf-combat-tracker .create-combat {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: var(--sf-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sf-combat-tracker .create-combat:hover {
+  background: var(--sf-primary-light);
+}
+
+/* ==================== */
+/* Maneuver Selection   */
+/* ==================== */
+
+.sf-maneuver-selection {
+  padding: 12px;
+  background: var(--sf-background);
+  color: var(--sf-text);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.sf-maneuver-selection-header {
+  margin-bottom: 16px;
+}
+
+.sf-maneuver-selection-header h2 {
+  margin: 0 0 8px 0;
+  color: var(--sf-primary);
+}
+
+.sf-current-selection {
+  padding: 8px;
+  background: var(--sf-surface);
+  border-radius: 4px;
+  border-left: 3px solid var(--sf-success);
+}
+
+.sf-current-label {
+  color: var(--sf-text-muted);
+  font-size: 11px;
+}
+
+.sf-current-name {
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.sf-maneuver-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sf-maneuver-card {
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.sf-maneuver-card:hover {
+  border-color: var(--sf-primary);
+}
+
+.sf-maneuver-card.sf-selected {
+  border-color: var(--sf-success);
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.sf-maneuver-card.sf-cannot-afford {
+  opacity: 0.5;
+}
+
+.sf-maneuver-card.sf-cannot-afford .sf-maneuver-row {
+  cursor: not-allowed;
+}
+
+.sf-maneuver-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.sf-maneuver-row:hover {
+  background: var(--sf-surface-light);
+}
+
+.sf-maneuver-name {
+  font-weight: bold;
+  font-size: 13px;
+  min-width: 120px;
+}
+
+.sf-maneuver-category {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+  text-transform: uppercase;
+  color: var(--sf-text-muted);
+}
+
+.sf-maneuver-stats-inline {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.sf-stat-inline {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--sf-text);
+}
+
+.sf-stat-inline i {
+  font-size: 10px;
+}
+
+.sf-stat-inline:nth-child(1) i { color: var(--sf-secondary); }
+.sf-stat-inline:nth-child(2) i { color: var(--sf-primary); }
+.sf-stat-inline:nth-child(3) i { color: var(--sf-success); }
+
+.sf-cost-badge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.sf-cost-badge.sf-cost-chi {
+  background: rgba(66, 165, 245, 0.2);
+  color: var(--sf-chi);
+}
+
+.sf-cost-badge.sf-cost-willpower {
+  background: rgba(253, 216, 53, 0.2);
+  color: var(--sf-super);
+}
+
+.sf-selected-check {
+  color: var(--sf-success);
+  font-size: 14px;
+}
+
+/* Selected Maneuver Display in Combat Tracker */
+.sf-selected-maneuver {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.sf-maneuver-name.sf-revealed {
+  color: var(--sf-success);
+  font-weight: bold;
+}
+
+.sf-maneuver-name.sf-hidden {
+  color: var(--sf-text-muted);
+  font-style: italic;
+}
+
+.sf-reveal-btn {
+  padding: 4px 6px;
+  background: var(--sf-secondary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sf-reveal-btn:hover {
+  background: var(--sf-primary);
+}
+
+.sf-turn-dialog-btn {
+  padding: 4px 6px;
+  background: var(--sf-info);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sf-turn-dialog-btn:hover {
+  background: var(--sf-primary);
+}
+
+/* Inline maneuver card for chat and dialogs */
+.sf-maneuver-card-inline {
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  cursor: default;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-row:hover {
+  background: transparent;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-category {
+  font-size: 10px;
+  color: #666;
+  background: #e8e8e8;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-stats-inline {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.sf-maneuver-card-inline .sf-stat-inline {
+  font-size: 11px;
+  color: #555;
+}
+
+.sf-maneuver-card-inline .sf-stat-inline i {
+  margin-right: 2px;
+  color: #666;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-notes {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  background: transparent;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-notes.collapsed {
+  display: none;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-notes.expanded {
+  display: block;
+}
+
+.sf-maneuver-card-inline .sf-notes-content {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-expand {
+  cursor: pointer;
+  color: var(--sf-text);
+  padding: 4px;
+  transition: transform 0.2s ease;
+}
+
+.sf-maneuver-card-inline .sf-maneuver-expand:hover {
+  color: #333;
+}
+
+/* Action turn dialog maneuver preview */
+.sf-maneuver-preview .sf-maneuver-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-maneuver-preview .sf-maneuver-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.sf-maneuver-preview .sf-maneuver-stats-inline {
+  display: flex;
+  gap: 10px;
+}
+
+.sf-maneuver-preview .sf-stat-inline {
+  font-size: 12px;
+}
+
+.sf-maneuver-preview .sf-maneuver-notes {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--sf-border);
+}
+
+.sf-maneuver-preview .sf-maneuver-notes.collapsed {
+  display: none;
+}
+
+.sf-maneuver-preview .sf-maneuver-notes.expanded {
+  display: block;
+}
+
+.sf-maneuver-expand {
+  cursor: pointer;
+  color: var(--sf-border);
+  padding: 4px;
+  transition: transform 0.2s ease;
+}
+
+.sf-maneuver-expand:hover {
+  color: var(--sf-text);
+}
+
+.sf-maneuver-expand-chat:hover {
+  color: var(--sf-background);
+}
+
+.sf-maneuver-card.expanded .sf-maneuver-expand {
+  transform: rotate(180deg);
+}
+
+.sf-maneuver-notes {
+  padding: 8px 10px;
+  border-top: 1px solid var(--sf-border);
+}
+
+.sf-maneuver-notes.collapsed {
+  display: none;
+}
+
+.sf-notes-content p {
+  margin: 0 0 4px 0;
+  font-size: 11px;
+  color: var(--sf-text);
+}
+
+.sf-notes-content-chat p {
+  margin: 0 0 4px 0;
+  font-size: 11px;
+  color: var(--sf-background);
+}
+
+.sf-notes-content p:last-child {
+  margin-bottom: 0;
+}
+
+.sf-rule-summary {
+  font-style: italic;
+}
+
+.sf-cost {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.sf-cost-chi {
+  background: rgba(66, 165, 245, 0.2);
+  color: var(--sf-chi);
+}
+
+.sf-cost-willpower {
+  background: rgba(253, 216, 53, 0.2);
+  color: var(--sf-super);
+}
+
+.sf-cannot-afford-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--sf-danger);
+  font-weight: bold;
+}
+
+.sf-selected-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--sf-success);
+  font-size: 18px;
+}
+
+.sf-no-maneuvers {
+  padding: 20px;
+  text-align: center;
+  color: var(--sf-text-muted);
+}
+
+/* ==================== */
+/* Action Turn Dialog   */
+/* ==================== */
+
+.sf-action-turn-dialog {
+  padding: 16px;
+  background: var(--sf-background);
+  color: var(--sf-text);
+}
+
+.sf-turn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--sf-primary);
+}
+
+.sf-turn-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-turn-indicator i {
+  font-size: 24px;
+  color: var(--sf-primary);
+  animation: pulse 1.5s infinite;
+}
+
+.sf-turn-indicator h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.sf-status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.sf-status-acting {
+  background: var(--sf-primary);
+  color: white;
+}
+
+.sf-status-revealed {
+  background: var(--sf-success);
+  color: white;
+}
+
+.sf-maneuver-display h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--sf-text-muted);
+}
+
+.sf-maneuver-preview {
+  cursor: default;
+}
+
+.sf-maneuver-preview:hover {
+  transform: none;
+}
+
+.sf-maneuver-preview .sf-maneuver-stats {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sf-maneuver-preview .sf-stat {
+  justify-content: space-between;
+  padding: 6px 8px;
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+}
+
+.sf-maneuver-preview .sf-stat-label {
+  color: var(--sf-text-muted);
+  font-size: 11px;
+}
+
+.sf-turn-hint {
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(25, 118, 210, 0.1);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--sf-secondary-light);
+}
+
+.sf-turn-hint i {
+  margin-right: 6px;
+}
+
+.sf-no-maneuver-warning {
+  padding: 20px;
+  text-align: center;
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 8px;
+  color: var(--sf-danger);
+}
+
+.sf-no-maneuver-warning i {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.sf-turn-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sf-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sf-reveal-btn {
+  background: var(--sf-primary);
+  color: white;
+  font-size: 14px;
+}
+
+.sf-reveal-btn:hover {
+  background: var(--sf-primary-light);
+}
+
+.sf-skip-btn {
+  background: var(--sf-surface-light);
+  color: var(--sf-text-muted);
+  font-size: 12px;
+}
+
+.sf-skip-btn:hover {
+  background: var(--sf-surface);
+  color: var(--sf-text);
+}
+
+.sf-revealed-notice {
+  padding: 12px;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid var(--sf-success);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.sf-revealed-notice i {
+  color: var(--sf-success);
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.sf-revealed-notice span {
+  display: block;
+  font-weight: bold;
+  color: var(--sf-success);
+}
+
+.sf-revealed-hint {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  color: var(--sf-text-muted);
+}
+
+/* ==================== */
+/* Combat Notification  */
+/* ==================== */
+
+.sf-combat-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+  padding: 24px 48px;
+  border-radius: 12px;
+  animation: notificationIn 0.3s ease;
+}
+
+.sf-combat-notification--interruption {
+  background: linear-gradient(135deg, var(--sf-warning) 0%, #ff6f00 100%);
+  color: white;
+  box-shadow: 0 8px 32px rgba(255, 152, 0, 0.4);
+}
+
+.sf-combat-notification__content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.sf-combat-notification__content i {
+  font-size: 32px;
+}
+
+.sf-combat-notification--fade-out {
+  animation: notificationOut 0.5s ease forwards;
+}
+
+@keyframes notificationIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes notificationOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+}
+
+/* ==================== */
+/* Maneuver Reveal Card */
+/* ==================== */
+
+.sf-maneuver-reveal-card {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sf-reveal-header {
+  padding: 8px 12px;
+  background: var(--sf-primary);
+  color: #333;
+  border-bottom: 1px solid #ccc;
+}
+
+.sf-reveal-title {
+  margin: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-reveal-content {
+  padding: 12px;
+}
+
+.sf-combatant-info {
+  margin-bottom: 8px;
+}
+
+.sf-combatant-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.sf-reveal-uses {
+  color: var(--sf-text-muted);
+  font-size: 12px;
+}
+
+.sf-maneuver-info {
+  margin-bottom: 12px;
+}
+
+.sf-maneuver-info h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.sf-reveal-content .sf-maneuver-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.sf-reveal-content .sf-stat {
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+}
+
+.sf-reveal-content .sf-stat-label {
+  font-size: 10px;
+  color: var(--sf-text-muted);
+}
+
+.sf-reveal-content .sf-stat-value {
+  font-size: 18px;
+}

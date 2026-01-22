@@ -1,0 +1,94 @@
+<div class="sf-action-turn-dialog">
+  <header class="sf-turn-header">
+    <div class="sf-turn-indicator">
+      <i class="fas fa-bolt"></i>
+      <h2>{{localize "STREET_FIGHTER.Combat.YourTurn"}}</h2>
+    </div>
+    <div class="sf-turn-status">
+      <span class="sf-status-badge sf-status-{{actionStatus}}">{{statusLabel}}</span>
+    </div>
+  </header>
+
+  {{#if hasManeuver}}
+  <section class="sf-maneuver-display">
+    <h3>{{localize "STREET_FIGHTER.Combat.SelectedManeuver"}}</h3>
+    <div class="sf-maneuver-card sf-maneuver-preview">
+      <div class="sf-maneuver-row">
+        <span class="sf-maneuver-name">{{maneuver.name}}</span>
+        <span class="sf-maneuver-category">{{maneuver.category}}</span>
+
+        <div class="sf-maneuver-stats-inline">
+          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Speed'}}">
+            <i class="fas fa-bolt"></i> {{maneuver.speed}}
+          </span>
+          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Damage'}}">
+            <i class="fas fa-fist-raised"></i> {{maneuver.damage}}
+          </span>
+          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Movement'}}">
+            <i class="fas fa-running"></i> {{maneuver.movement}}
+          </span>
+        </div>
+
+        {{#if maneuver.chiCost}}
+        <span class="sf-cost-badge sf-cost-chi" title="{{localize 'STREET_FIGHTER.Resources.chi'}}">
+          <i class="fas fa-yin-yang"></i> {{maneuver.chiCost}}
+        </span>
+        {{/if}}
+        {{#if maneuver.willpowerCost}}
+        <span class="sf-cost-badge sf-cost-willpower" title="{{localize 'STREET_FIGHTER.Resources.willpower'}}">
+          <i class="fas fa-brain"></i> {{maneuver.willpowerCost}}
+        </span>
+        {{/if}}
+
+        {{#if maneuver.notes}}
+        <span class="sf-maneuver-expand" data-action="toggleNotes"><i class="fas fa-chevron-down"></i></span>
+        {{/if}}
+      </div>
+
+      {{#if maneuver.notes}}
+      <div class="sf-maneuver-notes collapsed">
+        <div class="sf-notes-content">
+          <p>{{maneuver.notes}}</p>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
+    {{#unless isRevealed}}
+    <p class="sf-turn-hint">
+      <i class="fas fa-info-circle"></i>
+      {{localize "STREET_FIGHTER.Combat.MoveBeforeRevealHint"}}
+    </p>
+    {{/unless}}
+  </section>
+  {{else}}
+  <section class="sf-no-maneuver-warning">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>{{localize "STREET_FIGHTER.Combat.NoManeuverSelected"}}</p>
+  </section>
+  {{/if}}
+
+  <footer class="sf-turn-actions">
+    {{#if canReveal}}
+    <button type="button" class="sf-action-btn sf-reveal-btn" data-action="revealManeuver">
+      <i class="fas fa-eye"></i>
+      {{localize "STREET_FIGHTER.Combat.RevealManeuver"}}
+    </button>
+    {{/if}}
+
+    {{#if isRevealed}}
+    <div class="sf-revealed-notice">
+      <i class="fas fa-check-circle"></i>
+      <span>{{localize "STREET_FIGHTER.Combat.ManeuverRevealed"}}</span>
+      <p class="sf-revealed-hint">{{localize "STREET_FIGHTER.Combat.ProceedWithRoll"}}</p>
+    </div>
+    {{/if}}
+
+    {{#if canSkip}}
+    <button type="button" class="sf-action-btn sf-skip-btn" data-action="skipTurn">
+      <i class="fas fa-forward"></i>
+      {{localize "STREET_FIGHTER.Combat.SkipTurn"}}
+    </button>
+    {{/if}}
+  </footer>
+</div>

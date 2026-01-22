@@ -35,4 +35,13 @@ export function registerSettings() {
     },
     default: "moreOnesThanSuccesses",
   });
+
+  game.settings.register("street-fighter", "hidePlayerManeuversFromGM", {
+    name: "STREET_FIGHTER.Settings.HidePlayerManeuversFromGM.Name",
+    hint: "STREET_FIGHTER.Settings.HidePlayerManeuversFromGM.Hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
 }

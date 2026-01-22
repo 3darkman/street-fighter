@@ -363,7 +363,76 @@
         "MoreOnesThanSuccesses": "More 1s than successes (and no net successes)",
         "OnesWithNoSuccesses": "Any 1s with no successes",
         "Disabled": "Disabled"
+      },
+      "HidePlayerManeuversFromGM": {
+        "Name": "Hide Player Maneuvers from GM",
+        "Hint": "When enabled, the GM cannot see the selected maneuvers of online players until they are revealed. This preserves the surprise element of combat."
       }
+    },
+
+    "Combat": {
+      "Phase": {
+        "Setup": "Setup",
+        "Selection": "Selection Phase",
+        "Execution": "Execution Phase"
+      },
+      "Status": {
+        "Pending": "Pending",
+        "Ready": "Ready",
+        "Selecting": "Selecting...",
+        "Waiting": "Waiting",
+        "Acting": "Acting",
+        "Revealed": "Revealed",
+        "Interrupted": "Interrupted",
+        "Completed": "Completed",
+        "Skipped": "Skipped"
+      },
+      "StartTurn": "Start Turn",
+      "StartExecution": "Start Execution",
+      "NextTurn": "Next Turn",
+      "CompleteAction": "Complete Action",
+      "SelectManeuver": "Select Maneuver",
+      "ChangeManeuver": "Change Maneuver",
+      "SelectManeuverTitle": "Select Your Maneuver",
+      "SelectManeuverFor": "Select Maneuver for {name}",
+      "CurrentSelection": "Current Selection",
+      "NoManeuversAvailable": "No maneuvers available for this character.",
+      "ManeuverSelected": "Maneuver selected: {name}",
+      "CannotAffordManeuver": "You cannot afford this maneuver's cost.",
+      "CannotAfford": "Cannot Afford",
+      "Speed": "Speed",
+      "Damage": "Damage",
+      "Movement": "Movement",
+      "YourTurn": "Your Turn!",
+      "YourTurnTitle": "{name}'s Turn",
+      "SelectedManeuver": "Selected Maneuver",
+      "RevealManeuver": "Reveal Maneuver",
+      "SkipTurn": "Skip Turn",
+      "SkipTurnTitle": "Skip Turn",
+      "SkipTurnConfirm": "Are you sure you want to skip your turn?",
+      "ManeuverRevealed": "Maneuver Revealed!",
+      "ProceedWithRoll": "You may now proceed with your roll.",
+      "MoveBeforeRevealHint": "You can move on the map before revealing your maneuver.",
+      "NoManeuverSelected": "No maneuver selected!",
+      "Interrupt": "Interrupt",
+      "InterruptTitle": "Interrupt Action",
+      "InterruptConfirm": "{name} will interrupt {target}'s action. Continue?",
+      "InterruptionNotification": "{interruptor} interrupts {interrupted}!",
+      "Uses": "uses",
+      "OnlyGMCanStartTurn": "Only the GM can start a new turn.",
+      "OnlyGMCanStartExecution": "Only the GM can start the execution phase.",
+      "OnlyGMCanAdvanceTurn": "Only the GM can advance to the next turn.",
+      "NotAllSelectionsComplete": "Not all combatants have selected their maneuvers.",
+      "NotAllActionsComplete": "Not all combatants have completed their actions.",
+      "NotYourCombatant": "You do not control this combatant.",
+      "NotInSelectionPhase": "Combat is not in the selection phase.",
+      "InvalidInterruption": "Invalid interruption attempt.",
+      "CannotInterrupt": "You cannot interrupt this combatant.",
+      "ActionAlreadyCompleted": "This action has already been completed.",
+      "SelectionPhaseStarted": "Selection phase started. Choose your maneuvers!",
+      "ExecutionPhaseStarted": "Execution phase started. Actions begin!",
+      "ResetSelections": "Reset all selections and start a new turn",
+      "OpenTurnDialog": "Open turn dialog"
     }
   }
 }

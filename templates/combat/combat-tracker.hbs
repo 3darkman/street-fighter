@@ -1,0 +1,211 @@
+<section class="combat-tracker sf-combat-tracker" id="combat-tracker">
+  {{#if combats}}
+  <header class="combat-tracker-header">
+    {{#if sfCombat}}
+    <div class="sf-phase-indicator sf-phase-{{sfCombat.phase}}">
+      <i class="fas fa-circle"></i>
+      <span class="sf-phase-label">{{sfCombat.phaseLabel}}</span>
+    </div>
+    {{/if}}
+
+    <nav class="encounters flexrow" aria-label="{{localize 'COMBAT.NavLabel'}}">
+      {{#if combats.length}}
+      <button type="button" class="combat-cycle" data-action="previousCombat" data-tooltip="COMBAT.EncounterPrevious"
+        aria-label="{{localize 'COMBAT.EncounterPrevious'}}" {{disabled (eq combatCount 1)}}>
+        <i class="fas fa-caret-left"></i>
+      </button>
+      <span class="encounter-count">
+        {{localize "COMBAT.Encounter"}} {{combatIndex}} / {{combatCount}}
+      </span>
+      <button type="button" class="combat-cycle" data-action="nextCombat" data-tooltip="COMBAT.EncounterNext"
+        aria-label="{{localize 'COMBAT.EncounterNext'}}" {{disabled (eq combatCount 1)}}>
+        <i class="fas fa-caret-right"></i>
+      </button>
+      {{/if}}
+    </nav>
+  </header>
+  {{/if}}
+
+  {{#if viewed}}
+  <section class="combat-tracker-content">
+    {{!-- Round Display --}}
+    <div class="sf-round-display">
+      <span class="sf-round-label">{{localize "COMBAT.Round"}}</span>
+      <span class="sf-round-number">{{viewed.round}}</span>
+    </div>
+
+    {{!-- GM Controls --}}
+    {{#if sfCombat.isGM}}
+    <div class="sf-gm-controls">
+      {{#if sfCombat.isSetup}}
+      <button type="button" class="sf-control-btn sf-start-turn" data-action="startTurn">
+        <i class="fas fa-play"></i>
+        {{localize "STREET_FIGHTER.Combat.StartTurn"}}
+      </button>
+      {{/if}}
+
+      {{#if sfCombat.isSelection}}
+      <button type="button" class="sf-control-btn sf-start-execution" data-action="startExecution"
+        {{disabled (not sfCombat.allSelectionsComplete)}}>
+        <i class="fas fa-bolt"></i>
+        {{localize "STREET_FIGHTER.Combat.StartExecution"}}
+      </button>
+      {{/if}}
+
+      {{#if sfCombat.isExecution}}
+        {{#if sfCombat.allActionsComplete}}
+        <button type="button" class="sf-control-btn sf-next-turn" data-action="nextTurn">
+          <i class="fas fa-forward"></i>
+          {{localize "STREET_FIGHTER.Combat.NextTurn"}}
+        </button>
+        {{else}}
+        <button type="button" class="sf-control-btn sf-complete-action" data-action="completeAction"
+          {{disabled (not sfCombat.currentActingId)}}>
+          <i class="fas fa-check"></i>
+          {{localize "STREET_FIGHTER.Combat.CompleteAction"}}
+        </button>
+        {{/if}}
+      {{/if}}
+    </div>
+    {{/if}}
+
+    {{!-- Combatant List --}}
+    <ol class="combatant-list">
+      {{#each turns as |turn|}}
+      {{!-- Show hidden combatants only to GM --}}
+      {{#unless (and turn.hidden (not @root.sfCombat.isGM))}}
+      <li class="combatant {{#if turn.sf.isActing}}sf-acting{{/if}} {{#if turn.sf.isCompleted}}sf-completed{{/if}} {{#if turn.sf.isInterrupted}}sf-interrupted{{/if}} {{#if turn.hidden}}sf-hidden{{/if}} {{#if turn.defeated}}defeated{{/if}}"
+          data-combatant-id="{{turn.id}}"
+          data-token-id="{{turn.tokenId}}">
+
+        {{!-- Combatant Image --}}
+        <div class="combatant-image">
+          <img src="{{turn.img}}" alt="{{turn.name}}" />
+          {{#if turn.sf.isActing}}
+          <div class="sf-acting-indicator">
+            <i class="fas fa-bolt"></i>
+          </div>
+          {{/if}}
+        </div>
+
+        {{!-- Combatant Info --}}
+        <div class="combatant-info">
+          <h4 class="combatant-name">
+            {{turn.name}}
+            {{!-- Only show speed during execution phase --}}
+            {{#if @root.sfCombat.isExecution}}
+            {{#if turn.sf.speed}}
+            <span class="sf-speed-badge" data-tooltip="{{localize 'STREET_FIGHTER.Combat.Speed'}}">
+              <i class="fas fa-bolt"></i> {{turn.sf.speed}}
+            </span>
+            {{/if}}
+            {{/if}}
+          </h4>
+
+          <div class="combatant-status">
+            <i class="{{turn.sf.statusIcon}}" data-tooltip="{{turn.sf.statusLabel}}"></i>
+            <span class="sf-status-text">{{turn.sf.statusLabel}}</span>
+          </div>
+
+          {{!-- Show selected maneuver to owner during execution phase --}}
+          {{#if @root.sfCombat.isExecution}}
+          {{#if turn.sf.selectedManeuver}}
+          {{#if turn.sf.isOwner}}
+          <div class="sf-selected-maneuver">
+            <span class="sf-maneuver-name {{#if turn.sf.maneuverRevealed}}sf-revealed{{else}}sf-hidden{{/if}}">
+              <i class="fas fa-fist-raised"></i> {{turn.sf.selectedManeuver.name}}
+            </span>
+          </div>
+          {{else}}
+          {{#if turn.sf.maneuverRevealed}}
+          <div class="sf-selected-maneuver">
+            <span class="sf-maneuver-name sf-revealed">
+              <i class="fas fa-fist-raised"></i> {{turn.sf.selectedManeuver.name}}
+            </span>
+          </div>
+          {{/if}}
+          {{/if}}
+          {{/if}}
+          {{/if}}
+        </div>
+
+        {{!-- Combatant Controls --}}
+        <div class="combatant-controls sf-combatant-controls">
+          {{!-- Selection Phase: Maneuver Selection Button --}}
+          {{#if turn.sf.showManeuverButton}}
+          <button type="button" class="sf-maneuver-btn {{#if turn.sf.isReady}}sf-ready{{/if}}"
+                  data-action="openManeuverSelection"
+                  data-tooltip="{{#if turn.sf.isReady}}{{localize 'STREET_FIGHTER.Combat.ChangeManeuver'}}{{else}}{{localize 'STREET_FIGHTER.Combat.SelectManeuver'}}{{/if}}">
+            <i class="fas {{#if turn.sf.isReady}}fa-check{{else}}fa-fist-raised{{/if}}"></i>
+          </button>
+          {{/if}}
+
+          {{!-- Execution Phase: Reveal Maneuver Button (for acting combatant owner, not revealed yet) --}}
+          {{#if turn.sf.isActing}}
+          {{#if turn.sf.isOwner}}
+          {{#unless turn.sf.maneuverRevealed}}
+          <button type="button" class="sf-reveal-btn" data-action="revealManeuver"
+                  data-tooltip="{{localize 'STREET_FIGHTER.Combat.RevealManeuver'}}">
+            <i class="fas fa-id-card"></i>
+          </button>
+          {{/unless}}
+          <button type="button" class="sf-turn-dialog-btn" data-action="openTurnDialog"
+                  data-tooltip="{{localize 'STREET_FIGHTER.Combat.OpenTurnDialog'}}">
+            <i class="fas fa-window-restore"></i>
+          </button>
+          {{/if}}
+          {{/if}}
+
+          {{!-- Execution Phase: Interrupt Button --}}
+          {{#if turn.sf.canInterrupt}}
+          <button type="button" class="sf-interrupt-btn" data-action="interrupt"
+                  data-tooltip="{{localize 'STREET_FIGHTER.Combat.Interrupt'}}">
+            <i class="fas fa-hand-paper"></i>
+          </button>
+          {{/if}}
+
+          {{!-- Standard Controls --}}
+          {{#if @root.sfCombat.isGM}}
+          <button type="button" class="combatant-control" data-action="toggleHidden"
+                  data-tooltip="{{#if turn.hidden}}COMBAT.RevealCombatant{{else}}COMBAT.HideCombatant{{/if}}">
+            <i class="fas {{#if turn.hidden}}fa-eye-slash{{else}}fa-eye{{/if}}"></i>
+          </button>
+          <button type="button" class="combatant-control" data-action="toggleDefeatedStatus"
+                  data-tooltip="{{#if turn.defeated}}COMBAT.MarkAlive{{else}}COMBAT.MarkDefeated{{/if}}">
+            <i class="fas {{#if turn.defeated}}fa-skull{{else}}fa-heart{{/if}}"></i>
+          </button>
+          {{/if}}
+        </div>
+      </li>
+      {{/unless}}
+      {{/each}}
+    </ol>
+  </section>
+
+  {{else}}
+  {{!-- No Active Combat --}}
+  <section class="combat-tracker-content no-combat">
+    <p class="no-combat-message">{{localize "COMBAT.None"}}</p>
+    {{#if sfCombat.isGM}}
+    <button type="button" class="create-combat" data-action="createCombat">
+      <i class="fas fa-plus"></i>
+      {{localize "COMBAT.Create"}}
+    </button>
+    {{/if}}
+  </section>
+  {{/if}}
+
+  {{!-- Footer Controls --}}
+  {{#if viewed}}
+  <footer class="combat-tracker-footer">
+    {{#if sfCombat.isGM}}
+    <button type="button" class="combat-control" data-action="endCombat" data-tooltip="{{localize 'COMBAT.End'}}">
+      <i class="fas fa-times"></i>
+    </button>
+    <button type="button" class="combat-control" data-action="resetAll" data-tooltip="{{localize 'STREET_FIGHTER.Combat.ResetSelections'}}">
+      <i class="fas fa-undo"></i>
+    </button>
+    {{/if}}
+  </footer>
+  {{/if}}
+</section>

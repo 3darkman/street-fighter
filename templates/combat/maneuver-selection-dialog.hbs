@@ -1,0 +1,82 @@
+<div class="sf-maneuver-selection">
+  <header class="sf-maneuver-selection-header">
+    <h2>{{localize "STREET_FIGHTER.Combat.SelectManeuverTitle"}}</h2>
+    {{#if currentSelection}}
+    <div class="sf-current-selection">
+      <span class="sf-current-label">{{localize "STREET_FIGHTER.Combat.CurrentSelection"}}:</span>
+      <span class="sf-current-name">{{currentSelection.name}}</span>
+    </div>
+    {{/if}}
+  </header>
+
+  {{#if hasManeuvers}}
+  <div class="sf-maneuver-list">
+    {{#each maneuvers as |maneuver|}}
+    <div class="sf-maneuver-card {{#unless maneuver.canAfford}}sf-cannot-afford{{/unless}} {{#if (eq maneuver.id @root.currentSelectionId)}}sf-selected{{/if}}"
+         data-maneuver-id="{{maneuver.id}}">
+
+      {{!-- Main Row - Clickable to select --}}
+      <div class="sf-maneuver-row" data-action="selectManeuver" data-maneuver-id="{{maneuver.id}}">
+        <span class="sf-maneuver-name">{{maneuver.name}}</span>
+        <span class="sf-maneuver-category">{{maneuver.category}}</span>
+
+        <div class="sf-maneuver-stats-inline">
+          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Speed'}}">
+            <i class="fas fa-bolt"></i> {{maneuver.calculatedSpeed}}
+          </span>
+          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Damage'}}">
+            <i class="fas fa-fist-raised"></i> {{maneuver.calculatedDamage}}
+          </span>
+          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Movement'}}">
+            <i class="fas fa-running"></i> {{maneuver.calculatedMovement}}
+          </span>
+        </div>
+
+        {{#if maneuver.chiCost}}
+        <span class="sf-cost-badge sf-cost-chi" title="{{localize 'STREET_FIGHTER.Resources.chi'}}">
+          <i class="fas fa-yin-yang"></i> {{maneuver.chiCost}}
+        </span>
+        {{/if}}
+        {{#if maneuver.willpowerCost}}
+        <span class="sf-cost-badge sf-cost-willpower" title="{{localize 'STREET_FIGHTER.Resources.willpower'}}">
+          <i class="fas fa-brain"></i> {{maneuver.willpowerCost}}
+        </span>
+        {{/if}}
+
+        {{#if (eq maneuver.id @root.currentSelectionId)}}
+        <span class="sf-selected-check"><i class="fas fa-check-circle"></i></span>
+        {{/if}}
+
+        {{#if (or maneuver.notes maneuver.ruleSummary)}}
+        <span class="sf-maneuver-expand" data-action="toggleNotes"><i class="fas fa-chevron-down"></i></span>
+        {{/if}}
+      </div>
+
+      {{!-- Expandable Notes Section --}}
+      {{#if (or maneuver.notes maneuver.ruleSummary)}}
+      <div class="sf-maneuver-notes collapsed">
+        <div class="sf-notes-content">
+          {{#if maneuver.notes}}
+          <p>{{maneuver.notes}}</p>
+          {{/if}}
+          {{#if maneuver.ruleSummary}}
+          <p class="sf-rule-summary">{{maneuver.ruleSummary}}</p>
+          {{/if}}
+        </div>
+      </div>
+      {{/if}}
+
+      {{#unless maneuver.canAfford}}
+      <div class="sf-cannot-afford-overlay">
+        <span>{{localize "STREET_FIGHTER.Combat.CannotAfford"}}</span>
+      </div>
+      {{/unless}}
+    </div>
+    {{/each}}
+  </div>
+  {{else}}
+  <div class="sf-no-maneuvers">
+    <p>{{localize "STREET_FIGHTER.Combat.NoManeuversAvailable"}}</p>
+  </div>
+  {{/if}}
+</div>

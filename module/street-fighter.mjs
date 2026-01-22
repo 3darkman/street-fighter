@@ -17,6 +17,8 @@ import { StreetFighterItemSheet } from "./sheets/item-sheet.mjs";
 
 import { StreetFighterCombat } from "./combat/combat.mjs";
 import { StreetFighterCombatant } from "./combat/combatant.mjs";
+import { StreetFighterCombatTracker } from "./combat/combat-tracker.mjs";
+import { registerCombatSockets } from "./combat/combat-socket.mjs";
 
 import { registerEffects } from "./effects/index.mjs";
 
@@ -47,6 +49,8 @@ Hooks.once("init", async () => {
   CONFIG.Combat.documentClass = StreetFighterCombat;
   CONFIG.Combatant.documentClass = StreetFighterCombatant;
 
+  CONFIG.ui.combat = StreetFighterCombatTracker;
+
   registerEffects();
 
   // Register sheets using DocumentSheetConfig for V2 applications
@@ -69,6 +73,34 @@ Hooks.once("init", async () => {
 
 Hooks.once("ready", () => {
   console.log("Street Fighter | System Ready");
+
+  registerCombatSockets();
+});
+
+// Global click handler for chat message accordions
+Hooks.on("renderChatMessageHTML", (message, html) => {
+  html.querySelectorAll(".sf-maneuver-expand-chat").forEach(btn => {
+    btn.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const card = btn.closest(".sf-maneuver-card-inline");
+      if (!card) return;
+
+      const notesSection = card.querySelector(".sf-maneuver-notes");
+      if (!notesSection) return;
+
+      const isCollapsed = notesSection.classList.contains("collapsed");
+      notesSection.classList.toggle("collapsed", !isCollapsed);
+      notesSection.classList.toggle("expanded", isCollapsed);
+
+      const icon = btn.querySelector("i");
+      if (icon) {
+        icon.classList.toggle("fa-chevron-down", !isCollapsed);
+        icon.classList.toggle("fa-chevron-up", isCollapsed);
+      }
+    });
+  });
 });
 
 Hooks.on("renderItemDirectory", (app, html, data) => {
