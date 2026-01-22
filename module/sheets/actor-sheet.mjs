@@ -35,6 +35,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       toggleEffect: StreetFighterActorSheet._onToggleEffect,
       rollTrait: StreetFighterActorSheet._onRollTrait,
       rollManeuver: StreetFighterActorSheet._onRollManeuver,
+      toggleWeaponEquip: StreetFighterActorSheet._onToggleWeaponEquip,
     },
     form: {
       submitOnChange: true,
@@ -85,6 +86,14 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     
     // Setup maneuver accordion
     this._setupManeuverAccordion(this.element);
+    
+    // Setup weapon accordion
+    this._setupWeaponAccordion(this.element);
+    
+    // Restore active tab after re-render
+    if (this.tabGroups.primary && this.tabGroups.primary !== "traits") {
+      this._activateTab(this.tabGroups.primary);
+    }
   }
 
   /**
@@ -283,13 +292,15 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       return item?.system.value || 0;
     };
 
-    // Build techniques map with value and isWeaponTechnique flag
+    // Build techniques map with value and weapon technique flags
     const techniquesMap = {};
     for (const t of techniques) {
       const key = t.system.sourceId || t.name.toLowerCase();
+      // A technique is a weapon technique if either flag is true
+      const isWeaponTechnique = t.system.isWeaponTechnique || t.system.isFirearmTechnique || false;
       techniquesMap[key] = {
         value: t.system.value || 0,
-        isWeaponTechnique: t.system.isWeaponTechnique || false,
+        isWeaponTechnique,
       };
     }
 
@@ -321,14 +332,16 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     
     // Find equipped weapons for this technique
     const equippedWeapons = isWeaponTechnique 
-      ? weapons.filter(w => w.system.isEquipped && w.system.techniqueId === categoryKey)
+      ? weapons.filter(w => w.system.isEquipped && (w.system.techniqueId || "").toLowerCase() === categoryKey)
       : [];
     
     // If exactly one weapon is equipped, use its modifiers
+    // Parse modifiers which may be strings like "+2" or "-1"
     const singleEquippedWeapon = equippedWeapons.length === 1 ? equippedWeapons[0] : null;
-    const weaponSpeedMod = singleEquippedWeapon ? (parseInt(singleEquippedWeapon.system.speed) || 0) : 0;
-    const weaponDamageMod = singleEquippedWeapon ? (parseInt(singleEquippedWeapon.system.damage) || 0) : 0;
-    const weaponMovementMod = singleEquippedWeapon ? (parseInt(singleEquippedWeapon.system.movement) || 0) : 0;
+    const parseWeaponMod = (val) => parseInt(String(val || "0").replace(/^\+/, "")) || 0;
+    const weaponSpeedMod = singleEquippedWeapon ? parseWeaponMod(singleEquippedWeapon.system.speed) : 0;
+    const weaponDamageMod = singleEquippedWeapon ? parseWeaponMod(singleEquippedWeapon.system.damage) : 0;
+    const weaponMovementMod = singleEquippedWeapon ? parseWeaponMod(singleEquippedWeapon.system.movement) : 0;
     
     // Calculate Speed: base is Dexterity (or Wits for weapon techniques)
     const speedBase = isWeaponTechnique ? characterStats.wits : characterStats.dexterity;
@@ -360,9 +373,9 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       equippedWeapons: equippedWeapons.map(w => ({
         id: w.id,
         name: w.name,
-        damageMod: parseInt(w.system.damage) || 0,
-        speedMod: parseInt(w.system.speed) || 0,
-        movementMod: parseInt(w.system.movement) || 0,
+        damageMod: parseWeaponMod(w.system.damage),
+        speedMod: parseWeaponMod(w.system.speed),
+        movementMod: parseWeaponMod(w.system.movement),
       })),
     };
   }
@@ -679,6 +692,36 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
   }
 
   /**
+   * Setup weapon accordion (expand/collapse special notes)
+   * @param {HTMLElement} html - The rendered HTML
+   * @private
+   */
+  _setupWeaponAccordion(html) {
+    const weaponRows = html.querySelectorAll(".weapon-row");
+    
+    weaponRows.forEach(row => {
+      row.addEventListener("click", (event) => {
+        // Don't toggle if clicking on the equip button
+        if (event.target.closest(".weapon-equip")) {
+          return;
+        }
+        
+        const card = row.closest(".weapon-card");
+        const notes = card.querySelector(".weapon-notes");
+        const expandIcon = row.querySelector(".weapon-expand i");
+        
+        if (notes) {
+          notes.classList.toggle("collapsed");
+          if (expandIcon) {
+            expandIcon.classList.toggle("fa-chevron-down");
+            expandIcon.classList.toggle("fa-chevron-up");
+          }
+        }
+      });
+    });
+  }
+
+  /**
    * Edit an item by its ID
    * @param {string} itemId - The item ID
    * @private
@@ -935,8 +978,8 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       }
     }
 
-    // For weapon techniques, we don't use strength
-    const isWeaponTechnique = techniqueItem?.system.isWeaponTechnique || false;
+    // For weapon techniques (melee or firearm), we don't use strength
+    const isWeaponTechnique = techniqueItem?.system.isWeaponTechnique || techniqueItem?.system.isFirearmTechnique || false;
     const attributeItem = isWeaponTechnique ? null : strengthItem;
     
     // Parse damage modifier for fixed modifier
@@ -950,12 +993,15 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const equippedWeapons = [];
     if (isWeaponTechnique) {
       for (const item of this.actor.items) {
-        if (item.type === "weapon" && item.system.isEquipped && item.system.techniqueId === categoryKey) {
+        const weaponTechniqueId = (item.system.techniqueId || "").toLowerCase();
+        if (item.type === "weapon" && item.system.isEquipped && weaponTechniqueId === categoryKey) {
+          // Parse damage which may be a string like "+2" or "-1" or just "2"
+          const damageStr = String(item.system.damage || "0");
+          const damageMod = parseInt(damageStr.replace(/^\+/, "")) || 0;
           equippedWeapons.push({
             id: item.id,
             name: item.name,
-            damageMod: parseInt(item.system.damage) || 0,
-            // Pre-select if only one weapon is equipped
+            damageMod,
             selected: false,
           });
         }
@@ -979,5 +1025,25 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     if (rollData) {
       await executeRoll(rollData);
     }
+  }
+
+  /**
+   * Handle toggling weapon equipped state
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onToggleWeaponEquip(event, target) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    const weapon = this.actor.items.get(itemId);
+    
+    if (!weapon || weapon.type !== "weapon") return;
+    
+    await weapon.update({
+      "system.isEquipped": !weapon.system.isEquipped,
+    });
   }
 }

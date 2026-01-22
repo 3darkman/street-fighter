@@ -33,8 +33,12 @@ export async function importCharacters(file, folder = null) {
 
     for (const charData of data.characters) {
       try {
-        await importSingleCharacter(charData, version, folder);
-        counts.imported++;
+        const result = await importSingleCharacter(charData, version, folder);
+        if (result.isUpdate) {
+          counts.updated++;
+        } else {
+          counts.imported++;
+        }
       } catch (e) {
         errors.push(`Character ${charData.name || charData.characterId}: ${e.message}`);
       }
@@ -49,27 +53,66 @@ export async function importCharacters(file, folder = null) {
 
 /**
  * Import a single character from exported data
+ * If a character with the same name exists, update it instead of creating new
  * @param {object} charData - Character data from export
  * @param {string} version - Export version
  * @param {Folder} folder - Optional folder
+ * @returns {Promise<{actor: Actor, isUpdate: boolean}>}
  */
 async function importSingleCharacter(charData, version, folder) {
-  // Build actor data
+  const characterName = charData.name || charData.characterName || "Unnamed Fighter";
+  
+  // Check if actor with same name already exists
+  const existingActor = game.actors.find(a => a.name === characterName);
+  
+  if (existingActor) {
+    // Update existing actor, preserving current resource spent values
+    const currentSystem = existingActor.system;
+    const newSystemData = buildActorSystemData(charData, version);
+    
+    // Preserve current spent/damage values from the existing character
+    newSystemData.resources.health.damageTaken = currentSystem.resources?.health?.damageTaken || 0;
+    newSystemData.resources.chi.spent = currentSystem.resources?.chi?.spent || 0;
+    newSystemData.resources.willpower.spent = currentSystem.resources?.willpower?.spent || 0;
+    
+    // Calculate current values based on max minus spent
+    newSystemData.resources.health.value = Math.max(0, newSystemData.resources.health.max - newSystemData.resources.health.damageTaken);
+    newSystemData.resources.chi.value = Math.max(0, newSystemData.resources.chi.max - newSystemData.resources.chi.spent);
+    newSystemData.resources.willpower.value = Math.max(0, newSystemData.resources.willpower.max - newSystemData.resources.willpower.spent);
+    
+    // Update actor data
+    await existingActor.update({
+      img: charData.imageBase64 ? `data:image/png;base64,${charData.imageBase64}` : existingActor.img,
+      system: newSystemData,
+    });
+    
+    // Remove all existing embedded items and re-add them
+    const existingItemIds = existingActor.items.map(i => i.id);
+    if (existingItemIds.length > 0) {
+      await existingActor.deleteEmbeddedDocuments("Item", existingItemIds);
+    }
+    
+    // Add embedded items (special maneuvers, weapons, etc.)
+    await addEmbeddedItems(existingActor, charData);
+    
+    return { actor: existingActor, isUpdate: true };
+  }
+  
+  // Create new actor
   const actorData = {
-    name: charData.name || charData.characterName || "Unnamed Fighter",
-    type: charData.isNpc ? "npc" : "fighter",
+    name: characterName,
+    type: "fighter",
     folder: folder?.id || null,
     img: charData.imageBase64 ? `data:image/png;base64,${charData.imageBase64}` : null,
     system: buildActorSystemData(charData, version),
   };
 
-  // Create the actor
   const actor = await Actor.create(actorData);
 
   // Add embedded items (special maneuvers, weapons, etc.)
   await addEmbeddedItems(actor, charData);
 
-  return actor;
+  return { actor, isUpdate: false };
 }
 
 /**
@@ -131,7 +174,6 @@ function buildActorSystemData(charData, version) {
     sessionRecords: charData.sessionRecords || [],
     languages: charData.languages || [],
     combos: charData.combos || [],
-    maneuverWeaponBindings: charData.maneuverWeaponBindings || {},
     biography: "",
     background: charData.background || "",
     motivations: charData.motivations || "",
@@ -265,57 +307,67 @@ async function addEmbeddedItems(actor, charData) {
 /**
  * Show the character import dialog
  */
-export function showCharacterImportDialog() {
-  new Dialog({
-    title: game.i18n.localize("STREET_FIGHTER.Character.import"),
-    content: `
-      <form>
-        <div class="form-group">
-          <label>Character File (.fscharacters)</label>
-          <input type="file" name="characterFile" accept=".fscharacters,.json" />
-        </div>
-        <p style="font-size: 11px; color: #888; margin-top: 8px;">
-          Imported characters are read-only and can only be updated by re-importing.
-        </p>
-      </form>
-    `,
-    buttons: {
-      import: {
-        icon: '<i class="fas fa-file-import"></i>',
-        label: game.i18n.localize("STREET_FIGHTER.Character.import"),
-        callback: async (html) => {
-          const fileInput = html.find('input[name="characterFile"]')[0];
-          
-          if (!fileInput.files.length) {
-            ui.notifications.error(game.i18n.localize("STREET_FIGHTER.Errors.noFileSelected"));
-            return;
+export async function showCharacterImportDialog() {
+  const { DialogV2 } = foundry.applications.api;
+  
+  const content = `
+    <form>
+      <div class="form-group">
+        <label>Character File (.fscharacters)</label>
+        <input type="file" name="characterFile" accept=".fscharacters,.json" />
+      </div>
+      <p style="font-size: 11px; color: #888; margin-top: 8px;">
+        Imported characters are read-only and can only be updated by re-importing.
+      </p>
+    </form>
+  `;
+
+  let fileInput = null;
+
+  await DialogV2.prompt({
+    window: {
+      title: game.i18n.localize("STREET_FIGHTER.Character.import"),
+      icon: "fas fa-file-import",
+    },
+    content,
+    render: (event, dialog) => {
+      fileInput = dialog.element.querySelector('input[name="characterFile"]');
+    },
+    ok: {
+      label: game.i18n.localize("STREET_FIGHTER.Character.import"),
+      icon: "fas fa-file-import",
+      callback: async () => {
+        if (!fileInput?.files.length) {
+          ui.notifications.error(game.i18n.localize("STREET_FIGHTER.Errors.noFileSelected"));
+          return;
+        }
+
+        const file = fileInput.files[0];
+        ui.notifications.info(`Importing characters from: ${file.name}...`);
+
+        const result = await importCharacters(file);
+
+        if (result.success) {
+          const parts = [];
+          if (result.counts.imported > 0) {
+            parts.push(`${result.counts.imported} imported`);
           }
-
-          const file = fileInput.files[0];
-          ui.notifications.info(`Importing characters from: ${file.name}...`);
-
-          const result = await importCharacters(file);
-
-          if (result.success) {
-            ui.notifications.info(
-              `${game.i18n.localize("STREET_FIGHTER.Character.importSuccess")}: ` +
-              `${result.counts.imported} characters imported`
-            );
+          if (result.counts.updated > 0) {
+            parts.push(`${result.counts.updated} updated`);
           }
+          ui.notifications.info(
+            `${game.i18n.localize("STREET_FIGHTER.Character.importSuccess")}: ${parts.join(", ")}`
+          );
+        }
 
-          if (result.errors.length > 0) {
-            console.warn("Character import errors:", result.errors);
-            ui.notifications.warn(
-              `${game.i18n.localize("STREET_FIGHTER.Character.importError")}: ${result.errors.length} errors. Check console for details.`
-            );
-          }
-        },
-      },
-      cancel: {
-        icon: '<i class="fas fa-times"></i>',
-        label: game.i18n.localize("STREET_FIGHTER.Common.cancel"),
+        if (result.errors.length > 0) {
+          console.warn("Character import errors:", result.errors);
+          ui.notifications.warn(
+            `${game.i18n.localize("STREET_FIGHTER.Character.importError")}: ${result.errors.length} errors. Check console for details.`
+          );
+        }
       },
     },
-    default: "import",
-  }).render(true);
+    rejectClose: false,
+  });
 }

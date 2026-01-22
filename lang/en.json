@@ -92,6 +92,9 @@
       "isOptional": "Optional",
       "isUnique": "Unique",
       "isWeaponTechnique": "Weapon Technique",
+      "isFirearmTechnique": "Firearm Technique",
+      "techniqueType": "Technique Type",
+      "normalTechnique": "Normal",
       "availableLevels": "Available Levels"
     },
     
@@ -126,7 +129,8 @@
       "speed": "Speed",
       "damage": "Damage",
       "movement": "Movement",
-      "special": "Special"
+      "special": "Special",
+      "equip": "Equip/Unequip"
     },
     
     "Prerequisite": {

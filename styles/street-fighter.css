@@ -661,28 +661,110 @@
   opacity: 0.5;
 }
 
-/* Weapon Stats */
-.street-fighter .weapon-item {
-  flex-wrap: wrap;
+/* Weapon List - Similar to Maneuvers */
+.street-fighter .weapon-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 
-.street-fighter .weapon-stats {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-  margin-top: 4px;
+.street-fighter .weapon-card {
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.street-fighter .weapon-stat {
+.street-fighter .weapon-card:hover {
+  border-color: var(--sf-primary-light);
+}
+
+.street-fighter .weapon-row {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.street-fighter .weapon-name {
+  font-weight: bold;
+  color: var(--sf-text);
+  flex-shrink: 0;
+}
+
+.street-fighter .weapon-technique {
+  font-size: 11px;
+  padding: 1px 6px;
+  background: var(--sf-surface-light);
+  border-radius: 8px;
+  white-space: nowrap;
   color: var(--sf-text-muted);
 }
 
-.street-fighter .weapon-stat i {
-  color: var(--sf-primary-light);
+.street-fighter .weapon-stats-inline {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.street-fighter .weapon-equip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: var(--sf-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.street-fighter .weapon-equip:hover {
+  background: var(--sf-surface-light);
+  color: var(--sf-primary);
+}
+
+.street-fighter .weapon-equip.equipped {
+  color: var(--sf-success);
+}
+
+.street-fighter .weapon-equip.equipped:hover {
+  color: var(--sf-danger);
+}
+
+.street-fighter .weapon-expand {
+  color: var(--sf-text-muted);
+  margin-left: 4px;
+}
+
+.street-fighter .weapon-notes {
+  background: var(--sf-surface-light);
+  border-top: 1px solid var(--sf-border);
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  max-height: 200px;
+  padding: 8px 10px;
+}
+
+.street-fighter .weapon-notes.collapsed {
+  max-height: 0;
+  padding: 0 10px;
+}
+
+.street-fighter .weapon-notes .notes-content {
+  font-size: 12px;
+  color: var(--sf-text-muted);
+  font-style: italic;
+}
+
+.street-fighter .weapon-notes .notes-content p {
+  margin: 0;
+}
+
+.street-fighter .weapon-notes .no-notes {
+  color: var(--sf-text-muted);
+  opacity: 0.5;
 }
 
 /* ==================== */

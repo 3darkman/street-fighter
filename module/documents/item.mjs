@@ -18,6 +18,19 @@ export class StreetFighterItem extends Item {
   }
 
   /** @override */
+  async _preUpdate(changed, options, user) {
+    await super._preUpdate(changed, options, user);
+
+    // Handle techniqueType select for technique items
+    if (this.type === "technique" && changed.system?.techniqueType !== undefined) {
+      const techniqueType = changed.system.techniqueType;
+      changed.system.isWeaponTechnique = techniqueType === "weapon";
+      changed.system.isFirearmTechnique = techniqueType === "firearm";
+      delete changed.system.techniqueType;
+    }
+  }
+
+  /** @override */
   prepareData() {
     super.prepareData();
   }

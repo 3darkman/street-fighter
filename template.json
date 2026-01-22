@@ -105,6 +105,7 @@
       "startLevel": 5,
       "experiencePointCostOnStartLevel": 5,
       "isWeaponTechnique": false,
+      "isFirearmTechnique": false,
       "description": ""
     },
     "background": {

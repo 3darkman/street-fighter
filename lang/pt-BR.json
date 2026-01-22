@@ -92,6 +92,9 @@
       "isOptional": "Opcional",
       "isUnique": "Único",
       "isWeaponTechnique": "Técnica de Arma",
+      "isFirearmTechnique": "Técnica de Arma de Fogo",
+      "techniqueType": "Tipo de Técnica",
+      "normalTechnique": "Normal",
       "availableLevels": "Níveis Disponíveis"
     },
     
@@ -126,7 +129,8 @@
       "speed": "Velocidade",
       "damage": "Dano",
       "movement": "Movimento",
-      "special": "Especial"
+      "special": "Especial",
+      "equip": "Equipar/Desequipar"
     },
     
     "Prerequisite": {

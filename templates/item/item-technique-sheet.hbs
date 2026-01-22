@@ -24,10 +24,15 @@
         <input type="checkbox" name="system.isOptional" id="isOptional" {{checked systemData.isOptional}} />
         <label for="isOptional">{{localize "STREET_FIGHTER.Trait.isOptional"}}</label>
       </div>
-      <div class="form-group checkbox-group">
-        <input type="checkbox" name="system.isWeaponTechnique" id="isWeaponTechnique" {{checked systemData.isWeaponTechnique}} />
-        <label for="isWeaponTechnique">{{localize "STREET_FIGHTER.Technique.isWeaponTechnique"}}</label>
-      </div>
+    </div>
+    
+    <div class="form-group">
+      <label>{{localize "STREET_FIGHTER.Trait.techniqueType"}}</label>
+      <select name="system.techniqueType">
+        <option value="normal" {{#unless systemData.isWeaponTechnique}}{{#unless systemData.isFirearmTechnique}}selected{{/unless}}{{/unless}}>{{localize "STREET_FIGHTER.Technique.normalTechnique"}}</option>
+        <option value="weapon" {{#if systemData.isWeaponTechnique}}selected{{/if}}>{{localize "STREET_FIGHTER.Trait.isWeaponTechnique"}}</option>
+        <option value="firearm" {{#if systemData.isFirearmTechnique}}selected{{/if}}>{{localize "STREET_FIGHTER.Trait.isFirearmTechnique"}}</option>
+      </select>
     </div>
 
     <details class="advanced-section">

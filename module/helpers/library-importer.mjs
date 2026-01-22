@@ -306,6 +306,7 @@ async function createTraitItem(data, folders) {
       baseData.system.startLevel = data.startLevel ?? 5;
       baseData.system.experiencePointCostOnStartLevel = data.experiencePointCostOnStartLevel ?? 5;
       baseData.system.isWeaponTechnique = data.isWeaponTechnique ?? false;
+      baseData.system.isFirearmTechnique = data.isFirearmTechnique ?? false;
       break;
     case "background":
       baseData.system.isUnique = data.unique ?? false;
@@ -348,64 +349,68 @@ async function createWeaponItem(data, folder) {
 /**
  * Show the library import dialog
  */
-export function showImportDialog() {
-  new Dialog({
-    title: game.i18n.localize("STREET_FIGHTER.Library.import"),
-    content: `
-      <form>
-        <div class="form-group">
-          <label>Library File (.fslibrary)</label>
-          <input type="file" name="libraryFile" accept=".fslibrary,.json" />
-        </div>
-        <p style="font-size: 11px; color: #888; margin-top: 8px;">
-          Items will be organized in folders by library name and item type.
-        </p>
-      </form>
-    `,
-    buttons: {
-      import: {
-        icon: '<i class="fas fa-file-import"></i>',
-        label: game.i18n.localize("STREET_FIGHTER.Library.import"),
-        callback: async (html) => {
-          const fileInput = html.find('input[name="libraryFile"]')[0];
-          
-          if (!fileInput.files.length) {
-            ui.notifications.error(game.i18n.localize("STREET_FIGHTER.Errors.noFileSelected"));
-            return;
-          }
+export async function showImportDialog() {
+  const { DialogV2 } = foundry.applications.api;
+  
+  const content = `
+    <form>
+      <div class="form-group">
+        <label>Library File (.fslibrary)</label>
+        <input type="file" name="libraryFile" accept=".fslibrary,.json" />
+      </div>
+      <p style="font-size: 11px; color: #888; margin-top: 8px;">
+        Items will be organized in folders by library name and item type.
+      </p>
+    </form>
+  `;
 
-          const file = fileInput.files[0];
-          ui.notifications.info(`Importing library: ${file.name}...`);
+  let fileInput = null;
 
-          const result = await importLibrary(file);
+  await DialogV2.prompt({
+    window: {
+      title: game.i18n.localize("STREET_FIGHTER.Library.import"),
+      icon: "fas fa-file-import",
+    },
+    content,
+    render: (event, dialog) => {
+      fileInput = dialog.element.querySelector('input[name="libraryFile"]');
+    },
+    ok: {
+      label: game.i18n.localize("STREET_FIGHTER.Library.import"),
+      icon: "fas fa-file-import",
+      callback: async () => {
+        if (!fileInput?.files.length) {
+          ui.notifications.error(game.i18n.localize("STREET_FIGHTER.Errors.noFileSelected"));
+          return;
+        }
 
-          if (result.success) {
-            ui.notifications.info(
-              `${game.i18n.localize("STREET_FIGHTER.Library.importSuccess")} "${result.libraryName}": ` +
-              `${result.counts.fightingStyles} styles, ` +
-              `${result.counts.specialManeuvers} maneuvers, ` +
-              `${result.counts.attributes} attributes, ` +
-              `${result.counts.abilities} abilities, ` +
-              `${result.counts.techniques} techniques, ` +
-              `${result.counts.backgrounds} backgrounds, ` +
-              `${result.counts.weapons} weapons, ` +
-              `${result.counts.divisions} divisions`
-            );
-          }
+        const file = fileInput.files[0];
+        ui.notifications.info(`Importing library: ${file.name}...`);
 
-          if (result.errors.length > 0) {
-            console.warn("Library import errors:", result.errors);
-            ui.notifications.warn(
-              `${game.i18n.localize("STREET_FIGHTER.Library.importError")}: ${result.errors.length} errors. Check console for details.`
-            );
-          }
-        },
-      },
-      cancel: {
-        icon: '<i class="fas fa-times"></i>',
-        label: game.i18n.localize("STREET_FIGHTER.Common.cancel"),
+        const result = await importLibrary(file);
+
+        if (result.success) {
+          ui.notifications.info(
+            `${game.i18n.localize("STREET_FIGHTER.Library.importSuccess")} "${result.libraryName}": ` +
+            `${result.counts.fightingStyles} styles, ` +
+            `${result.counts.specialManeuvers} maneuvers, ` +
+            `${result.counts.attributes} attributes, ` +
+            `${result.counts.abilities} abilities, ` +
+            `${result.counts.techniques} techniques, ` +
+            `${result.counts.backgrounds} backgrounds, ` +
+            `${result.counts.weapons} weapons, ` +
+            `${result.counts.divisions} divisions`
+          );
+        }
+
+        if (result.errors.length > 0) {
+          console.warn("Library import errors:", result.errors);
+          ui.notifications.warn(
+            `${game.i18n.localize("STREET_FIGHTER.Library.importError")}: ${result.errors.length} errors. Check console for details.`
+          );
+        }
       },
     },
-    default: "import",
-  }).render(true);
+    rejectClose: false,
+  });
 }
