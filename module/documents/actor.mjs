@@ -79,6 +79,17 @@ export class StreetFighterActor extends Actor {
   }
 
   /**
+   * Get effective soak value including active effect modifiers
+   * Soak = Stamina + effects targeting soak
+   * @returns {number} The effective soak value
+   */
+  getEffectiveSoak() {
+    const baseSoak = this.system.combat?.soak ?? 0;
+    const modifiers = collectResourceMaxModifiers(this, "soak");
+    return Math.max(0, applyModifiers(baseSoak, modifiers));
+  }
+
+  /**
    * Prepare common data for all actor types
    * @param {object} systemData
    * @private

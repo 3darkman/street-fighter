@@ -31,6 +31,7 @@ export const RESOURCE_TYPES = {
   HEALTH: "health",
   CHI: "chi",
   WILLPOWER: "willpower",
+  SOAK: "soak",
 };
 
 /**
@@ -144,6 +145,7 @@ export function getResourceTypeLabel(resourceType) {
     [RESOURCE_TYPES.HEALTH]: "STREET_FIGHTER.Resources.health",
     [RESOURCE_TYPES.CHI]: "STREET_FIGHTER.Resources.chi",
     [RESOURCE_TYPES.WILLPOWER]: "STREET_FIGHTER.Resources.willpower",
+    [RESOURCE_TYPES.SOAK]: "STREET_FIGHTER.Combat.soak",
   };
   return labels[resourceType] || "";
 }

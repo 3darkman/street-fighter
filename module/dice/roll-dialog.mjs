@@ -172,6 +172,21 @@ export class StreetFighterRollDialog extends DialogV2 {
         });
       }
     }
+    
+    // Add target's soak as negative modifier
+    if (options.targetSoak !== null && options.targetSoak !== undefined && options.targetSoak > 0) {
+      const soakValue = -options.targetSoak;
+      const targetLabel = options.targetName 
+        ? game.i18n.format("STREET_FIGHTER.Roll.targetSoak", { name: options.targetName })
+        : game.i18n.localize("STREET_FIGHTER.Combat.soak");
+      fixedModifiers.push({
+        name: targetLabel,
+        value: soakValue,
+        displayValue: `${soakValue}`,
+        checked: true,
+        isTargetSoak: true,
+      });
+    }
 
     return {
       actor,

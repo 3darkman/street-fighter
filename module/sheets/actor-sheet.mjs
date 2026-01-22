@@ -1115,6 +1115,16 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       }
     }
     
+    // Get target's soak if a target is selected
+    let targetSoak = null;
+    let targetName = null;
+    const firstTarget = game.user.targets.first();
+    if (firstTarget?.actor) {
+      const targetActor = firstTarget.actor;
+      targetSoak = targetActor.getEffectiveSoak?.() ?? targetActor.system.combat?.soak ?? 0;
+      targetName = targetActor.name;
+    }
+    
     const rollData = await StreetFighterRollDialog.create(this.actor, {
       selectedTraitId: attributeItem?.id,
       selectedTraitType: "attribute",
@@ -1122,6 +1132,8 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       maneuverName: maneuver.name,
       maneuverDamageModifier: damageModValue,
       equippedWeapons,
+      targetSoak,
+      targetName,
       rollTitle: maneuver.name,
     });
 

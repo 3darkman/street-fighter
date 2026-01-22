@@ -335,7 +335,8 @@
       "onesRemoved": "{count} sucesso(s) removido(s) por 1s",
       "reroll": "Rolar Novamente",
       "fixedModifiers": "Modificadores Fixos",
-      "maneuverDamage": "Dano da Manobra"
+      "maneuverDamage": "Dano da Manobra",
+      "targetSoak": "Absorção de {name}"
     },
     
     "Errors": {
@@ -432,7 +433,8 @@
       "SelectionPhaseStarted": "Fase de seleção iniciada. Escolham suas manobras!",
       "ExecutionPhaseStarted": "Fase de execução iniciada. As ações começam!",
       "ResetSelections": "Resetar todas as seleções e iniciar um novo turno",
-      "OpenTurnDialog": "Abrir diálogo de turno"
+      "OpenTurnDialog": "Abrir diálogo de turno",
+      "soak": "Absorção"
     }
   }
 }

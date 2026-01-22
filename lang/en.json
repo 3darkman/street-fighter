@@ -335,7 +335,8 @@
       "onesRemoved": "{count} success(es) removed by 1s",
       "reroll": "Reroll",
       "fixedModifiers": "Fixed Modifiers",
-      "maneuverDamage": "Maneuver Damage"
+      "maneuverDamage": "Maneuver Damage",
+      "targetSoak": "{name}'s Soak"
     },
     
     "Errors": {
@@ -432,7 +433,8 @@
       "SelectionPhaseStarted": "Selection phase started. Choose your maneuvers!",
       "ExecutionPhaseStarted": "Execution phase started. Actions begin!",
       "ResetSelections": "Reset all selections and start a new turn",
-      "OpenTurnDialog": "Open turn dialog"
+      "OpenTurnDialog": "Open turn dialog",
+      "soak": "Soak"
     }
   }
 }
