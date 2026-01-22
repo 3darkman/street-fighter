@@ -210,7 +210,7 @@ export class StreetFighterCombatant extends Combatant {
 
     const messageData = {
       speaker: ChatMessage.getSpeaker({ actor: this.actor, token: this.token }),
-      content: await renderTemplate(
+      content: await foundry.applications.handlebars.renderTemplate(
         "systems/street-fighter/templates/chat/maneuver-reveal-card.hbs",
         {
           combatantName: this.name,
