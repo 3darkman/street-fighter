@@ -262,6 +262,18 @@
         "Title": "Delete Item",
         "Content": "Are you sure you want to delete {name}?"
       }
+    },
+    
+    "Effects": {
+      "passive": "Passive Effects",
+      "temporary": "Temporary Effects",
+      "inactive": "Inactive Effects",
+      "noPassive": "No passive effects",
+      "noTemporary": "No temporary effects",
+      "noInactive": "No inactive effects",
+      "add": "Add Effect",
+      "new": "New Effect",
+      "toggle": "Toggle Effect"
     }
   }
 }

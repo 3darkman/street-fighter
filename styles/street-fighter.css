@@ -111,10 +111,10 @@
 
 .street-fighter.sheet header.sheet-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex: none;
   gap: 12px;
-  padding: 12px;
+  padding: 6px 12px;
   background: var(--sf-surface);
   border-bottom: 2px solid var(--sf-primary);
 }
@@ -125,8 +125,9 @@
 }
 
 .street-fighter.sheet header.sheet-header img.profile-img {
-  width: 64px;
-  height: 64px;
+  width: 116px;
+  height: 159px;
+  margin-top: 3px;
   border: 2px solid var(--sf-primary);
   border-radius: 4px;
   object-fit: cover;
@@ -169,6 +170,25 @@
   outline: none;
 }
 
+.street-fighter.sheet header.sheet-header .header-style {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.street-fighter.sheet header.sheet-header .header-style .style-label {
+  font-size: 11px;
+  color: var(--sf-text-muted);
+  text-transform: uppercase;
+}
+
+.street-fighter.sheet header.sheet-header .header-style .style-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--sf-primary);
+}
+
 /* ==================== */
 /* Tabs                 */
 /* ==================== */
@@ -176,19 +196,23 @@
 .street-fighter.sheet nav.sheet-tabs {
   display: flex;
   gap: 4px;
-  padding: 8px 16px;
+  padding: 2px 12px;
   background: var(--sf-surface);
   border-bottom: 1px solid var(--sf-border);
+  line-height: 1.5;
 }
 
 .street-fighter.sheet nav.sheet-tabs .item {
-  padding: 8px 16px;
+  padding: 2px 12px;
   background: var(--sf-surface-light);
   border: 1px solid var(--sf-border);
   border-radius: 4px 4px 0 0;
   color: var(--sf-text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 12px;
+  justify-content: center;
+  flex: auto;
 }
 
 .street-fighter.sheet nav.sheet-tabs .item:hover {
@@ -875,10 +899,11 @@
 /* ==================== */
 
 .street-fighter.chat-card {
-  background: var(--sf-surface);
+  background: #ffffff;
   border: 1px solid var(--sf-border);
   border-radius: 8px;
   overflow: hidden;
+  color: #333;
 }
 
 .street-fighter.chat-card .card-header {
@@ -1049,6 +1074,7 @@ button.sf-import-characters:hover {
   border-left: 3px solid var(--sf-primary);
   font-size: 14px;
   color: var(--sf-text);
+  text-align: center;
 }
 
 .trait-list {
@@ -1108,6 +1134,7 @@ button.sf-import-characters:hover {
   font-size: 11px;
   text-transform: uppercase;
   color: var(--sf-text-muted);
+  text-align: center;
 }
 
 /* Traits Row Layout (side by side for techniques/backgrounds) */
@@ -1351,4 +1378,125 @@ button.sf-import-characters:hover {
 .context-menu .context-item i {
   width: 16px;
   text-align: center;
+}
+
+/* ==================== */
+/* Effects Section      */
+/* ==================== */
+
+.effects-section {
+  margin-bottom: 16px;
+}
+
+.effects-section h3 {
+  margin: 0 0 8px 0;
+  padding: 4px 8px;
+  background: var(--sf-surface-light);
+  border-left: 3px solid var(--sf-primary);
+  font-size: 14px;
+  color: var(--sf-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.effects-section h3 i {
+  color: var(--sf-primary);
+}
+
+.effect-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.effect-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--sf-border);
+  transition: background 0.2s ease;
+}
+
+.effect-item:hover {
+  background: var(--sf-surface-light);
+}
+
+.effect-item.effect-disabled {
+  opacity: 0.5;
+}
+
+.effect-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid var(--sf-border);
+}
+
+.effect-name {
+  flex: 1;
+  font-size: 13px;
+}
+
+.effect-duration {
+  font-size: 11px;
+  color: var(--sf-accent);
+  background: var(--sf-surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.effect-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.effect-controls a {
+  color: var(--sf-text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.effect-controls a:hover {
+  color: var(--sf-primary);
+}
+
+.effect-controls a i.fa-toggle-on {
+  color: var(--sf-success);
+}
+
+.effect-controls a i.fa-toggle-off {
+  color: var(--sf-text-muted);
+}
+
+.effect-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--sf-text-muted);
+  font-style: italic;
+  font-size: 12px;
+}
+
+.effect-add {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.effect-add button {
+  background: var(--sf-primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s ease;
+}
+
+.effect-add button:hover {
+  background: var(--sf-primary-dark);
 }

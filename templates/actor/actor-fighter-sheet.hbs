@@ -12,6 +12,13 @@
       <h1 class="charname">
         <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize 'STREET_FIGHTER.Common.name'}}" {{#if isImported}}disabled{{/if}} />
       </h1>
+      {{!-- Fighting Style in header --}}
+      {{#each items.fightingStyles as |style|}}
+      <div class="header-style" data-item-id="{{style.id}}">
+        <span class="style-label">{{localize "STREET_FIGHTER.Item.Types.fightingStyle"}}:</span>
+        <span class="style-name">{{style.name}}</span>
+      </div>
+      {{/each}}
       <div class="header-details">
         <div class="form-group">
           <label>{{localize "STREET_FIGHTER.Profile.concept"}}</label>
@@ -29,30 +36,13 @@
     <a class="item active" data-tab="traits">{{localize "STREET_FIGHTER.Tabs.traits"}}</a>
     <a class="item" data-tab="maneuvers">{{localize "STREET_FIGHTER.Tabs.maneuvers"}}</a>
     <a class="item" data-tab="resources">{{localize "STREET_FIGHTER.Tabs.resources"}}</a>
+    <a class="item" data-tab="effects">{{localize "STREET_FIGHTER.Tabs.effects"}}</a>
     <a class="item" data-tab="biography">{{localize "STREET_FIGHTER.Tabs.biography"}}</a>
   </nav>
 
   <section class="sheet-body">
     {{!-- Traits Tab (Attributes, Abilities, Techniques, Backgrounds) --}}
     <div class="tab active" data-group="primary" data-tab="traits">
-      {{!-- Fighting Style --}}
-      <div class="traits-section">
-        <h3>{{localize "STREET_FIGHTER.Item.Types.fightingStyle"}}</h3>
-        <ul class="item-list">
-          {{#each items.fightingStyles as |style|}}
-          <li class="item" data-item-id="{{style.id}}">
-            <span class="item-name">{{style.name}}</span>
-            <div class="item-controls">
-              <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
-              {{#unless ../isImported}}
-              <a data-action="deleteItem" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
-              {{/unless}}
-            </div>
-          </li>
-          {{/each}}
-        </ul>
-      </div>
-
       {{!-- Attributes - 3 columns by category --}}
       <div class="traits-section">
         <h3>{{localize "STREET_FIGHTER.Item.Types.attribute"}}</h3>
@@ -329,6 +319,103 @@
           {{/each}}
         </ul>
       </div>
+    </div>
+
+    {{!-- Effects Tab --}}
+    <div class="tab" data-group="primary" data-tab="effects">
+      {{!-- Passive Effects --}}
+      <div class="effects-section">
+        <h3>
+          <i class="fas fa-shield-alt"></i>
+          {{localize "STREET_FIGHTER.Effects.passive"}}
+        </h3>
+        <ul class="effect-list">
+          {{#each effects.passive as |effect|}}
+          <li class="effect-item" data-effect-id="{{effect.id}}">
+            <img class="effect-icon" src="{{effect.icon}}" alt="{{effect.name}}" />
+            <span class="effect-name">{{effect.name}}</span>
+            <div class="effect-controls">
+              <a data-action="toggleEffect" title="{{localize 'STREET_FIGHTER.Effects.toggle'}}">
+                <i class="fas {{#if effect.disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i>
+              </a>
+              {{#unless ../isImported}}
+              <a data-action="editEffect" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+              <a data-action="deleteEffect" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
+              {{/unless}}
+            </div>
+          </li>
+          {{else}}
+          <li class="effect-empty">{{localize "STREET_FIGHTER.Effects.noPassive"}}</li>
+          {{/each}}
+        </ul>
+      </div>
+
+      {{!-- Temporary Effects --}}
+      <div class="effects-section">
+        <h3>
+          <i class="fas fa-clock"></i>
+          {{localize "STREET_FIGHTER.Effects.temporary"}}
+        </h3>
+        <ul class="effect-list">
+          {{#each effects.temporary as |effect|}}
+          <li class="effect-item" data-effect-id="{{effect.id}}">
+            <img class="effect-icon" src="{{effect.icon}}" alt="{{effect.name}}" />
+            <span class="effect-name">{{effect.name}}</span>
+            {{#if effect.duration.label}}
+            <span class="effect-duration">{{effect.duration.label}}</span>
+            {{/if}}
+            <div class="effect-controls">
+              <a data-action="toggleEffect" title="{{localize 'STREET_FIGHTER.Effects.toggle'}}">
+                <i class="fas {{#if effect.disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i>
+              </a>
+              {{#unless ../isImported}}
+              <a data-action="editEffect" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+              <a data-action="deleteEffect" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
+              {{/unless}}
+            </div>
+          </li>
+          {{else}}
+          <li class="effect-empty">{{localize "STREET_FIGHTER.Effects.noTemporary"}}</li>
+          {{/each}}
+        </ul>
+      </div>
+
+      {{!-- Inactive Effects --}}
+      <div class="effects-section">
+        <h3>
+          <i class="fas fa-ban"></i>
+          {{localize "STREET_FIGHTER.Effects.inactive"}}
+        </h3>
+        <ul class="effect-list">
+          {{#each effects.inactive as |effect|}}
+          <li class="effect-item effect-disabled" data-effect-id="{{effect.id}}">
+            <img class="effect-icon" src="{{effect.icon}}" alt="{{effect.name}}" />
+            <span class="effect-name">{{effect.name}}</span>
+            <div class="effect-controls">
+              <a data-action="toggleEffect" title="{{localize 'STREET_FIGHTER.Effects.toggle'}}">
+                <i class="fas fa-toggle-off"></i>
+              </a>
+              {{#unless ../isImported}}
+              <a data-action="editEffect" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+              <a data-action="deleteEffect" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
+              {{/unless}}
+            </div>
+          </li>
+          {{else}}
+          <li class="effect-empty">{{localize "STREET_FIGHTER.Effects.noInactive"}}</li>
+          {{/each}}
+        </ul>
+      </div>
+
+      {{!-- Add Effect Button --}}
+      {{#unless isImported}}
+      <div class="effect-add">
+        <button type="button" data-action="createEffect">
+          <i class="fas fa-plus"></i>
+          {{localize "STREET_FIGHTER.Effects.add"}}
+        </button>
+      </div>
+      {{/unless}}
     </div>
 
     {{!-- Biography Tab --}}

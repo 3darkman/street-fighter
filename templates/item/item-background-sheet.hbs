@@ -57,13 +57,13 @@
           <img class="item-image" src="{{this.icon}}" />
           <span class="effect-name">{{this.name}}</span>
           <div class="item-controls">
-            <a class="effect-control" data-action="edit" title="Edit"><i class="fas fa-edit"></i></a>
-            <a class="effect-control" data-action="delete" title="Delete"><i class="fas fa-trash"></i></a>
+            <a class="effect-control" data-action="effectEdit" title="Edit"><i class="fas fa-edit"></i></a>
+            <a class="effect-control" data-action="effectDelete" title="Delete"><i class="fas fa-trash"></i></a>
           </div>
         </li>
         {{/each}}
       </ol>
-      <a class="effect-control" data-action="create"><i class="fas fa-plus"></i> {{localize "STREET_FIGHTER.Common.create"}}</a>
+      <a class="effect-control" data-action="effectCreate"><i class="fas fa-plus"></i> {{localize "STREET_FIGHTER.Common.create"}}</a>
     </div>
   </section>
 </form>

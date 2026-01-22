@@ -262,6 +262,18 @@
         "Title": "Excluir Item",
         "Content": "Tem certeza que deseja excluir {name}?"
       }
+    },
+    
+    "Effects": {
+      "passive": "Efeitos Passivos",
+      "temporary": "Efeitos Temporários",
+      "inactive": "Efeitos Inativos",
+      "noPassive": "Nenhum efeito passivo",
+      "noTemporary": "Nenhum efeito temporário",
+      "noInactive": "Nenhum efeito inativo",
+      "add": "Adicionar Efeito",
+      "new": "Novo Efeito",
+      "toggle": "Alternar Efeito"
     }
   }
 }

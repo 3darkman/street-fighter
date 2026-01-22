@@ -25,6 +25,10 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       incrementTrait: StreetFighterActorSheet._onIncrementTrait,
       decrementTrait: StreetFighterActorSheet._onDecrementTrait,
       sendTraitToChat: StreetFighterActorSheet._onSendTraitToChat,
+      createEffect: StreetFighterActorSheet._onCreateEffect,
+      editEffect: StreetFighterActorSheet._onEditEffect,
+      deleteEffect: StreetFighterActorSheet._onDeleteEffect,
+      toggleEffect: StreetFighterActorSheet._onToggleEffect,
     },
     form: {
       submitOnChange: true,
@@ -45,6 +49,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       traits: { id: "traits", group: "primary", label: "STREET_FIGHTER.Tabs.traits" },
       maneuvers: { id: "maneuvers", group: "primary", label: "STREET_FIGHTER.Tabs.maneuvers" },
       resources: { id: "resources", group: "primary", label: "STREET_FIGHTER.Tabs.resources" },
+      effects: { id: "effects", group: "primary", label: "STREET_FIGHTER.Tabs.effects" },
       biography: { id: "biography", group: "primary", label: "STREET_FIGHTER.Tabs.biography" },
     },
   };
@@ -109,6 +114,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     context.isEditable = this.isEditable && !context.isImported;
 
     context.items = this._prepareItems(context);
+    context.effects = this._prepareEffects(context);
     context.tabs = this._prepareTabs(options);
 
     // Enrich HTML fields
@@ -240,9 +246,46 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     };
   }
 
+  /**
+   * Organize and classify effects for the actor sheet
+   * @param {object} context
+   * @returns {object}
+   * @private
+   */
+  _prepareEffects(context) {
+    const passive = [];
+    const temporary = [];
+    const inactive = [];
+
+    for (const effect of this.actor.effects) {
+      const effectData = {
+        id: effect.id,
+        name: effect.name,
+        icon: effect.icon || "icons/svg/aura.svg",
+        disabled: effect.disabled,
+        duration: effect.duration,
+        isTemporary: effect.isTemporary,
+      };
+
+      if (effect.disabled) {
+        inactive.push(effectData);
+      } else if (effect.isTemporary) {
+        temporary.push(effectData);
+      } else {
+        passive.push(effectData);
+      }
+    }
+
+    return { passive, temporary, inactive };
+  }
+
   /** @inheritDoc */
   async _onDropItem(event, data) {
-    if (!this.isEditable) return false;
+    // Block drops on imported characters
+    if (!this.isEditable || this.actor.system.importData?.isImported) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return false;
+    }
     
     const item = await Item.implementation.fromDropData(data);
     if (!item) return false;
@@ -282,6 +325,12 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
    */
   static async _onDeleteItem(event, target) {
     event.preventDefault();
+    // Block on imported characters
+    if (this.actor.system.importData?.isImported) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return;
+    }
+    
     const itemId = target.closest("[data-item-id]")?.dataset.itemId;
     const item = this.actor.items.get(itemId);
 
@@ -417,35 +466,40 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
    * @private
    */
   _setupTraitContextMenu(html) {
-    if (this.actor.system.importData?.isImported) return;
-
     const sheet = this;
-    const menuItems = [
-      {
+    const isImported = this.actor.system.importData?.isImported;
+    
+    const menuItems = [];
+    
+    // Only add increment/decrement for non-imported characters
+    if (!isImported) {
+      menuItems.push({
         name: game.i18n.localize("STREET_FIGHTER.ContextMenu.increment"),
         icon: '<i class="fas fa-plus"></i>',
         callback: (li) => {
           const itemId = li[0]?.dataset?.itemId;
           if (itemId) sheet._incrementTraitById(itemId);
         },
-      },
-      {
+      });
+      menuItems.push({
         name: game.i18n.localize("STREET_FIGHTER.ContextMenu.decrement"),
         icon: '<i class="fas fa-minus"></i>',
         callback: (li) => {
           const itemId = li[0]?.dataset?.itemId;
           if (itemId) sheet._decrementTraitById(itemId);
         },
+      });
+    }
+    
+    // Send to chat is always available
+    menuItems.push({
+      name: game.i18n.localize("STREET_FIGHTER.ContextMenu.sendToChat"),
+      icon: '<i class="fas fa-comment"></i>',
+      callback: (li) => {
+        const itemId = li[0]?.dataset?.itemId;
+        if (itemId) sheet._sendTraitToChatById(itemId);
       },
-      {
-        name: game.i18n.localize("STREET_FIGHTER.ContextMenu.sendToChat"),
-        icon: '<i class="fas fa-comment"></i>',
-        callback: (li) => {
-          const itemId = li[0]?.dataset?.itemId;
-          if (itemId) sheet._sendTraitToChatById(itemId);
-        },
-      },
-    ];
+    });
 
     new ContextMenu(html, ".trait-item[data-item-id]", menuItems);
   }
@@ -515,5 +569,88 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: content,
     });
+  }
+
+  /**
+   * Handle creating a new effect
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onCreateEffect(event, target) {
+    event.preventDefault();
+    // Block on imported characters
+    if (this.actor.system.importData?.isImported) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return;
+    }
+    
+    const effectData = {
+      name: game.i18n.localize("STREET_FIGHTER.Effects.new"),
+      icon: "icons/svg/aura.svg",
+      origin: this.actor.uuid,
+      disabled: false,
+    };
+    await this.actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+  }
+
+  /**
+   * Handle editing an effect
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onEditEffect(event, target) {
+    event.preventDefault();
+    const effectId = target.closest("[data-effect-id]")?.dataset.effectId;
+    const effect = this.actor.effects.get(effectId);
+    effect?.sheet.render(true);
+  }
+
+  /**
+   * Handle deleting an effect
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onDeleteEffect(event, target) {
+    event.preventDefault();
+    // Block on imported characters
+    if (this.actor.system.importData?.isImported) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return;
+    }
+    
+    const effectId = target.closest("[data-effect-id]")?.dataset.effectId;
+    const effect = this.actor.effects.get(effectId);
+
+    if (!effect) return;
+
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("STREET_FIGHTER.Dialog.DeleteItem.Title") },
+      content: game.i18n.format("STREET_FIGHTER.Dialog.DeleteItem.Content", {
+        name: effect.name,
+      }),
+    });
+
+    if (confirmed) {
+      await effect.delete();
+    }
+  }
+
+  /**
+   * Handle toggling an effect on/off
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onToggleEffect(event, target) {
+    event.preventDefault();
+    const effectId = target.closest("[data-effect-id]")?.dataset.effectId;
+    const effect = this.actor.effects.get(effectId);
+
+    if (!effect) return;
+
+    await effect.update({ disabled: !effect.disabled });
   }
 }
