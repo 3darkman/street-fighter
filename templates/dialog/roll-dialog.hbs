@@ -22,21 +22,21 @@
         <option value="">{{localize "STREET_FIGHTER.Roll.selectTrait"}}</option>
         <optgroup label="{{localize 'STREET_FIGHTER.Item.Types.ability'}}">
           {{#each abilities}}
-          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.selected}}selected{{/if}}>
+          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.secondSelected}}selected{{else if this.selected}}selected{{/if}}>
             {{this.name}} ({{this.system.value}})
           </option>
           {{/each}}
         </optgroup>
         <optgroup label="{{localize 'STREET_FIGHTER.Item.Types.technique'}}">
           {{#each techniques}}
-          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.selected}}selected{{/if}}>
+          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.secondSelected}}selected{{else if this.selected}}selected{{/if}}>
             {{this.name}} ({{this.system.value}})
           </option>
           {{/each}}
         </optgroup>
         <optgroup label="{{localize 'STREET_FIGHTER.Item.Types.background'}}">
           {{#each backgrounds}}
-          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.selected}}selected{{/if}}>
+          <option value="{{this.id}}" data-value="{{this.system.value}}" {{#if this.secondSelected}}selected{{else if this.selected}}selected{{/if}}>
             {{this.name}} ({{this.system.value}})
           </option>
           {{/each}}
@@ -63,6 +63,23 @@
     <label>{{localize "STREET_FIGHTER.Roll.modifier"}}</label>
     <input type="number" name="modifier" value="0" />
   </div>
+
+  {{!-- Fixed Modifiers (from maneuvers, etc.) --}}
+  {{#if fixedModifiers.length}}
+  <div class="roll-fixed-modifiers">
+    <label>{{localize "STREET_FIGHTER.Roll.fixedModifiers"}}</label>
+    <ul class="fixed-modifier-list">
+      {{#each fixedModifiers}}
+      <li class="fixed-modifier-item">
+        <input type="checkbox" name="fixedMod-{{@index}}" id="fixedMod-{{@index}}" data-value="{{this.value}}" {{#if this.checked}}checked{{/if}} />
+        <label for="fixedMod-{{@index}}">
+          {{this.name}} ({{this.displayValue}})
+        </label>
+      </li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
 
   {{!-- Active Effects (future implementation) --}}
   {{#if effects.length}}

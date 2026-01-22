@@ -27,6 +27,7 @@ export class StreetFighterRollDialog extends DialogV2 {
     console.log("Template rendered, content length:", content?.length);
 
     let formData = null;
+    let dialogElement = null;
 
     try {
       console.log("About to call DialogV2.prompt");
@@ -38,6 +39,7 @@ export class StreetFighterRollDialog extends DialogV2 {
         classes: ["street-fighter", "roll-dialog-window"],
         content: content,
         render: (event, dialog) => {
+          dialogElement = dialog.element;
           this._setupDialogListeners(dialog.element);
         },
         ok: {
@@ -46,6 +48,7 @@ export class StreetFighterRollDialog extends DialogV2 {
           icon: "fas fa-dice",
           callback: (event, button, dialog) => {
             console.log("Roll button callback", { event, button, dialog });
+            dialogElement = dialog.element;
             const form = dialog.element.querySelector("form");
             if (form) {
               formData = new FormData(form);
@@ -61,7 +64,7 @@ export class StreetFighterRollDialog extends DialogV2 {
 
       if (!formData) return null;
 
-      return this._processFormData(formData, actor);
+      return this._processFormData(formData, actor, dialogElement);
     } catch (error) {
       console.error("Error in roll dialog:", error);
       return null;
@@ -87,6 +90,7 @@ export class StreetFighterRollDialog extends DialogV2 {
         name: item.name,
         system: item.system,
         selected: item.id === options.selectedTraitId,
+        secondSelected: item.id === options.preSelectedSecondTrait,
       };
 
       switch (item.type) {
@@ -100,17 +104,26 @@ export class StreetFighterRollDialog extends DialogV2 {
           if (options.selectedTraitType === "ability" && item.id === options.selectedTraitId) {
             itemData.selected = true;
           }
+          if (item.id === options.preSelectedSecondTrait) {
+            itemData.secondSelected = true;
+          }
           abilities.push(itemData);
           break;
         case "technique":
           if (options.selectedTraitType === "technique" && item.id === options.selectedTraitId) {
             itemData.selected = true;
           }
+          if (item.id === options.preSelectedSecondTrait) {
+            itemData.secondSelected = true;
+          }
           techniques.push(itemData);
           break;
         case "background":
           if (options.selectedTraitType === "background" && item.id === options.selectedTraitId) {
             itemData.selected = true;
+          }
+          if (item.id === options.preSelectedSecondTrait) {
+            itemData.secondSelected = true;
           }
           backgrounds.push(itemData);
           break;
@@ -127,6 +140,20 @@ export class StreetFighterRollDialog extends DialogV2 {
     // Get applicable effects (future implementation)
     const effects = [];
 
+    // Prepare fixed modifiers (from maneuvers, etc.)
+    const fixedModifiers = [];
+    if (options.maneuverDamageModifier !== undefined && options.maneuverDamageModifier !== null) {
+      const modValue = parseInt(options.maneuverDamageModifier);
+      if (!isNaN(modValue)) {
+        fixedModifiers.push({
+          name: options.maneuverName || game.i18n.localize("STREET_FIGHTER.Roll.maneuverDamage"),
+          value: modValue,
+          displayValue: modValue >= 0 ? `+${modValue}` : `${modValue}`,
+          checked: true,
+        });
+      }
+    }
+
     return {
       actor,
       attributes,
@@ -134,8 +161,10 @@ export class StreetFighterRollDialog extends DialogV2 {
       techniques,
       backgrounds,
       effects,
+      fixedModifiers,
       difficulty: 6,
       selectedTraitType: options.selectedTraitType,
+      preSelectedSecondTrait: options.preSelectedSecondTrait,
     };
   }
 
@@ -143,29 +172,41 @@ export class StreetFighterRollDialog extends DialogV2 {
    * Process form data into roll parameters
    * @param {FormData} formData
    * @param {Actor} actor
+   * @param {HTMLElement} dialogElement
    * @returns {object}
    * @private
    */
-  static _processFormData(formData, actor) {
+  static _processFormData(formData, actor, dialogElement) {
     const attributeId = formData.get("attribute");
     const secondTraitId = formData.get("secondTrait");
     const rawDifficulty = parseInt(formData.get("difficulty")) || 6;
     const difficulty = Math.max(2, Math.min(10, rawDifficulty));
     const modifier = parseInt(formData.get("modifier")) || 0;
 
+    // Calculate fixed modifiers from checked checkboxes
+    let fixedModifierTotal = 0;
+    if (dialogElement) {
+      const fixedModCheckboxes = dialogElement.querySelectorAll('.fixed-modifier-item input[type="checkbox"]:checked');
+      fixedModCheckboxes.forEach(cb => {
+        const value = parseInt(cb.dataset.value) || 0;
+        fixedModifierTotal += value;
+      });
+    }
+
     const attribute = actor.items.get(attributeId);
     const secondTrait = actor.items.get(secondTraitId);
 
     const attributeValue = attribute?.system.value || 0;
     const secondTraitValue = secondTrait?.system.value || 0;
-    const dicePool = attributeValue + secondTraitValue + modifier;
+    const totalModifier = modifier + fixedModifierTotal;
+    const dicePool = attributeValue + secondTraitValue + totalModifier;
 
     return {
       actor,
       attribute: attribute ? { id: attribute.id, name: attribute.name, value: attributeValue } : null,
       secondTrait: secondTrait ? { id: secondTrait.id, name: secondTrait.name, value: secondTraitValue, type: secondTrait.type } : null,
       difficulty,
-      modifier,
+      modifier: totalModifier,
       dicePool: Math.max(0, dicePool),
     };
   }
@@ -186,6 +227,7 @@ export class StreetFighterRollDialog extends DialogV2 {
     const modifierInput = html.querySelector('input[name="modifier"]');
     const difficultyInput = html.querySelector('input[name="difficulty"]');
     const poolDisplay = html.querySelector("#dicePoolTotal");
+    const fixedModCheckboxes = html.querySelectorAll('.fixed-modifier-item input[type="checkbox"]');
     
     console.log("Roll Dialog elements:", { attributeSelect, secondTraitSelect, modifierInput, difficultyInput, poolDisplay });
     
@@ -199,10 +241,18 @@ export class StreetFighterRollDialog extends DialogV2 {
       const traitOption = secondTraitSelect.selectedOptions[0];
       const modifier = parseInt(modifierInput.value) || 0;
 
+      // Calculate fixed modifiers from checked checkboxes
+      let fixedModTotal = 0;
+      fixedModCheckboxes.forEach(cb => {
+        if (cb.checked) {
+          fixedModTotal += parseInt(cb.dataset.value) || 0;
+        }
+      });
+
       const attrValue = parseInt(attrOption?.dataset.value) || 0;
       const traitValue = parseInt(traitOption?.dataset.value) || 0;
 
-      const total = Math.max(0, attrValue + traitValue + modifier);
+      const total = Math.max(0, attrValue + traitValue + modifier + fixedModTotal);
       poolDisplay.textContent = total;
     };
 
@@ -217,6 +267,11 @@ export class StreetFighterRollDialog extends DialogV2 {
     attributeSelect?.addEventListener("change", updatePool);
     secondTraitSelect?.addEventListener("change", updatePool);
     modifierInput?.addEventListener("input", updatePool);
+    
+    // Fixed modifier checkboxes
+    fixedModCheckboxes.forEach(cb => {
+      cb.addEventListener("change", updatePool);
+    });
     
     // Multiple events to catch all input methods
     difficultyInput?.addEventListener("input", clampDifficulty);

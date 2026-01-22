@@ -174,7 +174,8 @@
       "save": "Salvar",
       "cancel": "Cancelar",
       "select": "Selecionar",
-      "none": "Nenhum"
+      "none": "Nenhum",
+      "special": "Especial"
     },
     
     "Tabs": {
@@ -295,7 +296,9 @@
       "criticalFailure": "Falha Crítica!",
       "successCount": "{count} Sucesso(s)",
       "onesRemoved": "{count} sucesso(s) removido(s) por 1s",
-      "reroll": "Rolar Novamente"
+      "reroll": "Rolar Novamente",
+      "fixedModifiers": "Modificadores Fixos",
+      "maneuverDamage": "Dano da Manobra"
     },
     
     "Settings": {

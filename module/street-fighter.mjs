@@ -97,16 +97,13 @@ Hooks.on("renderActorDirectory", (app, html, data) => {
   }
 });
 
-Hooks.on("renderChatMessage", (message, html, data) => {
-  const element = html instanceof HTMLElement ? html : html[0] ?? html;
-  if (!element?.querySelector) return;
-  
-  const rerollButton = element.querySelector(".reroll-button");
+Hooks.on("renderChatMessageHTML", (message, html, data) => {
+  const rerollButton = html.querySelector(".reroll-button");
   if (!rerollButton) return;
 
   rerollButton.addEventListener("click", async (event) => {
     event.preventDefault();
-    const card = element.querySelector(".roll-result");
+    const card = html.querySelector(".roll-result");
     if (!card) return;
 
     const actorId = card.dataset.actorId;

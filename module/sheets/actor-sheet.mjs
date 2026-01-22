@@ -32,6 +32,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       deleteEffect: StreetFighterActorSheet._onDeleteEffect,
       toggleEffect: StreetFighterActorSheet._onToggleEffect,
       rollTrait: StreetFighterActorSheet._onRollTrait,
+      rollManeuver: StreetFighterActorSheet._onRollManeuver,
     },
     form: {
       submitOnChange: true,
@@ -76,8 +77,12 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       });
     });
 
-    // Setup context menu for traits (only for non-imported characters)
+    // Setup context menu for traits and maneuvers
     this._setupTraitContextMenu(this.element);
+    this._setupManeuverContextMenu(this.element);
+    
+    // Setup maneuver accordion
+    this._setupManeuverAccordion(this.element);
   }
 
   /**
@@ -202,6 +207,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const techniques = [];
     const backgrounds = [];
 
+    // First pass: collect all items
     for (const item of this.actor.items) {
       switch (item.type) {
         case "fightingStyle":
@@ -237,9 +243,15 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       }
     }
 
+    // Calculate maneuver stats
+    const characterStats = this._getCharacterStats(attributesByCategory, abilitiesByCategory, techniques);
+    const preparedManeuvers = specialManeuvers.map(maneuver => {
+      return this._prepareManeuverData(maneuver, characterStats);
+    });
+
     return {
       fightingStyles,
-      specialManeuvers,
+      specialManeuvers: preparedManeuvers,
       attributesByCategory,
       abilitiesByCategory,
       techniques,
@@ -247,6 +259,146 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       weapons,
       divisions,
     };
+  }
+
+  /**
+   * Get character stats needed for maneuver calculations
+   * @param {object} attributesByCategory
+   * @param {object} abilitiesByCategory
+   * @param {Array} techniques
+   * @returns {object}
+   * @private
+   */
+  _getCharacterStats(attributesByCategory, abilitiesByCategory, techniques) {
+    // Find Dexterity (physical attribute)
+    const dexterity = attributesByCategory.physical.find(a => 
+      a.system.sourceId === "dexterity" || a.name.toLowerCase() === "dexterity" || a.name.toLowerCase() === "destreza"
+    );
+    
+    // Find Strength (physical attribute)
+    const strength = attributesByCategory.physical.find(a => 
+      a.system.sourceId === "strength" || a.name.toLowerCase() === "strength" || a.name.toLowerCase() === "força"
+    );
+    
+    // Find Wits (mental attribute)
+    const wits = attributesByCategory.mental.find(a => 
+      a.system.sourceId === "wits" || a.name.toLowerCase() === "wits" || a.name.toLowerCase() === "raciocínio"
+    );
+    
+    // Find Athletics technique
+    const athletics = techniques.find(t => 
+      t.system.sourceId === "athletics" || t.name.toLowerCase() === "athletics" || t.name.toLowerCase() === "atletismo"
+    );
+
+    return {
+      dexterity: dexterity?.system.value || 0,
+      strength: strength?.system.value || 0,
+      wits: wits?.system.value || 0,
+      athletics: athletics?.system.value || 0,
+      techniques: Object.fromEntries(techniques.map(t => [t.system.sourceId || t.name.toLowerCase(), t.system.value || 0])),
+    };
+  }
+
+  /**
+   * Prepare maneuver data with calculated stats
+   * @param {Item} maneuver
+   * @param {object} characterStats
+   * @returns {object}
+   * @private
+   */
+  _prepareManeuverData(maneuver, characterStats) {
+    const category = maneuver.system.category || "";
+    const isFirearm = category.toLowerCase() === "firearm" || category.toLowerCase() === "arma de fogo";
+    
+    // Get technique value for this maneuver's category
+    const techniqueValue = characterStats.techniques[category.toLowerCase()] || 0;
+    
+    // Calculate Speed: base is Dexterity (or Wits for firearms)
+    const speedBase = isFirearm ? characterStats.wits : characterStats.dexterity;
+    const calculatedSpeed = this._calculateModifier(maneuver.system.speedModifier, speedBase);
+    
+    // Calculate Damage: base is Strength + Technique (or just Technique for firearms)
+    const damageBase = isFirearm ? techniqueValue : characterStats.strength + techniqueValue;
+    const calculatedDamage = this._calculateModifier(maneuver.system.damageModifier, damageBase);
+    
+    // Calculate Movement: base is Athletics (or 0 for firearms)
+    const movementBase = isFirearm ? 0 : characterStats.athletics;
+    const calculatedMovement = this._calculateModifier(maneuver.system.movementModifier, movementBase);
+
+    return {
+      id: maneuver.id,
+      name: maneuver.name,
+      system: maneuver.system,
+      calculatedSpeed,
+      calculatedDamage,
+      calculatedMovement,
+      // Formatted original values for display in parentheses
+      originalSpeed: this._formatOriginalModifier(maneuver.system.speedModifier),
+      originalDamage: this._formatOriginalModifier(maneuver.system.damageModifier),
+      originalMovement: this._formatOriginalModifier(maneuver.system.movementModifier),
+      damageAttribute: isFirearm ? null : "strength",
+      damageTechnique: category.toLowerCase(),
+    };
+  }
+
+  /**
+   * Format original modifier for display in parentheses
+   * @param {string} modifierStr - The original modifier string
+   * @returns {string} Formatted string for display
+   * @private
+   */
+  _formatOriginalModifier(modifierStr) {
+    if (!modifierStr || modifierStr === "") return "—";
+    
+    // Keep +/- modifiers as-is
+    if (modifierStr.startsWith("+") || modifierStr.startsWith("-")) {
+      return modifierStr;
+    }
+    
+    // Handle special strings
+    const lowerMod = modifierStr.toLowerCase().trim();
+    if (lowerMod === "nenhum" || lowerMod === "none") return "—";
+    if (lowerMod === "um" || lowerMod === "one") return "1";
+    if (lowerMod === "dois" || lowerMod === "two") return "2";
+    
+    // Try to parse as number - keep as-is
+    const value = parseInt(modifierStr);
+    if (!isNaN(value)) return modifierStr;
+    
+    // Any other text returns "*"
+    return "*";
+  }
+
+  /**
+   * Calculate modifier value based on maneuver rules
+   * @param {string} modifierStr - The modifier string (e.g., "+2", "-1", "None")
+   * @param {number} baseStat - The base stat value
+   * @returns {string}
+   * @private
+   */
+  _calculateModifier(modifierStr, baseStat) {
+    if (!modifierStr || modifierStr === "") return "—";
+    
+    // Check if it starts with + or -
+    if (modifierStr.startsWith("+") || modifierStr.startsWith("-")) {
+      const modValue = parseInt(modifierStr);
+      if (!isNaN(modValue)) {
+        return String(baseStat + modValue);
+      }
+    }
+    
+    // Handle special strings - "Nenhum" means no value, not zero
+    const lowerMod = modifierStr.toLowerCase().trim();
+    if (lowerMod === "nenhum" || lowerMod === "none") return "—";
+    if (lowerMod === "um" || lowerMod === "one") return "1";
+    if (lowerMod === "dois" || lowerMod === "two") return "2";
+    
+    // Try to parse as number
+    const value = parseInt(modifierStr);
+    if (!isNaN(value)) return String(value);
+    
+    // Any other text returns "*"
+    return "*";
   }
 
   /**
@@ -474,8 +626,16 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     
     const menuItems = [];
     
-    // Only add increment/decrement for non-imported characters
+    // Only add edit/delete and increment/decrement for non-imported characters
     if (!isImported) {
+      menuItems.push({
+        name: game.i18n.localize("STREET_FIGHTER.Common.edit"),
+        icon: '<i class="fas fa-edit"></i>',
+        callback: (li) => {
+          const itemId = li.dataset?.itemId;
+          if (itemId) sheet._editItemById(itemId);
+        },
+      });
       menuItems.push({
         name: game.i18n.localize("STREET_FIGHTER.ContextMenu.increment"),
         icon: '<i class="fas fa-plus"></i>',
@@ -492,6 +652,14 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
           if (itemId) sheet._decrementTraitById(itemId);
         },
       });
+      menuItems.push({
+        name: game.i18n.localize("STREET_FIGHTER.Common.delete"),
+        icon: '<i class="fas fa-trash"></i>',
+        callback: (li) => {
+          const itemId = li.dataset?.itemId;
+          if (itemId) sheet._deleteItemById(itemId);
+        },
+      });
     }
     
     // Send to chat is always available
@@ -505,6 +673,144 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     });
 
     new foundry.applications.ux.ContextMenu.implementation(html, ".trait-item[data-item-id]", menuItems, { jQuery: false });
+  }
+
+  /**
+   * Setup context menu for maneuvers (right-click)
+   * @param {HTMLElement} html - The rendered HTML
+   * @private
+   */
+  _setupManeuverContextMenu(html) {
+    const sheet = this;
+    const isImported = this.actor.system.importData?.isImported;
+    
+    const menuItems = [];
+    
+    // Only add edit/delete for non-imported characters
+    if (!isImported) {
+      menuItems.push({
+        name: game.i18n.localize("STREET_FIGHTER.Common.edit"),
+        icon: '<i class="fas fa-edit"></i>',
+        callback: (li) => {
+          const itemId = li.dataset?.itemId;
+          if (itemId) sheet._editItemById(itemId);
+        },
+      });
+      menuItems.push({
+        name: game.i18n.localize("STREET_FIGHTER.Common.delete"),
+        icon: '<i class="fas fa-trash"></i>',
+        callback: (li) => {
+          const itemId = li.dataset?.itemId;
+          if (itemId) sheet._deleteItemById(itemId);
+        },
+      });
+    }
+    
+    // Send to chat is always available
+    menuItems.push({
+      name: game.i18n.localize("STREET_FIGHTER.ContextMenu.sendToChat"),
+      icon: '<i class="fas fa-comment"></i>',
+      callback: (li) => {
+        const itemId = li.dataset?.itemId;
+        if (itemId) sheet._sendManeuverToChatById(itemId);
+      },
+    });
+
+    new foundry.applications.ux.ContextMenu.implementation(html, ".maneuver-card[data-item-id]", menuItems, { jQuery: false });
+    new foundry.applications.ux.ContextMenu.implementation(html, ".weapon-item[data-item-id]", menuItems, { jQuery: false });
+  }
+
+  /**
+   * Setup maneuver accordion (expand/collapse notes)
+   * @param {HTMLElement} html - The rendered HTML
+   * @private
+   */
+  _setupManeuverAccordion(html) {
+    const maneuverRows = html.querySelectorAll(".maneuver-row");
+    
+    maneuverRows.forEach(row => {
+      row.addEventListener("click", (event) => {
+        // Don't toggle if clicking on the name (which triggers roll)
+        if (event.target.closest(".maneuver-name")) {
+          return;
+        }
+        
+        const card = row.closest(".maneuver-card");
+        const notes = card.querySelector(".maneuver-notes");
+        const expandIcon = row.querySelector(".maneuver-expand i");
+        
+        if (notes) {
+          notes.classList.toggle("collapsed");
+          if (expandIcon) {
+            expandIcon.classList.toggle("fa-chevron-down");
+            expandIcon.classList.toggle("fa-chevron-up");
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Edit an item by its ID
+   * @param {string} itemId - The item ID
+   * @private
+   */
+  _editItemById(itemId) {
+    const item = this.actor.items.get(itemId);
+    item?.sheet.render(true);
+  }
+
+  /**
+   * Delete an item by its ID
+   * @param {string} itemId - The item ID
+   * @private
+   */
+  async _deleteItemById(itemId) {
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("STREET_FIGHTER.Dialog.DeleteItem.Title") },
+      content: game.i18n.format("STREET_FIGHTER.Dialog.DeleteItem.Content", {
+        name: item.name,
+      }),
+    });
+
+    if (confirmed) {
+      await item.delete();
+    }
+  }
+
+  /**
+   * Send a maneuver to chat by its ID
+   * @param {string} itemId - The item ID
+   * @private
+   */
+  async _sendManeuverToChatById(itemId) {
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    const content = `
+      <div class="street-fighter chat-card">
+        <div class="card-header">
+          <h3>${item.name}</h3>
+        </div>
+        <div class="card-content">
+          <p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.category")}:</strong> ${item.system.category || "-"}</p>
+          <p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.speedModifier")}:</strong> ${item.system.speedModifier || "-"}</p>
+          <p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.damageModifier")}:</strong> ${item.system.damageModifier || "-"}</p>
+          <p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.movementModifier")}:</strong> ${item.system.movementModifier || "-"}</p>
+          ${item.system.chiCost ? `<p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.chiCost")}:</strong> ${item.system.chiCost}</p>` : ""}
+          ${item.system.willpowerCost ? `<p><strong>${game.i18n.localize("STREET_FIGHTER.SpecialManeuver.willpowerCost")}:</strong> ${item.system.willpowerCost}</p>` : ""}
+          ${item.system.notes ? `<p><em>${item.system.notes}</em></p>` : ""}
+        </div>
+      </div>
+    `;
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: content,
+    });
   }
 
   /**
@@ -665,19 +971,77 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
    */
   static async _onRollTrait(event, target) {
     event.preventDefault();
-    console.log("_onRollTrait called", { event, target });
     
     const itemId = target.closest("[data-item-id]")?.dataset.itemId;
-    console.log("itemId:", itemId);
-    
     const item = this.actor.items.get(itemId);
-    console.log("item:", item);
 
     if (!item) return;
 
     const rollData = await StreetFighterRollDialog.create(this.actor, {
       selectedTraitId: item.id,
       selectedTraitType: item.type,
+    });
+
+    if (rollData) {
+      await executeRoll(rollData);
+    }
+  }
+
+  /**
+   * Handle clicking a maneuver name to open roll dialog pre-filled with damage calculation
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onRollManeuver(event, target) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    const maneuver = this.actor.items.get(itemId);
+
+    if (!maneuver) return;
+
+    // Find the attribute and technique for damage calculation
+    // Damage = Strength + Technique (based on maneuver category)
+    const category = maneuver.system.category || "";
+    const isFirearm = category.toLowerCase() === "firearm" || category.toLowerCase() === "arma de fogo";
+    
+    // Find Strength attribute
+    let strengthItem = null;
+    let techniqueItem = null;
+    
+    for (const item of this.actor.items) {
+      if (item.type === "attribute") {
+        const sourceId = item.system.sourceId || item.name.toLowerCase();
+        if (sourceId === "strength" || item.name.toLowerCase() === "força") {
+          strengthItem = item;
+        }
+      }
+      if (item.type === "technique") {
+        const sourceId = item.system.sourceId || item.name.toLowerCase();
+        if (sourceId === category.toLowerCase() || item.name.toLowerCase() === category.toLowerCase()) {
+          techniqueItem = item;
+        }
+      }
+    }
+
+    // For firearms, we don't use strength
+    const attributeItem = isFirearm ? null : strengthItem;
+    
+    // Parse damage modifier for fixed modifier
+    let damageModValue = null;
+    const damageModStr = maneuver.system.damageModifier || "";
+    if (damageModStr.startsWith("+") || damageModStr.startsWith("-")) {
+      damageModValue = parseInt(damageModStr);
+    }
+    
+    const rollData = await StreetFighterRollDialog.create(this.actor, {
+      selectedTraitId: attributeItem?.id,
+      selectedTraitType: "attribute",
+      preSelectedSecondTrait: techniqueItem?.id,
+      maneuverName: maneuver.name,
+      maneuverDamageModifier: damageModValue,
     });
 
     if (rollData) {

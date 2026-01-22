@@ -531,6 +531,161 @@
 }
 
 /* ==================== */
+/* Maneuver Cards       */
+/* ==================== */
+
+.street-fighter .maneuver-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+
+.street-fighter .maneuver-card {
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.street-fighter .maneuver-card:hover {
+  border-color: var(--sf-primary);
+}
+
+.street-fighter .maneuver-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.street-fighter .maneuver-name {
+  font-weight: bold;
+  color: var(--sf-text);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.street-fighter .maneuver-name:hover {
+  color: var(--sf-primary-light);
+  text-decoration: underline;
+}
+
+.street-fighter .maneuver-category {
+  font-size: 10px;
+  color: var(--sf-text-muted);
+  text-transform: capitalize;
+  padding: 1px 6px;
+  background: var(--sf-surface-light);
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.street-fighter .maneuver-stats-inline {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.street-fighter .stat-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--sf-text);
+}
+
+.street-fighter .stat-inline i {
+  color: var(--sf-primary-light);
+  font-size: 10px;
+}
+
+.street-fighter .stat-inline .stat-original {
+  font-size: 10px;
+  color: var(--sf-text-muted);
+}
+
+.street-fighter .maneuver-expand {
+  color: var(--sf-text-muted);
+  margin-left: 4px;
+}
+
+.street-fighter .cost-badge {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.street-fighter .cost-badge.chi {
+  background: rgba(66, 165, 245, 0.2);
+  color: var(--sf-chi);
+}
+
+.street-fighter .cost-badge.willpower {
+  background: rgba(253, 216, 53, 0.2);
+  color: var(--sf-super);
+}
+
+.street-fighter .maneuver-notes {
+  background: var(--sf-surface-light);
+  border-top: 1px solid var(--sf-border);
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  max-height: 200px;
+  padding: 8px 10px;
+}
+
+.street-fighter .maneuver-notes.collapsed {
+  max-height: 0;
+  padding: 0 10px;
+}
+
+.street-fighter .maneuver-notes .notes-content {
+  font-size: 12px;
+  color: var(--sf-text-muted);
+  font-style: italic;
+}
+
+.street-fighter .maneuver-notes .notes-content p {
+  margin: 0;
+}
+
+.street-fighter .maneuver-notes .no-notes {
+  color: var(--sf-text-muted);
+  opacity: 0.5;
+}
+
+/* Weapon Stats */
+.street-fighter .weapon-item {
+  flex-wrap: wrap;
+}
+
+.street-fighter .weapon-stats {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.street-fighter .weapon-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--sf-text-muted);
+}
+
+.street-fighter .weapon-stat i {
+  color: var(--sf-primary-light);
+}
+
+/* ==================== */
 /* Biography            */
 /* ==================== */
 
@@ -1614,6 +1769,39 @@ button.sf-import-characters:hover {
   border-radius: 4px;
   text-align: center;
   font-size: 14px;
+}
+
+.roll-dialog .roll-fixed-modifiers {
+  margin-bottom: 12px;
+}
+
+.roll-dialog .roll-fixed-modifiers > label {
+  display: block;
+  font-weight: bold;
+  font-size: 12px;
+  color: var(--sf-text-muted);
+  margin-bottom: 6px;
+}
+
+.roll-dialog .fixed-modifier-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.roll-dialog .fixed-modifier-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.roll-dialog .fixed-modifier-item label {
+  cursor: pointer;
+  font-size: 13px;
 }
 
 .roll-dialog .roll-effects {
