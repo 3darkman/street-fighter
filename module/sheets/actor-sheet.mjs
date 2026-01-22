@@ -980,6 +980,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const rollData = await StreetFighterRollDialog.create(this.actor, {
       selectedTraitId: item.id,
       selectedTraitType: item.type,
+      rollTitle: item.name,
     });
 
     if (rollData) {
@@ -1042,6 +1043,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       preSelectedSecondTrait: techniqueItem?.id,
       maneuverName: maneuver.name,
       maneuverDamageModifier: damageModValue,
+      rollTitle: maneuver.name,
     });
 
     if (rollData) {

@@ -5,7 +5,7 @@
      data-difficulty="{{difficulty}}"
      data-modifier="{{modifier}}">
   <div class="card-header">
-    <h3>{{localize "STREET_FIGHTER.Roll.title"}}</h3>
+    <h3>{{rollTitle}}</h3>
     <button type="button" class="reroll-button" data-tooltip="{{localize 'STREET_FIGHTER.Roll.reroll'}}">
       <i class="fas fa-redo"></i>
     </button>
@@ -37,6 +37,15 @@
       </div>
       {{/if}}
     </div>
+
+    {{!-- Fixed Modifiers List --}}
+    {{#if fixedModifiers.length}}
+    <ul class="fixed-modifiers-list">
+      {{#each fixedModifiers}}
+      <li>{{this.name}}: <strong>{{this.displayValue}}</strong></li>
+      {{/each}}
+    </ul>
+    {{/if}}
 
     <div class="roll-summary">
       <span class="dice-pool">{{dicePool}}d10</span>

@@ -12,6 +12,7 @@ export class StreetFighterRollDialog extends DialogV2 {
    * @param {object} options - Dialog options
    * @param {string} options.selectedTraitId - Pre-selected trait ID
    * @param {string} options.selectedTraitType - Type of pre-selected trait (attribute, ability, etc.)
+   * @param {string} options.rollTitle - Custom title for the roll
    * @returns {Promise<object|null>} Roll data or null if cancelled
    */
   static async create(actor, options = {}) {
@@ -28,12 +29,15 @@ export class StreetFighterRollDialog extends DialogV2 {
 
     let formData = null;
     let dialogElement = null;
+    
+    // Build dialog title
+    const dialogTitle = options.rollTitle || game.i18n.localize("STREET_FIGHTER.Roll.title");
 
     try {
       console.log("About to call DialogV2.prompt");
       const result = await DialogV2.prompt({
         window: { 
-          title: game.i18n.localize("STREET_FIGHTER.Roll.title"),
+          title: dialogTitle,
           icon: "fas fa-dice-d10",
         },
         classes: ["street-fighter", "roll-dialog-window"],
@@ -64,7 +68,7 @@ export class StreetFighterRollDialog extends DialogV2 {
 
       if (!formData) return null;
 
-      return this._processFormData(formData, actor, dialogElement);
+      return this._processFormData(formData, actor, dialogElement, options.rollTitle);
     } catch (error) {
       console.error("Error in roll dialog:", error);
       return null;
@@ -173,10 +177,11 @@ export class StreetFighterRollDialog extends DialogV2 {
    * @param {FormData} formData
    * @param {Actor} actor
    * @param {HTMLElement} dialogElement
+   * @param {string} rollTitle - Custom title for the roll
    * @returns {object}
    * @private
    */
-  static _processFormData(formData, actor, dialogElement) {
+  static _processFormData(formData, actor, dialogElement, rollTitle) {
     const attributeId = formData.get("attribute");
     const secondTraitId = formData.get("secondTrait");
     const rawDifficulty = parseInt(formData.get("difficulty")) || 6;
@@ -201,13 +206,31 @@ export class StreetFighterRollDialog extends DialogV2 {
     const totalModifier = modifier + fixedModifierTotal;
     const dicePool = attributeValue + secondTraitValue + totalModifier;
 
+    // Collect active fixed modifiers for chat display
+    const activeFixedModifiers = [];
+    if (dialogElement) {
+      const fixedModCheckboxes = dialogElement.querySelectorAll('.fixed-modifier-item input[type="checkbox"]:checked');
+      fixedModCheckboxes.forEach(cb => {
+        const label = cb.nextElementSibling?.textContent?.trim() || "";
+        // Extract name from "Name (+2)" format
+        const match = label.match(/^(.+?)\s*\([^)]+\)$/);
+        const name = match ? match[1].trim() : label;
+        const value = parseInt(cb.dataset.value) || 0;
+        if (value !== 0) {
+          activeFixedModifiers.push({ name, value, displayValue: value >= 0 ? `+${value}` : `${value}` });
+        }
+      });
+    }
+
     return {
       actor,
       attribute: attribute ? { id: attribute.id, name: attribute.name, value: attributeValue } : null,
       secondTrait: secondTrait ? { id: secondTrait.id, name: secondTrait.name, value: secondTraitValue, type: secondTrait.type } : null,
       difficulty,
-      modifier: totalModifier,
+      modifier,
+      fixedModifiers: activeFixedModifiers,
       dicePool: Math.max(0, dicePool),
+      rollTitle,
     };
   }
 
@@ -294,7 +317,7 @@ export async function executeRoll(rollData) {
     return;
   }
 
-  const { actor, attribute, secondTrait, difficulty, modifier, dicePool } = rollData;
+  const { actor, attribute, secondTrait, difficulty, modifier, fixedModifiers, dicePool, rollTitle } = rollData;
 
   // Get system settings
   const onesRemoveSuccesses = game.settings.get("street-fighter", "onesRemoveSuccesses");
@@ -361,6 +384,7 @@ export async function executeRoll(rollData) {
     secondTrait,
     difficulty,
     modifier,
+    fixedModifiers: fixedModifiers || [],
     dicePool,
     diceResults,
     successes,
@@ -371,6 +395,7 @@ export async function executeRoll(rollData) {
     resultLabel,
     onesRemoveSuccesses,
     isCriticalFailure,
+    rollTitle: rollTitle || game.i18n.localize("STREET_FIGHTER.Roll.title"),
   };
 
   const content = await foundry.applications.handlebars.renderTemplate(
