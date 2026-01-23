@@ -1514,14 +1514,32 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
           return { isDizzy, maneuverIds };
         },
       },
-      render: (event, html) => {
-        // Pre-select existing maneuvers if editing
-        if (existingIds.length > 0) {
-          const selects = html.querySelectorAll("select");
-          existingIds.forEach((id, i) => {
-            if (selects[i]) selects[i].value = id;
-          });
-        }
+            render: (event) => {
+        if (!Array.isArray(existingIds) || existingIds.length === 0) return;
+          
+        const dialog = event.target;
+        if (!dialog || !dialog.element) return;
+
+        const $dialog = $(dialog.element);
+        if (!$dialog.length) return;
+          
+        existingIds.forEach((id, i) => {
+          const $select = $dialog.find(`select[name="maneuver${i+1}"]`);
+          if (!$select.length) return;
+
+          const maneuver = this.actor.items.find(item => 
+            item.type === 'specialManeuver' && 
+            (item.id === id || item.system.sourceId === id)
+          );
+
+          if (maneuver) {
+            const optionValue = maneuver.system.sourceId || maneuver.id;
+            if ($select.find(`option[value="${optionValue}"]`).length) {
+              $select.val(optionValue);
+            }
+            $select.trigger('change');
+          }
+        });
       },
     });
 
