@@ -39,6 +39,80 @@ export class StreetFighterActor extends Actor {
   }
 
   /** @override */
+  _onCreateDescendantDocuments(parent, collection, documents, data, options, userId) {
+    super._onCreateDescendantDocuments(parent, collection, documents, data, options, userId);
+
+    if (game.user.id !== userId) return;
+    if (collection !== "items") return;
+
+    // Check if a fighting style was added
+    const addedStyle = documents.find(doc => doc.type === "fightingStyle");
+    if (addedStyle) {
+      this._applyFightingStyleResources(addedStyle);
+    }
+  }
+
+  /** @override */
+  _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
+    super._onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId);
+
+    if (game.user.id !== userId) return;
+    if (collection !== "items") return;
+
+    // Check if a fighting style was removed
+    const removedStyle = documents.find(doc => doc.type === "fightingStyle");
+    if (removedStyle) {
+      this._removeFightingStyleResources(removedStyle);
+    }
+  }
+
+  /**
+   * Apply fighting style resource bonuses to the actor
+   * @param {Item} style - The fighting style item
+   * @private
+   */
+  async _applyFightingStyleResources(style) {
+    const initialChi = style.system.initialChi ?? 0;
+    const initialWillpower = style.system.initialWillpower ?? 0;
+
+    const currentChiMax = this.system.resources?.chi?.max ?? 0;
+    const currentWillpowerMax = this.system.resources?.willpower?.max ?? 0;
+
+    const newChiMax = currentChiMax + initialChi;
+    const newWillpowerMax = currentWillpowerMax + initialWillpower;
+
+    await this.update({
+      "system.resources.chi.max": newChiMax,
+      "system.resources.chi.value": newChiMax,
+      "system.resources.willpower.max": newWillpowerMax,
+      "system.resources.willpower.value": newWillpowerMax,
+    });
+  }
+
+  /**
+   * Remove fighting style resource bonuses from the actor
+   * @param {Item} style - The fighting style item being removed
+   * @private
+   */
+  async _removeFightingStyleResources(style) {
+    const initialChi = style.system.initialChi ?? 0;
+    const initialWillpower = style.system.initialWillpower ?? 0;
+
+    const currentChiMax = this.system.resources?.chi?.max ?? 0;
+    const currentWillpowerMax = this.system.resources?.willpower?.max ?? 0;
+
+    const newChiMax = Math.max(0, currentChiMax - initialChi);
+    const newWillpowerMax = Math.max(0, currentWillpowerMax - initialWillpower);
+
+    await this.update({
+      "system.resources.chi.max": newChiMax,
+      "system.resources.chi.value": newChiMax,
+      "system.resources.willpower.max": newWillpowerMax,
+      "system.resources.willpower.value": newWillpowerMax,
+    });
+  }
+
+  /** @override */
   prepareDerivedData() {
     super.prepareDerivedData();
 
