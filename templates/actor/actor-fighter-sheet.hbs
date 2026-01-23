@@ -190,6 +190,12 @@
                 <i class="fas fa-brain"></i> {{maneuver.system.willpowerCost}}
               </span>
               {{/if}}
+              {{#unless ../isImported}}
+              <div class="item-controls">
+                <a data-action="editItem" data-item-id="{{maneuver.id}}" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                <a data-action="deleteItem" data-item-id="{{maneuver.id}}" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
+              </div>
+              {{/unless}}
               <span class="maneuver-expand"><i class="fas fa-chevron-down"></i></span>
             </div>
             <div class="maneuver-notes collapsed">
@@ -228,6 +234,12 @@
               <a class="weapon-equip {{#if weapon.system.isEquipped}}equipped{{/if}}" data-action="toggleWeaponEquip" title="{{localize 'STREET_FIGHTER.Weapon.equip'}}">
                 <i class="fas {{#if weapon.system.isEquipped}}fa-hand-rock{{else}}fa-hand-paper{{/if}}"></i>
               </a>
+              {{#unless ../isImported}}
+              <div class="item-controls">
+                <a data-action="editItem" data-item-id="{{weapon.id}}" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                <a data-action="deleteItem" data-item-id="{{weapon.id}}" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
+              </div>
+              {{/unless}}
               <span class="weapon-expand"><i class="fas fa-chevron-down"></i></span>
             </div>
             <div class="weapon-notes collapsed">
@@ -341,7 +353,8 @@
               <span class="division-rank">{{localize "STREET_FIGHTER.Division.rank"}}: {{division.system.rank}}</span>
               {{#unless ../isImported}}
               <div class="item-controls">
-                <a data-action="editItem" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                <a data-action="editItem" data-item-id="{{division.id}}" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                <a data-action="deleteItem" data-item-id="{{division.id}}" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
               </div>
               {{/unless}}
             </div>

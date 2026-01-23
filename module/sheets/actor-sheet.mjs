@@ -83,12 +83,9 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       });
     });
 
-    // Setup context menus for all item types
+    // Setup context menus for traits and fighting styles
     this._setupTraitContextMenu(this.element);
-    this._setupManeuverContextMenu(this.element);
     this._setupFightingStyleContextMenu(this.element);
-    this._setupDivisionContextMenu(this.element);
-    this._setupWeaponContextMenu(this.element);
     
     // Setup maneuver accordion
     this._setupManeuverAccordion(this.element);
@@ -673,85 +670,6 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
   }
 
   /**
-   * Setup context menu for maneuvers (right-click)
-   * @param {HTMLElement} html - The rendered HTML
-   * @private
-   */
-  _setupManeuverContextMenu(html) {
-    const sheet = this;
-    const isImported = this.actor.system.importData?.isImported;
-    
-    const menuItems = [];
-    
-    // Only add edit/delete for non-imported characters
-    if (!isImported) {
-      menuItems.push({
-        name: game.i18n.localize("STREET_FIGHTER.Common.edit"),
-        icon: '<i class="fas fa-edit"></i>',
-        callback: (li) => {
-          const itemId = li.dataset?.itemId;
-          if (itemId) sheet._editItemById(itemId);
-        },
-      });
-      menuItems.push({
-        name: game.i18n.localize("STREET_FIGHTER.Common.delete"),
-        icon: '<i class="fas fa-trash"></i>',
-        callback: (li) => {
-          const itemId = li.dataset?.itemId;
-          if (itemId) sheet._deleteItemById(itemId);
-        },
-      });
-    }
-    
-    // Send to chat is always available
-    menuItems.push({
-      name: game.i18n.localize("STREET_FIGHTER.ContextMenu.sendToChat"),
-      icon: '<i class="fas fa-comment"></i>',
-      callback: (li) => {
-        const itemId = li.dataset?.itemId;
-        if (itemId) sheet._sendManeuverToChatById(itemId);
-      },
-    });
-
-    new foundry.applications.ux.ContextMenu.implementation(html, ".maneuver-card[data-item-id]", menuItems, { jQuery: false });
-  }
-
-  /**
-   * Setup context menu for weapons (right-click)
-   * @param {HTMLElement} html - The rendered HTML
-   * @private
-   */
-  _setupWeaponContextMenu(html) {
-    const sheet = this;
-    const isImported = this.actor.system.importData?.isImported;
-    
-    const menuItems = [];
-    
-    if (!isImported) {
-      menuItems.push({
-        name: game.i18n.localize("STREET_FIGHTER.Common.edit"),
-        icon: '<i class="fas fa-edit"></i>',
-        callback: (target) => {
-          const itemId = target.dataset?.itemId;
-          if (itemId) sheet._editItemById(itemId);
-        },
-      });
-      menuItems.push({
-        name: game.i18n.localize("STREET_FIGHTER.Common.delete"),
-        icon: '<i class="fas fa-trash"></i>',
-        callback: (target) => {
-          const itemId = target.dataset?.itemId;
-          if (itemId) sheet._deleteItemById(itemId);
-        },
-      });
-    }
-
-    if (menuItems.length > 0) {
-      new foundry.applications.ux.ContextMenu.implementation(html, ".weapon-card[data-item-id]", menuItems, { jQuery: false });
-    }
-  }
-
-  /**
    * Setup context menu for fighting styles (right-click)
    * @param {HTMLElement} html - The rendered HTML
    * @private
@@ -781,44 +699,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       });
     }
 
-    if (menuItems.length > 0) {
-      new foundry.applications.ux.ContextMenu.implementation(html, ".header-style[data-item-id]", menuItems, { jQuery: false });
-    }
-  }
-
-  /**
-   * Setup context menu for divisions (right-click)
-   * @param {HTMLElement} html - The rendered HTML
-   * @private
-   */
-  _setupDivisionContextMenu(html) {
-    const sheet = this;
-    const isImported = this.actor.system.importData?.isImported;
-    
-    const menuItems = [];
-    
-    if (!isImported) {
-      menuItems.push({
-        name: game.i18n.localize("STREET_FIGHTER.Common.edit"),
-        icon: '<i class="fas fa-edit"></i>',
-        callback: (target) => {
-          const itemId = target.dataset?.itemId;
-          if (itemId) sheet._editItemById(itemId);
-        },
-      });
-      menuItems.push({
-        name: game.i18n.localize("STREET_FIGHTER.Common.delete"),
-        icon: '<i class="fas fa-trash"></i>',
-        callback: (target) => {
-          const itemId = target.dataset?.itemId;
-          if (itemId) sheet._deleteItemById(itemId);
-        },
-      });
-    }
-
-    if (menuItems.length > 0) {
-      new foundry.applications.ux.ContextMenu.implementation(html, ".division-item[data-item-id]", menuItems, { jQuery: false });
-    }
+    new foundry.applications.ux.ContextMenu.implementation(html, ".header-style", menuItems, { jQuery: false });
   }
 
   /**
