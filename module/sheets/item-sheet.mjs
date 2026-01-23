@@ -388,7 +388,7 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
   static async _onEffectCreate(event, target) {
     event.preventDefault();
     const effectData = {
-      name: game.i18n.localize("STREET_FIGHTER.Effect.New"),
+      name: this.item.name,
       img: "icons/svg/aura.svg",
       origin: this.item.uuid,
       transfer: true,
