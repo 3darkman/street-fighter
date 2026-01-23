@@ -52,7 +52,22 @@ export class StreetFighterEffectSheet extends ActiveEffectConfig {
   _onRender(context, options) {
     super._onRender(context, options);
     this._restoreTargetSelections();
+    const activeTab =
+      this._tabs?.sheet?.active ??
+      this.element.querySelector(".sheet-tabs .active")?.dataset.tab ?? "details";
+    // keep the Tabs controller in sync
+    if (this._tabs?.sheet) {
+      this._tabs.sheet.active = activeTab;
+    }
+    // ensure both nav and content reflect the active tab
+    this.element
+      .querySelectorAll(".sheet-tabs .item")
+      .forEach((item) => item.classList.toggle("active", item.dataset.tab === activeTab));
+    this.element
+      .querySelectorAll('.tab[data-group="sheet"]')
+      .forEach((section) => section.classList.toggle("active", section.dataset.tab === activeTab));
   }
+
 
   /**
    * Restore target ID selections after render
