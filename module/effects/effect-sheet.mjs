@@ -107,6 +107,7 @@ export class StreetFighterEffectSheet extends ActiveEffectConfig {
       { value: RESOURCE_TYPES.HEALTH, label: game.i18n.localize("STREET_FIGHTER.Resources.health") },
       { value: RESOURCE_TYPES.CHI, label: game.i18n.localize("STREET_FIGHTER.Resources.chi") },
       { value: RESOURCE_TYPES.WILLPOWER, label: game.i18n.localize("STREET_FIGHTER.Resources.willpower") },
+      { value: RESOURCE_TYPES.SOAK, label: game.i18n.localize("STREET_FIGHTER.Combat.soak")}
     ];
   }
 

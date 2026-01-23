@@ -44,7 +44,7 @@
 
 .street-fighter.sheet .window-content > form,
 .street-fighter.sheet .window-content > section {
-  display: flex;
+  
   flex-direction: column;
   height: 100%;
   overflow: hidden;

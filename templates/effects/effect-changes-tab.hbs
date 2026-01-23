@@ -1,5 +1,5 @@
 {{!-- Effect Changes Tab for Street Fighter - Must be single root element --}}
-<div class="changes-tab-content">
+<section class="tab" data-tab="changes" data-group="sheet">
   <p class="hint">{{localize "STREET_FIGHTER.ActiveEffects.changesHint"}}</p>
 
   <ol class="changes-list">
@@ -36,6 +36,7 @@
           <option value="health" {{#if (eq this.targetId 'health')}}selected{{/if}}>{{localize "STREET_FIGHTER.Resources.health"}}</option>
           <option value="chi" {{#if (eq this.targetId 'chi')}}selected{{/if}}>{{localize "STREET_FIGHTER.Resources.chi"}}</option>
           <option value="willpower" {{#if (eq this.targetId 'willpower')}}selected{{/if}}>{{localize "STREET_FIGHTER.Resources.willpower"}}</option>
+          <option value="soak" {{#if (eq this.targetId 'soak')}}selected{{/if}}>{{localize "STREET_FIGHTER.Combat.soak"}}</option>
         </select>
       </div>
 
@@ -65,4 +66,4 @@
       <i class="fas fa-plus"></i> {{localize "STREET_FIGHTER.ActiveEffects.addChange"}}
     </button>
   </div>
-</div>
+</section>
