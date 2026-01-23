@@ -18,6 +18,7 @@ export const STREET_FIGHTER = {
     background: "STREET_FIGHTER.Item.Types.background",
     weapon: "STREET_FIGHTER.Item.Types.weapon",
     division: "STREET_FIGHTER.Item.Types.division",
+    equipment: "STREET_FIGHTER.Item.Types.equipment",
   },
 
   // Attribute categories (physical, social, mental)

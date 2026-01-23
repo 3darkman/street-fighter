@@ -1,4 +1,4 @@
-<form class="{{cssClass}} flexcol" autocomplete="off">
+<section class="{{cssClass}} flexcol">
   {{#if isImported}}
   <div class="import-warning">
     <i class="fas fa-lock"></i>
@@ -22,11 +22,11 @@
       <div class="header-details">
         <div class="form-group">
           <label>{{localize "STREET_FIGHTER.Profile.concept"}}</label>
-          <input type="text" name="system.profile.concept" value="{{systemData.profile.concept}}" {{#if isImported}}disabled{{/if}} />
+          <input type="text" name="system.profile.concept" value="{{systemData.profile.concept}}" {{#unless isEditable}}disabled{{/unless}} />
         </div>
         <div class="form-group">
           <label>{{localize "STREET_FIGHTER.Profile.playerName"}}</label>
-          <input type="text" name="system.profile.playerName" value="{{systemData.profile.playerName}}" {{#if isImported}}disabled{{/if}} />
+          <input type="text" name="system.profile.playerName" value="{{systemData.profile.playerName}}" {{#unless isEditable}}disabled{{/unless}} />
         </div>
       </div>
     </div>
@@ -162,7 +162,14 @@
     {{!-- Maneuvers Tab --}}
     <div class="tab" data-group="primary" data-tab="maneuvers">
       <div class="traits-section">
-        <h3>{{localize "STREET_FIGHTER.Item.Types.specialManeuver"}}</h3>
+        <div class="section-header">
+          <h3>{{localize "STREET_FIGHTER.Item.Types.specialManeuver"}}</h3>
+          {{#unless isImported}}
+          <button type="button" class="add-basic-maneuvers" data-action="addBasicManeuvers" title="{{localize 'STREET_FIGHTER.Maneuvers.addBasic'}}">
+            <i class="fas fa-fist-raised"></i> {{localize "STREET_FIGHTER.Maneuvers.addBasic"}}
+          </button>
+          {{/unless}}
+        </div>
         <div class="maneuver-list">
           {{#each items.specialManeuvers as |maneuver|}}
           <div class="maneuver-card" data-item-id="{{maneuver.id}}">
@@ -212,48 +219,42 @@
         </div>
       </div>
 
+      {{!-- Combos Section --}}
       <div class="traits-section">
-        <h3>{{localize "STREET_FIGHTER.Item.Types.weapon"}}</h3>
-        <div class="weapon-list">
-          {{#each items.weapons as |weapon|}}
-          <div class="weapon-card" data-item-id="{{weapon.id}}">
-            <div class="weapon-row">
-              <span class="weapon-name">{{weapon.name}}</span>
-              <span class="weapon-technique">{{weapon.system.techniqueId}}</span>
-              <div class="weapon-stats-inline">
-                <span class="stat-inline" title="{{localize 'STREET_FIGHTER.Weapon.speed'}}">
-                  <i class="fas fa-bolt"></i> {{weapon.system.speed}}
-                </span>
-                <span class="stat-inline" title="{{localize 'STREET_FIGHTER.Weapon.damage'}}">
-                  <i class="fas fa-fist-raised"></i> {{weapon.system.damage}}
-                </span>
-                <span class="stat-inline" title="{{localize 'STREET_FIGHTER.Weapon.movement'}}">
-                  <i class="fas fa-running"></i> {{weapon.system.movement}}
-                </span>
+        <h3>{{localize "STREET_FIGHTER.Combo.title"}}</h3>
+        <div class="combo-list">
+          {{#each systemData.combos as |combo|}}
+          <div class="combo-card" data-combo-index="{{@index}}">
+            <div class="combo-row">
+              <span class="combo-dizzy {{#if combo.isDizzy}}active{{/if}}" title="{{localize 'STREET_FIGHTER.Combo.isDizzyHint'}}">
+                <i class="fas fa-dizzy"></i>
+              </span>
+              <div class="combo-maneuvers">
+                {{#each combo.maneuverIds as |maneuverId|}}
+                <span class="combo-maneuver-tag">{{lookup ../../maneuverNamesById maneuverId}}</span>
+                {{#unless @last}}<i class="fas fa-arrow-right combo-arrow"></i>{{/unless}}
+                {{/each}}
               </div>
-              <a class="weapon-equip {{#if weapon.system.isEquipped}}equipped{{/if}}" data-action="toggleWeaponEquip" title="{{localize 'STREET_FIGHTER.Weapon.equip'}}">
-                <i class="fas {{#if weapon.system.isEquipped}}fa-hand-rock{{else}}fa-hand-paper{{/if}}"></i>
-              </a>
               {{#unless ../isImported}}
               <div class="item-controls">
-                <a data-action="editItem" data-item-id="{{weapon.id}}" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
-                <a data-action="deleteItem" data-item-id="{{weapon.id}}" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
+                <a data-action="editCombo" data-combo-index="{{@index}}" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                <a data-action="deleteCombo" data-combo-index="{{@index}}" title="{{localize 'STREET_FIGHTER.Combo.remove'}}"><i class="fas fa-trash"></i></a>
               </div>
               {{/unless}}
-              <span class="weapon-expand"><i class="fas fa-chevron-down"></i></span>
-            </div>
-            <div class="weapon-notes collapsed">
-              <div class="notes-content">
-                {{#if weapon.system.special}}
-                <p>{{weapon.system.special}}</p>
-                {{else}}
-                <p class="no-notes">{{localize "STREET_FIGHTER.Common.none"}}</p>
-                {{/if}}
-              </div>
             </div>
           </div>
+          {{else}}
+          <p class="no-items">{{localize "STREET_FIGHTER.Common.none"}}</p>
           {{/each}}
         </div>
+        {{#unless isImported}}
+        <div class="combo-add">
+          <button type="button" data-action="addCombo">
+            <i class="fas fa-plus"></i>
+            {{localize "STREET_FIGHTER.Combo.add"}}
+          </button>
+        </div>
+        {{/unless}}
       </div>
     </div>
 
@@ -342,41 +343,67 @@
         </div>
       </div>
 
-      {{!-- Divisions --}}
+      {{!-- Weapons --}}
       <div class="traits-section">
-        <h3>{{localize "STREET_FIGHTER.Item.Types.division"}}</h3>
-        <ul class="division-list">
-          {{#each items.divisions as |division|}}
-          <li class="division-item" data-item-id="{{division.id}}">
-            <div class="division-header">
-              <span class="division-name">{{division.name}}</span>
-              <span class="division-rank">{{localize "STREET_FIGHTER.Division.rank"}}: {{division.system.rank}}</span>
+        <h3>{{localize "STREET_FIGHTER.Item.Types.weapon"}}</h3>
+        <div class="weapon-list">
+          {{#each items.weapons as |weapon|}}
+          <div class="weapon-card" data-item-id="{{weapon.id}}">
+            <div class="weapon-row">
+              <span class="weapon-name">{{weapon.name}}</span>
+              <span class="weapon-technique">{{weapon.system.techniqueId}}</span>
+              <div class="weapon-stats-inline">
+                <span class="stat-inline" title="{{localize 'STREET_FIGHTER.Weapon.speed'}}">
+                  <i class="fas fa-bolt"></i> {{weapon.system.speed}}
+                </span>
+                <span class="stat-inline" title="{{localize 'STREET_FIGHTER.Weapon.damage'}}">
+                  <i class="fas fa-fist-raised"></i> {{weapon.system.damage}}
+                </span>
+                <span class="stat-inline" title="{{localize 'STREET_FIGHTER.Weapon.movement'}}">
+                  <i class="fas fa-running"></i> {{weapon.system.movement}}
+                </span>
+              </div>
+              <a class="weapon-equip {{#if weapon.system.isEquipped}}equipped{{/if}}" data-action="toggleWeaponEquip" title="{{localize 'STREET_FIGHTER.Weapon.equip'}}">
+                <i class="fas {{#if weapon.system.isEquipped}}fa-hand-rock{{else}}fa-hand-paper{{/if}}"></i>
+              </a>
               {{#unless ../isImported}}
               <div class="item-controls">
-                <a data-action="editItem" data-item-id="{{division.id}}" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
-                <a data-action="deleteItem" data-item-id="{{division.id}}" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
+                <a data-action="editItem" data-item-id="{{weapon.id}}" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                <a data-action="deleteItem" data-item-id="{{weapon.id}}" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
               </div>
               {{/unless}}
+              <span class="weapon-expand"><i class="fas fa-chevron-down"></i></span>
             </div>
-            <div class="division-stats">
-              <span class="division-stat">
-                <i class="fas fa-trophy"></i>
-                {{localize "STREET_FIGHTER.Division.wins"}}: {{division.system.wins}}
-              </span>
-              <span class="division-stat">
-                <i class="fas fa-handshake"></i>
-                {{localize "STREET_FIGHTER.Division.draws"}}: {{division.system.draws}}
-              </span>
-              <span class="division-stat">
-                <i class="fas fa-times-circle"></i>
-                {{localize "STREET_FIGHTER.Division.losses"}}: {{division.system.losses}}
-              </span>
-              <span class="division-stat">
-                <i class="fas fa-fist-raised"></i>
-                {{localize "STREET_FIGHTER.Division.knockouts"}}: {{division.system.knockouts}}
-              </span>
+            <div class="weapon-notes collapsed">
+              <div class="notes-content">
+                {{#if weapon.system.special}}
+                <p>{{weapon.system.special}}</p>
+                {{else}}
+                <p class="no-notes">{{localize "STREET_FIGHTER.Common.none"}}</p>
+                {{/if}}
+              </div>
             </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+
+      {{!-- Equipment --}}
+      <div class="traits-section">
+        <h3>{{localize "STREET_FIGHTER.Item.Types.equipment"}}</h3>
+        <ul class="equipment-list">
+          {{#each items.equipment as |equip|}}
+          <li class="equipment-item" data-item-id="{{equip.id}}">
+            <span class="equipment-name">{{equip.name}}</span>
+            {{#unless ../isImported}}
+            <div class="item-controls">
+              <a data-action="editItem" data-item-id="{{equip.id}}" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+              <a data-action="deleteItem" data-item-id="{{equip.id}}" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
+            </div>
+            {{/unless}}
           </li>
+          {{else}}
+          <li class="equipment-empty">{{localize "STREET_FIGHTER.Common.none"}}</li>
           {{/each}}
         </ul>
       </div>
@@ -482,16 +509,80 @@
 
     {{!-- Biography Tab --}}
     <div class="tab" data-group="primary" data-tab="biography">
-      <div class="biography-section">
-        <h3>{{localize "STREET_FIGHTER.Tabs.biography"}}</h3>
-        {{#if isEditable}}
-        <prose-mirror name="system.biography" button="true" toggled="true" value="{{systemData.biography}}">
-          {{{enrichedBiography}}}
-        </prose-mirror>
-        {{else}}
-        <div class="editor-content">{{{enrichedBiography}}}</div>
-        {{/if}}
+      {{!-- Profile Fields --}}
+      <div class="biography-section profile-fields">
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Profile.chronicleName"}}</label>
+            <input type="text" name="system.profile.chronicleName" value="{{systemData.profile.chronicleName}}" {{#unless isEditable}}disabled{{/unless}} />
+          </div>
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Profile.schoolName"}}</label>
+            <input type="text" name="system.profile.schoolName" value="{{systemData.profile.schoolName}}" {{#unless isEditable}}disabled{{/unless}} />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Profile.fightingTeam"}}</label>
+            <input type="text" name="system.profile.fightingTeam" value="{{systemData.profile.fightingTeam}}" {{#unless isEditable}}disabled{{/unless}} />
+          </div>
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Profile.stable"}}</label>
+            <input type="text" name="system.profile.stable" value="{{systemData.profile.stable}}" {{#unless isEditable}}disabled{{/unless}} />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Profile.signature"}}</label>
+            <input type="text" name="system.profile.signature" value="{{systemData.profile.signature}}" {{#unless isEditable}}disabled{{/unless}} />
+          </div>
+          <div class="form-group">
+            <label>{{localize "STREET_FIGHTER.Profile.languages"}}</label>
+            <input type="text" name="system.languagesText" value="{{languagesText}}" placeholder="English, Japanese, ..." {{#unless isEditable}}disabled{{/unless}} />
+          </div>
+        </div>
       </div>
+
+      {{!-- Divisions --}}
+      <div class="traits-section">
+        <h3>{{localize "STREET_FIGHTER.Item.Types.division"}}</h3>
+        <ul class="division-list">
+          {{#each items.divisions as |division|}}
+          <li class="division-item" data-item-id="{{division.id}}">
+            <div class="division-header">
+              <span class="division-name">{{division.name}}</span>
+              <span class="division-rank">{{localize "STREET_FIGHTER.Division.rank"}}: {{division.system.rank}}</span>
+              {{#unless ../isImported}}
+              <div class="item-controls">
+                <a data-action="editItem" data-item-id="{{division.id}}" title="{{localize 'STREET_FIGHTER.Common.edit'}}"><i class="fas fa-edit"></i></a>
+                <a data-action="deleteItem" data-item-id="{{division.id}}" title="{{localize 'STREET_FIGHTER.Common.delete'}}"><i class="fas fa-trash"></i></a>
+              </div>
+              {{/unless}}
+            </div>
+            <div class="division-stats">
+              <span class="division-stat">
+                <i class="fas fa-trophy"></i>
+                {{localize "STREET_FIGHTER.Division.wins"}}: {{division.system.wins}}
+              </span>
+              <span class="division-stat">
+                <i class="fas fa-handshake"></i>
+                {{localize "STREET_FIGHTER.Division.draws"}}: {{division.system.draws}}
+              </span>
+              <span class="division-stat">
+                <i class="fas fa-times-circle"></i>
+                {{localize "STREET_FIGHTER.Division.losses"}}: {{division.system.losses}}
+              </span>
+              <span class="division-stat">
+                <i class="fas fa-fist-raised"></i>
+                {{localize "STREET_FIGHTER.Division.knockouts"}}: {{division.system.knockouts}}
+              </span>
+            </div>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+
+      {{!-- Background --}}
       <div class="biography-section">
         <h3>{{localize "STREET_FIGHTER.Profile.background"}}</h3>
         {{#if isEditable}}
@@ -502,6 +593,8 @@
         <div class="editor-content">{{{enrichedBackground}}}</div>
         {{/if}}
       </div>
+
+      {{!-- Motivations --}}
       <div class="biography-section">
         <h3>{{localize "STREET_FIGHTER.Profile.motivations"}}</h3>
         {{#if isEditable}}
@@ -512,6 +605,18 @@
         <div class="editor-content">{{{enrichedMotivations}}}</div>
         {{/if}}
       </div>
+
+      {{!-- Appearance --}}
+      <div class="biography-section">
+        <h3>{{localize "STREET_FIGHTER.Profile.appearanceNotes"}}</h3>
+        {{#if isEditable}}
+        <prose-mirror name="system.appearanceNotes" button="true" toggled="true" value="{{systemData.appearanceNotes}}">
+          {{{enrichedAppearanceNotes}}}
+        </prose-mirror>
+        {{else}}
+        <div class="editor-content">{{{enrichedAppearanceNotes}}}</div>
+        {{/if}}
+      </div>
     </div>
   </section>
-</form>
+</section>

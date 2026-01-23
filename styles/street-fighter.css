@@ -42,7 +42,8 @@
   overflow: hidden;
 }
 
-.street-fighter.sheet .window-content > form {
+.street-fighter.sheet .window-content > form,
+.street-fighter.sheet .window-content > section {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -102,7 +103,8 @@
   overflow: hidden;
 }
 
-.street-fighter.sheet .application-content > form {
+.street-fighter.sheet .application-content > form,
+.street-fighter.sheet .application-content > section {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -3742,4 +3744,155 @@ button.sf-import-characters:hover {
 
 .sf-reveal-content .sf-stat-value {
   font-size: 18px;
+}
+
+/* ==================== */
+/* Combo Styles         */
+/* ==================== */
+
+.combo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.combo-card {
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+
+.combo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.combo-dizzy {
+  color: var(--sf-text-muted);
+  font-size: 16px;
+}
+
+.combo-dizzy.active {
+  color: var(--sf-warning);
+}
+
+.combo-maneuvers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.combo-maneuver-tag {
+  background: var(--sf-primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.combo-arrow {
+  color: var(--sf-text-muted);
+  font-size: 10px;
+}
+
+.combo-add {
+  margin-top: 8px;
+}
+
+.combo-add button {
+  background: var(--sf-surface-light);
+  border: 1px dashed var(--sf-border);
+  color: var(--sf-text-muted);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.combo-add button:hover {
+  background: var(--sf-primary);
+  border-color: var(--sf-primary);
+  color: white;
+}
+
+.combo-dialog .combo-maneuver-selects {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.combo-dialog .combo-maneuver-selects select {
+  width: 100%;
+}
+
+/* ==================== */
+/* Equipment Styles     */
+/* ==================== */
+
+.equipment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.equipment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: var(--sf-surface-light);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.equipment-name {
+  flex: 1;
+}
+
+.equipment-empty {
+  color: var(--sf-text-muted);
+  font-style: italic;
+  padding: 4px 8px;
+}
+
+/* ==================== */
+/* Profile Fields       */
+/* ==================== */
+
+.profile-fields {
+  margin-bottom: 12px;
+}
+
+.profile-fields .form-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.profile-fields .form-group {
+  flex: 1;
+}
+
+.profile-fields label {
+  display: block;
+  font-size: 11px;
+  color: var(--sf-text-muted);
+  margin-bottom: 2px;
+}
+
+.profile-fields input {
+  width: 100%;
+  background: var(--sf-surface-light);
+  border: 1px solid var(--sf-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--sf-text);
+}
+
+.profile-fields input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

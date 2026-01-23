@@ -1,7 +1,7 @@
 {
   "Actor": {
     "types": ["fighter"],
-    "htmlFields": ["biography", "background", "motivations", "appearanceNotes", "equipment"],
+    "htmlFields": ["background", "motivations", "appearanceNotes"],
     "fighter": {
       "importData": {
         "isImported": false,
@@ -36,15 +36,13 @@
       "sessionRecords": [],
       "languages": [],
       "combos": [],
-      "biography": "",
       "background": "",
       "motivations": "",
-      "appearanceNotes": "",
-      "equipment": ""
+      "appearanceNotes": ""
     }
   },
   "Item": {
-    "types": ["fightingStyle", "specialManeuver", "attribute", "ability", "technique", "background", "weapon", "division"],
+    "types": ["fightingStyle", "specialManeuver", "attribute", "ability", "technique", "background", "weapon", "division", "equipment"],
     "htmlFields": ["description"],
     "fightingStyle": {
       "sourceId": "",
@@ -119,6 +117,10 @@
       "draws": 0,
       "losses": 0,
       "knockouts": 0,
+      "description": ""
+    },
+    "equipment": {
+      "sourceId": "",
       "description": ""
     }
   }

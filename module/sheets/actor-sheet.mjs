@@ -39,6 +39,10 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       toggleWeaponEquip: StreetFighterActorSheet._onToggleWeaponEquip,
       editResourceMax: StreetFighterActorSheet._onEditResourceMax,
       editRenownPermanent: StreetFighterActorSheet._onEditRenownPermanent,
+      addCombo: StreetFighterActorSheet._onAddCombo,
+      editCombo: StreetFighterActorSheet._onEditCombo,
+      deleteCombo: StreetFighterActorSheet._onDeleteCombo,
+      addBasicManeuvers: StreetFighterActorSheet._onAddBasicManeuvers,
     },
     form: {
       submitOnChange: true,
@@ -68,6 +72,24 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
   tabGroups = {
     primary: "traits",
   };
+
+  /** @inheritDoc */
+  async _onChangeForm(formConfig, event) {
+    const form = this.form;
+    if (!form) return;
+    
+    const formData = new foundry.applications.ux.FormDataExtended(form);
+    const data = foundry.utils.expandObject(formData.object);
+    
+    // Convert languagesText (comma-separated string) to languages array
+    if (data.system?.languagesText !== undefined) {
+      const text = data.system.languagesText || "";
+      data.system.languages = text.split(",").map(s => s.trim()).filter(s => s);
+      delete data.system.languagesText;
+    }
+    
+    await this.document.update(data);
+  }
 
   /** @inheritDoc */
   _onRender(context, options) {
@@ -171,6 +193,29 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
         relativeTo: this.actor,
       }
     );
+    
+    context.enrichedAppearanceNotes = await TextEditorImpl.enrichHTML(
+      this.actor.system.appearanceNotes || "",
+      {
+        secrets: this.actor.isOwner,
+        async: true,
+        relativeTo: this.actor,
+      }
+    );
+
+    // Prepare languages as comma-separated text for input field
+    const languages = this.actor.system.languages || [];
+    context.languagesText = languages.join(", ");
+
+    // Build maneuver names lookup for combo display
+    context.maneuverNamesById = {};
+    for (const item of this.actor.items) {
+      if (item.type === "specialManeuver") {
+        const sourceId = item.system.sourceId || item.id;
+        context.maneuverNamesById[sourceId] = item.name;
+        context.maneuverNamesById[item.id] = item.name;
+      }
+    }
 
     return context;
   }
@@ -207,6 +252,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     const specialManeuvers = [];
     const weapons = [];
     const divisions = [];
+    const equipment = [];
     
     // Organize attributes by category
     const attributesByCategory = {
@@ -270,6 +316,9 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
         case "division":
           divisions.push(item);
           break;
+        case "equipment":
+          equipment.push(item);
+          break;
       }
     }
 
@@ -288,6 +337,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       backgrounds,
       weapons,
       divisions,
+      equipment,
     };
   }
 
@@ -1197,10 +1247,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
     
     if (result !== null && result !== undefined) {
       const newMax = Math.clamp(result, 0, 20);
-      await this.actor.update({
-        [`system.resources.${resourceType}.max`]: newMax,
-        [`system.resources.${resourceType}.value`]: newMax,
-      });
+      await this.actor.update({ [`system.resources.${resourceType}.max`]: newMax });
     }
   }
 
@@ -1252,5 +1299,232 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
         [`system.renown.${renownType}.permanent`]: newPermanent,
       });
     }
+  }
+
+  /**
+   * Handle adding a new combo
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onAddCombo(event, target) {
+    event.preventDefault();
+    
+    if (this.actor.system.importData?.isImported) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return;
+    }
+
+    const result = await this._openComboDialog(null);
+    if (!result) return;
+
+    const combos = [...(this.actor.system.combos || [])];
+    combos.push({
+      id: foundry.utils.randomID(),
+      isDizzy: result.isDizzy,
+      maneuverIds: result.maneuverIds,
+    });
+    
+    await this.actor.update({ "system.combos": combos });
+  }
+
+  /**
+   * Handle editing an existing combo
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onEditCombo(event, target) {
+    event.preventDefault();
+    
+    if (this.actor.system.importData?.isImported) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return;
+    }
+
+    const index = parseInt(target.dataset.comboIndex);
+    const combos = [...(this.actor.system.combos || [])];
+    const combo = combos[index];
+    
+    if (!combo) return;
+
+    const result = await this._openComboDialog(combo);
+    if (!result) return;
+
+    combos[index] = {
+      ...combo,
+      isDizzy: result.isDizzy,
+      maneuverIds: result.maneuverIds,
+    };
+    
+    await this.actor.update({ "system.combos": combos });
+  }
+
+  /**
+   * Handle deleting a combo
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onDeleteCombo(event, target) {
+    event.preventDefault();
+    
+    if (this.actor.system.importData?.isImported) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Character.readOnlyWarning"));
+      return;
+    }
+
+    const index = parseInt(target.dataset.comboIndex);
+    const combos = [...(this.actor.system.combos || [])];
+    
+    if (index < 0 || index >= combos.length) return;
+
+    combos.splice(index, 1);
+    await this.actor.update({ "system.combos": combos });
+  }
+
+  /**
+   * Handle adding basic maneuvers
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onAddBasicManeuvers(event, target) {
+    event.preventDefault();
+    
+    // Source IDs das manobras básicas
+    const BASIC_MANEUVERS = [
+      'jab',
+      'forward',
+      'fierce',
+      'strong',
+      'roundhouse',
+      'short',
+      'movement',
+      'block',
+      'grab'
+    ];
+    
+    // Verifica quais manobras já existem no ator
+    const existingManeuvers = this.actor.items.filter(i => 
+      i.type === 'specialManeuver' && BASIC_MANEUVERS.includes(i.system.sourceId)
+    );
+    
+    const existingSourceIds = existingManeuvers.map(m => m.system.sourceId);
+    const maneuversToAdd = BASIC_MANEUVERS.filter(id => !existingSourceIds.includes(id));
+    
+    if (maneuversToAdd.length === 0) {
+      ui.notifications.info(game.i18n.localize('STREET_FIGHTER.Maneuvers.allBasicAlreadyAdded'));
+      return;
+    }
+    
+    // Busca os itens no diretório
+    const items = await game.items.contents;
+    const maneuvers = items.filter(i => 
+      i.type === 'specialManeuver' && maneuversToAdd.includes(i.system.sourceId)
+    );
+    
+    if (maneuvers.length === 0) {
+      ui.notifications.warn(game.i18n.localize('STREET_FIGHTER.Maneuvers.basicNotFound'));
+      return;
+    }
+    
+    // Adiciona as manobras
+    try {
+      await this.actor.createEmbeddedDocuments('Item', maneuvers.map(m => m.toObject()));
+      ui.notifications.info(game.i18n.format('STREET_FIGHTER.Maneuvers.addedBasic', {
+        count: maneuvers.length
+      }));
+    } catch (err) {
+      console.error('Error adding basic maneuvers:', err);
+      ui.notifications.error(game.i18n.localize('STREET_FIGHTER.Maneuvers.addBasicError'));
+    }
+  }
+
+  /**
+   * Open a dialog to create or edit a combo
+   * @param {object|null} existingCombo - The existing combo to edit, or null for new
+   * @returns {Promise<{isDizzy: boolean, maneuverIds: string[]}|null>}
+   * @private
+   */
+  async _openComboDialog(existingCombo) {
+    const maneuvers = this.actor.items.filter(i => i.type === "specialManeuver");
+    
+    if (maneuvers.length < 2) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Combo.minManeuvers"));
+      return null;
+    }
+
+    const maneuverOptions = maneuvers.map(m => {
+      const sourceId = m.system.sourceId || m.id;
+      return `<option value="${sourceId}">${m.name}</option>`;
+    }).join("");
+
+    const isDizzyChecked = existingCombo?.isDizzy ? "checked" : "";
+    const existingIds = existingCombo?.maneuverIds || [];
+    
+    const content = `
+      <form class="combo-dialog">
+        <div class="form-group">
+          <label>
+            <input type="checkbox" name="isDizzy" ${isDizzyChecked} />
+            ${game.i18n.localize("STREET_FIGHTER.Combo.isDizzy")}
+          </label>
+          <p class="hint">${game.i18n.localize("STREET_FIGHTER.Combo.isDizzyHint")}</p>
+        </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("STREET_FIGHTER.Combo.maneuvers")}</label>
+          <div class="combo-maneuver-selects">
+            <select name="maneuver1">
+              <option value="">-- ${game.i18n.localize("STREET_FIGHTER.Combo.selectManeuver")} --</option>
+              ${maneuverOptions}
+            </select>
+            <select name="maneuver2">
+              <option value="">-- ${game.i18n.localize("STREET_FIGHTER.Combo.selectManeuver")} --</option>
+              ${maneuverOptions}
+            </select>
+            <select name="maneuver3">
+              <option value="">-- ${game.i18n.localize("STREET_FIGHTER.Combo.selectManeuver")} --</option>
+              ${maneuverOptions}
+            </select>
+          </div>
+        </div>
+      </form>
+    `;
+
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("STREET_FIGHTER.Combo.title") },
+      content,
+      ok: {
+        label: game.i18n.localize("STREET_FIGHTER.Common.save"),
+        callback: (event, button, dialog) => {
+          const form = button.form;
+          const isDizzy = form.elements.isDizzy.checked;
+          const m1 = form.elements.maneuver1.value;
+          const m2 = form.elements.maneuver2.value;
+          const m3 = form.elements.maneuver3.value;
+          
+          const maneuverIds = [m1, m2, m3].filter(id => id);
+          
+          if (maneuverIds.length < 2) {
+            ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Combo.minManeuvers"));
+            return null;
+          }
+          
+          return { isDizzy, maneuverIds };
+        },
+      },
+      render: (event, html) => {
+        // Pre-select existing maneuvers if editing
+        if (existingIds.length > 0) {
+          const selects = html.querySelectorAll("select");
+          existingIds.forEach((id, i) => {
+            if (selects[i]) selects[i].value = id;
+          });
+        }
+      },
+    });
+
+    return result;
   }
 }

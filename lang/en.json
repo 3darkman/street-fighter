@@ -18,7 +18,8 @@
         "technique": "Technique",
         "background": "Background",
         "weapon": "Weapon",
-        "division": "Division"
+        "division": "Division",
+        "equipment": "Equipment"
       }
     },
     
@@ -68,6 +69,14 @@
         "focus": "Focus",
         "other": "Other"
       }
+    },
+    
+    "Maneuvers": {
+      "addBasic": "Add Basic Maneuvers",
+      "allBasicAlreadyAdded": "All basic maneuvers are already added to this character.",
+      "basicNotFound": "Could not find basic maneuvers in the items directory.",
+      "addedBasic": "Added {count} basic maneuvers to the character.",
+      "addBasicError": "Error adding basic maneuvers."
     },
     
     "Trait": {
@@ -244,7 +253,21 @@
       "concept": "Concept",
       "signature": "Signature",
       "background": "Background",
-      "motivations": "Motivations"
+      "motivations": "Motivations",
+      "appearanceNotes": "Appearance",
+      "languages": "Languages"
+    },
+    
+    "Combo": {
+      "title": "Combos",
+      "isDizzy": "Dizzy",
+      "isDizzyHint": "This combo causes dizzy",
+      "maneuvers": "Maneuvers",
+      "add": "Add Combo",
+      "remove": "Remove Combo",
+      "selectManeuver": "Select maneuver...",
+      "minManeuvers": "A combo must have at least 2 maneuvers",
+      "maxManeuvers": "A combo can have at most 3 maneuvers"
     },
     
     "Categories": {

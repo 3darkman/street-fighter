@@ -18,7 +18,8 @@
         "technique": "Técnica",
         "background": "Antecedente",
         "weapon": "Arma",
-        "division": "Divisão"
+        "division": "Divisão",
+        "equipment": "Equipamento"
       }
     },
     
@@ -68,6 +69,14 @@
         "focus": "Foco",
         "other": "Outro"
       }
+    },
+    
+    "Maneuvers": {
+      "addBasic": "Adicionar Manobras Básicas",
+      "allBasicAlreadyAdded": "Todas as manobras básicas já foram adicionadas a este personagem.",
+      "basicNotFound": "Não foi possível encontrar as manobras básicas no diretório de itens.",
+      "addedBasic": "Adicionadas {count} manobras básicas ao personagem.",
+      "addBasicError": "Erro ao adicionar manobras básicas."
     },
     
     "Trait": {
@@ -244,7 +253,21 @@
       "concept": "Conceito",
       "signature": "Assinatura",
       "background": "Histórico",
-      "motivations": "Motivações"
+      "motivations": "Motivações",
+      "appearanceNotes": "Aparência",
+      "languages": "Idiomas"
+    },
+    
+    "Combo": {
+      "title": "Combos",
+      "isDizzy": "Atordoante",
+      "isDizzyHint": "Este combo causa atordoamento",
+      "maneuvers": "Manobras",
+      "add": "Adicionar Combo",
+      "remove": "Remover Combo",
+      "selectManeuver": "Selecione a manobra...",
+      "minManeuvers": "Um combo deve ter pelo menos 2 manobras",
+      "maxManeuvers": "Um combo pode ter no máximo 3 manobras"
     },
     
     "Categories": {
