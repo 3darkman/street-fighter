@@ -68,6 +68,7 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
     context.isEditable = this.isEditable;
     context.isOwner = this.item.isOwner;
     context.itemType = this.item.type;
+    context.isEmbedded = this.item.isEmbedded;
 
     const TextEditorImpl = foundry.applications.ux.TextEditor.implementation;
     context.enrichedDescription = await TextEditorImpl.enrichHTML(
@@ -115,14 +116,88 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
   }
 
   /** @inheritDoc */
+  async _onChangeForm(formConfig, event) {
+    const form = this.form;
+    if (!form) return;
+    
+    const formData = new foundry.applications.ux.FormDataExtended(form);
+    const data = foundry.utils.expandObject(formData.object);
+    
+    await this.document.update(data);
+  }
+
+  /** @inheritDoc */
   _onRender(context, options) {
     super._onRender(context, options);
     this._setupTabListeners();
+    this._setupPrerequisiteDropdown(context);
 
     // Restore active tab after re-render
     if (this.tabGroups.primary && this.tabGroups.primary !== "details") {
       this._activateTab(this.tabGroups.primary);
     }
+
+    // Restore scroll position if saved
+    if (this._savedScrollTop !== undefined) {
+      const sheetBody = this.element.querySelector(".sheet-body");
+      if (sheetBody) {
+        sheetBody.scrollTop = this._savedScrollTop;
+      }
+      delete this._savedScrollTop;
+    }
+  }
+
+  /** @inheritDoc */
+  _preRender(context, options) {
+    super._preRender(context, options);
+    // Save scroll position before re-render
+    const sheetBody = this.element?.querySelector(".sheet-body");
+    if (sheetBody) {
+      this._savedScrollTop = sheetBody.scrollTop;
+    }
+  }
+
+  /**
+   * Setup the prerequisite dropdown to populate the ID select based on type
+   * @param {object} context - The render context
+   * @private
+   */
+  _setupPrerequisiteDropdown(context) {
+    const html = this.element;
+    if (!html) return;
+
+    const typeSelect = html.querySelector('select[name="newPrereqType"]');
+    const idSelect = html.querySelector('select[name="newPrereqId"]');
+    const valueInput = html.querySelector('input[name="newPrereqValue"]');
+    if (!typeSelect || !idSelect) return;
+
+    const worldTraits = context.worldTraits || [];
+    const worldManeuvers = context.worldManeuvers || [];
+
+    const updatePrereqUI = (type) => {
+      // Populate ID select
+      idSelect.innerHTML = `<option value="">-- ${game.i18n.localize("STREET_FIGHTER.Common.select")} --</option>`;
+      const items = type === "maneuver" ? worldManeuvers : worldTraits;
+      items.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.textContent = item.name;
+        idSelect.appendChild(option);
+      });
+
+      // Hide value input for maneuvers (they don't have levels)
+      if (valueInput) {
+        valueInput.style.display = type === "maneuver" ? "none" : "";
+      }
+    };
+
+    // Setup on initial render
+    updatePrereqUI(typeSelect.value);
+
+    // Update when type changes
+    typeSelect.addEventListener("change", (event) => {
+      updatePrereqUI(event.target.value);
+    });
   }
 
   /**
@@ -354,7 +429,7 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
    */
   static async _onPrerequisiteAdd(event, target) {
     event.preventDefault();
-    const form = target.closest("form");
+    const form = this.form;
     const typeSelect = form.querySelector('select[name="newPrereqType"]');
     const idSelect = form.querySelector('select[name="newPrereqId"]');
     const valueInput = form.querySelector('input[name="newPrereqValue"]');
@@ -365,14 +440,14 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
 
     if (!type || !id) return;
 
-    const prerequisites = [...(this.item.system.prerequisites || [])];
+    const prerequisites = [...(this.document.system.prerequisites || [])];
     if (prerequisites.some((p) => p.type === type && p.id === id)) {
       ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Errors.prerequisiteExists"));
       return;
     }
 
     prerequisites.push({ type, id, value });
-    await this.item.update({ "system.prerequisites": prerequisites });
+    await this.document.update({ "system.prerequisites": prerequisites });
   }
 
   /**
@@ -384,9 +459,9 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
   static async _onPrerequisiteDelete(event, target) {
     event.preventDefault();
     const index = parseInt(target.dataset.index);
-    const prerequisites = [...(this.item.system.prerequisites || [])];
+    const prerequisites = [...(this.document.system.prerequisites || [])];
     prerequisites.splice(index, 1);
-    await this.item.update({ "system.prerequisites": prerequisites });
+    await this.document.update({ "system.prerequisites": prerequisites });
   }
 
   /**
@@ -397,7 +472,7 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
    */
   static async _onStyleCostAdd(event, target) {
     event.preventDefault();
-    const form = target.closest("form");
+    const form = this.form;
     const styleSelect = form.querySelector('select[name="newStyleId"]');
     const costInput = form.querySelector('input[name="newStyleCost"]');
 
@@ -406,9 +481,9 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
 
     if (!styleId) return;
 
-    const styleCosts = { ...(this.item.system.stylePowerPointCosts || {}) };
+    const styleCosts = { ...(this.document.system.stylePowerPointCosts || {}) };
     styleCosts[styleId] = cost;
-    await this.item.update({ "system.stylePowerPointCosts": styleCosts });
+    await this.document.update({ "system.stylePowerPointCosts": styleCosts });
   }
 
   /**
@@ -419,10 +494,13 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
    */
   static async _onStyleCostDelete(event, target) {
     event.preventDefault();
-    const styleId = target.dataset.styleId;
-    const styleCosts = { ...(this.item.system.stylePowerPointCosts || {}) };
-    delete styleCosts[styleId];
-    await this.item.update({ "system.stylePowerPointCosts": styleCosts });
+    const index = parseInt(target.dataset.index);
+    const entries = Object.entries(this.document.system.stylePowerPointCosts || {});
+    const [keyToDelete] = entries[index] || [];
+    if (!keyToDelete) return;
+    
+    // Use Foundry's deletion syntax
+    await this.document.update({ [`system.stylePowerPointCosts.-=${keyToDelete}`]: null });
   }
 
   /**
@@ -433,7 +511,7 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
    */
   static async _onBackgroundCostAdd(event, target) {
     event.preventDefault();
-    const form = target.closest("form");
+    const form = this.form;
     const bgSelect = form.querySelector('select[name="newBackgroundId"]');
     const costInput = form.querySelector('input[name="newBackgroundCost"]');
 
@@ -442,9 +520,9 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
 
     if (!bgId) return;
 
-    const bgCosts = { ...(this.item.system.backgroundPowerPointCosts || {}) };
+    const bgCosts = { ...(this.document.system.backgroundPowerPointCosts || {}) };
     bgCosts[bgId] = cost;
-    await this.item.update({ "system.backgroundPowerPointCosts": bgCosts });
+    await this.document.update({ "system.backgroundPowerPointCosts": bgCosts });
   }
 
   /**
@@ -455,10 +533,13 @@ export class StreetFighterItemSheet extends HandlebarsApplicationMixin(ItemSheet
    */
   static async _onBackgroundCostDelete(event, target) {
     event.preventDefault();
-    const bgId = target.dataset.backgroundId;
-    const bgCosts = { ...(this.item.system.backgroundPowerPointCosts || {}) };
-    delete bgCosts[bgId];
-    await this.item.update({ "system.backgroundPowerPointCosts": bgCosts });
+    const index = parseInt(target.dataset.index);
+    const entries = Object.entries(this.document.system.backgroundPowerPointCosts || {});
+    const [keyToDelete] = entries[index] || [];
+    if (!keyToDelete) return;
+    
+    // Use Foundry's deletion syntax
+    await this.document.update({ [`system.backgroundPowerPointCosts.-=${keyToDelete}`]: null });
   }
 
   /**

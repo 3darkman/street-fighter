@@ -109,7 +109,8 @@ export function registerHandlebarsHelpers() {
     return Math.abs(value);
   });
 
-  Handlebars.registerHelper("sfSelectOptions", function (choices, selected) {
+  Handlebars.registerHelper("sfSelectOptions", function (choices, options) {
+    const selected = options?.hash?.selected;
     let html = "";
     for (const [key, label] of Object.entries(choices)) {
       const isSelected = key === selected ? "selected" : "";

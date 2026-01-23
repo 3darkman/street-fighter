@@ -787,10 +787,19 @@
 /* Item Sheet           */
 /* ==================== */
 
+.street-fighter.sheet.item section.flexcol {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
 .street-fighter.sheet.item .sheet-body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .street-fighter.sheet.item .form-group {

@@ -1,4 +1,4 @@
-<form class="{{cssClass}} flexcol" autocomplete="off">
+<section class="{{cssClass}} flexcol">
   <header class="sheet-header">
     <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}" />
     <div class="header-fields">
@@ -89,7 +89,7 @@
             <span class="entry-type">{{this.type}}</span>
             <span class="entry-name">{{this.name}}</span>
             {{#if this.value}}<span class="entry-value">{{this.value}}</span>{{/if}}
-            <a class="prerequisite-delete" data-index="{{@index}}" title="Delete"><i class="fas fa-trash"></i></a>
+            <a class="prerequisite-delete" data-action="prerequisiteDelete" data-index="{{@index}}" title="Delete"><i class="fas fa-trash"></i></a>
           </li>
           {{/each}}
         </ul>
@@ -102,7 +102,7 @@
             <option value="">-- {{localize "STREET_FIGHTER.Common.select"}} --</option>
           </select>
           <input type="number" name="newPrereqValue" value="1" min="1" max="10" style="width: 60px;" />
-          <a class="prerequisite-add" title="Add"><i class="fas fa-plus"></i></a>
+          <a class="prerequisite-add" data-action="prerequisiteAdd" title="Add"><i class="fas fa-plus"></i></a>
         </div>
       </div>
 
@@ -113,7 +113,7 @@
           <li class="entry-item">
             <span class="entry-name">{{this.name}}</span>
             <span class="entry-value">{{this.cost}} PP</span>
-            <a class="style-cost-delete" data-style-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></a>
+            <a class="style-cost-delete" data-action="styleCostDelete" data-index="{{@index}}" title="Delete"><i class="fas fa-trash"></i></a>
           </li>
           {{/each}}
         </ul>
@@ -125,7 +125,7 @@
             {{/each}}
           </select>
           <input type="number" name="newStyleCost" value="0" min="-1" max="10" style="width: 60px;" />
-          <a class="style-cost-add" title="Add"><i class="fas fa-plus"></i></a>
+          <a class="style-cost-add" data-action="styleCostAdd" title="Add"><i class="fas fa-plus"></i></a>
         </div>
       </div>
 
@@ -136,7 +136,7 @@
           <li class="entry-item">
             <span class="entry-name">{{this.name}}</span>
             <span class="entry-value">{{this.cost}} PP</span>
-            <a class="background-cost-delete" data-background-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></a>
+            <a class="background-cost-delete" data-action="backgroundCostDelete" data-index="{{@index}}" title="Delete"><i class="fas fa-trash"></i></a>
           </li>
           {{/each}}
         </ul>
@@ -148,7 +148,7 @@
             {{/each}}
           </select>
           <input type="number" name="newBackgroundCost" value="0" min="-1" max="10" style="width: 60px;" />
-          <a class="background-cost-add" title="Add"><i class="fas fa-plus"></i></a>
+          <a class="background-cost-add" data-action="backgroundCostAdd" title="Add"><i class="fas fa-plus"></i></a>
         </div>
       </div>
 
@@ -198,4 +198,4 @@
       {{> "systems/street-fighter/templates/item/partials/item-effects-tab.hbs"}}
     </div>
   </section>
-</form>
+</section>
