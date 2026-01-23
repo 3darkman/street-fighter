@@ -36,25 +36,6 @@
           <label for="isUnique">{{localize "STREET_FIGHTER.Trait.isUnique"}}</label>
         </div>
       </div>
-
-      <div class="form-group">
-        <label>{{localize "STREET_FIGHTER.Trait.availableLevels"}} (JSON)</label>
-        <textarea name="system.availableLevelsJson" rows="6">{{json systemData.availableLevels}}</textarea>
-      </div>
-
-      <details class="advanced-section">
-        <summary>{{localize "STREET_FIGHTER.Tabs.costs"}}</summary>
-        <div class="form-row">
-          <div class="form-group">
-            <label>{{localize "STREET_FIGHTER.Trait.bonusPointCost"}}</label>
-            <input type="number" name="system.bonusPointCost" value="{{systemData.bonusPointCost}}" min="0" />
-          </div>
-          <div class="form-group">
-            <label>{{localize "STREET_FIGHTER.Trait.experiencePointCost"}}</label>
-            <input type="number" name="system.experiencePointCost" value="{{systemData.experiencePointCost}}" min="0" />
-          </div>
-        </div>
-      </details>
     </div>
 
     {{!-- Effects Tab --}}

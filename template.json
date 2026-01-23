@@ -60,7 +60,6 @@
       "defaultPowerPointCost": 0,
       "stylePowerPointCosts": {},
       "backgroundPowerPointCosts": {},
-      "bonusPointCost": 4,
       "chiCost": null,
       "willpowerCost": null,
       "speedModifier": "+0",
@@ -78,32 +77,20 @@
       "sourceId": "",
       "category": "physical",
       "value": 1,
-      "bonusPointCost": 5,
-      "experiencePointCost": 4,
       "isOptional": false,
-      "startLevel": 5,
-      "experiencePointCostOnStartLevel": 6,
       "description": ""
     },
     "ability": {
       "sourceId": "",
       "category": "talents",
       "value": 0,
-      "bonusPointCost": 2,
-      "experiencePointCost": 2,
       "isOptional": false,
-      "startLevel": 5,
-      "experiencePointCostOnStartLevel": 4,
       "description": ""
     },
     "technique": {
       "sourceId": "",
       "value": 0,
-      "bonusPointCost": 5,
-      "experiencePointCost": 3,
       "isOptional": false,
-      "startLevel": 5,
-      "experiencePointCostOnStartLevel": 5,
       "isWeaponTechnique": false,
       "isFirearmTechnique": false,
       "description": ""
@@ -111,11 +98,8 @@
     "background": {
       "sourceId": "",
       "value": 0,
-      "bonusPointCost": 1,
-      "experiencePointCost": 0,
       "isOptional": true,
       "isUnique": false,
-      "availableLevels": [],
       "description": ""
     },
     "weapon": {

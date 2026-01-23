@@ -232,7 +232,6 @@ async function createSpecialManeuverItem(data, folder) {
       defaultPowerPointCost: data.defaultPowerPointCost ?? 0,
       stylePowerPointCosts,
       backgroundPowerPointCosts,
-      bonusPointCost: data.bonusPointCost ?? 4,
       chiCost: data.chiCost,
       willpowerCost: data.willpowerCost,
       speedModifier: data.speedModifier || "+0",
@@ -283,8 +282,6 @@ async function createTraitItem(data, folders) {
     folder: folder,
     system: {
       sourceId: data.id,
-      bonusPointCost: data.bonusPointCost ?? 5,
-      experiencePointCost: data.experiencePointCost ?? 4,
       isOptional: data.isOptional ?? false,
       description: data.description || "",
     },
@@ -294,23 +291,16 @@ async function createTraitItem(data, folders) {
   switch (itemType) {
     case "attribute":
       baseData.system.category = category;
-      baseData.system.startLevel = data.startLevel ?? 5;
-      baseData.system.experiencePointCostOnStartLevel = data.experiencePointCostOnStartLevel ?? 6;
       break;
     case "ability":
       baseData.system.category = category;
-      baseData.system.startLevel = data.startLevel ?? 5;
-      baseData.system.experiencePointCostOnStartLevel = data.experiencePointCostOnStartLevel ?? 4;
       break;
     case "technique":
-      baseData.system.startLevel = data.startLevel ?? 5;
-      baseData.system.experiencePointCostOnStartLevel = data.experiencePointCostOnStartLevel ?? 5;
       baseData.system.isWeaponTechnique = data.isWeaponTechnique ?? false;
       baseData.system.isFirearmTechnique = data.isFirearmTechnique ?? false;
       break;
     case "background":
       baseData.system.isUnique = data.unique ?? false;
-      baseData.system.availableLevels = data.availableLevels || [];
       break;
   }
 
