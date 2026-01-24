@@ -38,9 +38,9 @@
     "units": "m"
   },
   "background": "systems/street-fighter/assets/images/background.webp",
-  "url": "",
-  "manifest": "",
-  "download": "",
+  "url": "https://github.com/3darkman/street-fighter",
+  "manifest": "https://github.com/3darkman/street-fighter/releases/latest/download/system.json",
+  "download": "https://github.com/3darkman/street-fighter/releases/latest/download/street-fighter.zip",
   "license": "LICENSE",
   "readme": "README.md",
   "flags": {}
