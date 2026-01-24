@@ -5,9 +5,13 @@
  */
 
 import { StreetFighterRollDialog, executeRoll } from "../dice/roll-dialog.mjs";
-import { calculateModifier, formatOriginalModifier } from "../helpers/utils.mjs";
 import { getTraitMaxValue, getTraitMinValue } from "../config/constants.mjs";
 import { getEffectiveTraitValue } from "../helpers/effect-helpers.mjs";
+import {
+  calculateManeuverStats,
+  getCharacterStatsForManeuver,
+  formatOriginalModifier,
+} from "../helpers/maneuver-calculator.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -322,10 +326,10 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       }
     }
 
-    // Calculate maneuver stats
-    const characterStats = this._getCharacterStats(attributesByCategory, abilitiesByCategory, techniques);
+    // Calculate maneuver stats using centralized calculator (SSOT)
+    const characterStats = getCharacterStatsForManeuver(this.actor);
     const preparedManeuvers = specialManeuvers.map(maneuver => {
-      return this._prepareManeuverData(maneuver, characterStats, weapons);
+      return calculateManeuverStats(this.actor, maneuver, { characterStats });
     });
 
     return {
@@ -340,120 +344,6 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       equipment,
     };
   }
-
-  /**
-   * Get character stats needed for maneuver calculations
-   * @param {object} attributesByCategory
-   * @param {object} abilitiesByCategory
-   * @param {Array} techniques
-   * @returns {object}
-   * @private
-   */
-  _getCharacterStats(attributesByCategory, abilitiesByCategory, techniques) {
-    const allAttributes = [
-      ...attributesByCategory.physical,
-      ...attributesByCategory.social,
-      ...attributesByCategory.mental,
-    ];
-
-    const findTraitValue = (items, sourceId) => {
-      const item = items.find(i => i.system.sourceId === sourceId);
-      if (!item) return 0;
-      const baseValue = item.system.value || 0;
-      const effective = getEffectiveTraitValue(this.actor, sourceId, baseValue);
-      return effective.value;
-    };
-
-    // Build techniques map with value and weapon technique flags
-    const techniquesMap = {};
-    for (const t of techniques) {
-      const key = t.system.sourceId || t.name.toLowerCase();
-      // A technique is a weapon technique if either flag is true
-      const isWeaponTechnique = t.system.isWeaponTechnique || t.system.isFirearmTechnique || false;
-      const baseValue = t.system.value || 0;
-      const effective = getEffectiveTraitValue(this.actor, key, baseValue);
-      techniquesMap[key] = {
-        value: effective.value,
-        isWeaponTechnique,
-      };
-    }
-
-    return {
-      dexterity: findTraitValue(allAttributes, "dexterity"),
-      strength: findTraitValue(allAttributes, "strength"),
-      wits: findTraitValue(allAttributes, "wits"),
-      athletics: findTraitValue(techniques, "athletics"),
-      techniques: techniquesMap,
-    };
-  }
-
-  /**
-   * Prepare maneuver data with calculated stats
-   * @param {Item} maneuver
-   * @param {object} characterStats
-   * @param {Array} weapons - Actor's weapons
-   * @returns {object}
-   * @private
-   */
-  _prepareManeuverData(maneuver, characterStats, weapons) {
-    const category = maneuver.system.category || "";
-    const categoryKey = category.toLowerCase();
-    
-    // Get technique data for this maneuver's category
-    const techniqueData = characterStats.techniques[categoryKey] || { value: 0, isWeaponTechnique: false };
-    const techniqueValue = techniqueData.value;
-    const isWeaponTechnique = techniqueData.isWeaponTechnique;
-    
-    // Find equipped weapons for this technique
-    const equippedWeapons = isWeaponTechnique 
-      ? weapons.filter(w => w.system.isEquipped && (w.system.techniqueId || "").toLowerCase() === categoryKey)
-      : [];
-    
-    // If exactly one weapon is equipped, use its modifiers
-    // Parse modifiers which may be strings like "+2" or "-1"
-    const singleEquippedWeapon = equippedWeapons.length === 1 ? equippedWeapons[0] : null;
-    const parseWeaponMod = (val) => parseInt(String(val || "0").replace(/^\+/, "")) || 0;
-    const weaponSpeedMod = singleEquippedWeapon ? parseWeaponMod(singleEquippedWeapon.system.speed) : 0;
-    const weaponDamageMod = singleEquippedWeapon ? parseWeaponMod(singleEquippedWeapon.system.damage) : 0;
-    const weaponMovementMod = singleEquippedWeapon ? parseWeaponMod(singleEquippedWeapon.system.movement) : 0;
-    
-    // Calculate Speed: base is Dexterity (or Wits for weapon techniques)
-    const speedBase = isWeaponTechnique ? characterStats.wits : characterStats.dexterity;
-    const calculatedSpeed = calculateModifier(maneuver.system.speedModifier, speedBase + weaponSpeedMod);
-    
-    // Calculate Damage: base is Strength + Technique (or just Technique for weapon techniques)
-    const damageBase = isWeaponTechnique ? techniqueValue : characterStats.strength + techniqueValue;
-    const calculatedDamage = calculateModifier(maneuver.system.damageModifier, damageBase + weaponDamageMod);
-    
-    // Calculate Movement: base is Athletics (or 0 for weapon techniques)
-    const movementBase = isWeaponTechnique ? 0 : characterStats.athletics;
-    const calculatedMovement = calculateModifier(maneuver.system.movementModifier, movementBase + weaponMovementMod);
-
-    return {
-      id: maneuver.id,
-      name: maneuver.name,
-      system: maneuver.system,
-      calculatedSpeed,
-      calculatedDamage,
-      calculatedMovement,
-      // Formatted original values for display in parentheses
-      originalSpeed: formatOriginalModifier(maneuver.system.speedModifier),
-      originalDamage: formatOriginalModifier(maneuver.system.damageModifier),
-      originalMovement: formatOriginalModifier(maneuver.system.movementModifier),
-      damageAttribute: isWeaponTechnique ? null : "strength",
-      damageTechnique: categoryKey,
-      isWeaponTechnique,
-      // Equipped weapons for this technique
-      equippedWeapons: equippedWeapons.map(w => ({
-        id: w.id,
-        name: w.name,
-        damageMod: parseWeaponMod(w.system.damage),
-        speedMod: parseWeaponMod(w.system.speed),
-        movementMod: parseWeaponMod(w.system.movement),
-      })),
-    };
-  }
-
 
   /**
    * Organize and classify effects for the actor sheet

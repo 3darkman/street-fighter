@@ -3145,6 +3145,23 @@ button.sf-import-characters:hover {
 .sf-stat-inline:nth-child(2) i { color: var(--sf-primary); }
 .sf-stat-inline:nth-child(3) i { color: var(--sf-success); }
 
+.sf-stat-inline.sf-stat-modified {
+  color: var(--sf-chi);
+  font-weight: bold;
+}
+
+.sf-stat-inline .sf-effect-indicator {
+  font-size: 8px;
+  margin-left: 2px;
+  color: var(--sf-chi);
+  animation: sf-effect-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sf-effect-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 .sf-cost-badge {
   display: flex;
   align-items: center;

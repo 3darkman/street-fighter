@@ -339,9 +339,29 @@
         "trait": "Modificar Característica",
         "resourceMax": "Modificar Máximo de Recurso",
         "rollAll": "Modificar Todas as Rolagens",
-        "rollTrait": "Modificar Rolagens com Característica"
+        "rollTrait": "Modificar Rolagens com Característica",
+        "maneuverTechniqueSpeed": "Velocidade da Manobra (por Técnica)",
+        "maneuverTechniqueDamage": "Dano da Manobra (por Técnica)",
+        "maneuverTechniqueMovement": "Movimento da Manobra (por Técnica)",
+        "maneuverSpecificSpeed": "Velocidade da Manobra (Específica)",
+        "maneuverSpecificDamage": "Dano da Manobra (Específica)",
+        "maneuverSpecificMovement": "Movimento da Manobra (Específica)"
       },
-      "modified": "Modificado por efeitos (valor base)"
+      "TargetGroups": {
+        "traits": "Características",
+        "rolls": "Rolagens",
+        "maneuverTechnique": "Manobra (por Técnica)",
+        "maneuverSpecific": "Manobra (Específica)"
+      },
+      "ManeuverStats": {
+        "speed": "Velocidade",
+        "damage": "Dano",
+        "movement": "Movimento"
+      },
+      "technique": "Técnica",
+      "maneuver": "Manobra",
+      "modified": "Modificado por efeitos (valor base)",
+      "modifiedManeuverStat": "Modificado por efeitos"
     },
     
     "Roll": {

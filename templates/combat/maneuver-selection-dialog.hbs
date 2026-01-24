@@ -21,14 +21,17 @@
         <span class="sf-maneuver-category">{{maneuver.category}}</span>
 
         <div class="sf-maneuver-stats-inline">
-          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Speed'}}">
+          <span class="sf-stat-inline {{#if maneuver.hasSpeedModifiers}}sf-stat-modified{{/if}}" title="{{localize 'STREET_FIGHTER.Combat.Speed'}}{{#if maneuver.hasSpeedModifiers}} ({{localize 'STREET_FIGHTER.ActiveEffects.modifiedManeuverStat'}}){{/if}}">
             <i class="fas fa-bolt"></i> {{maneuver.calculatedSpeed}}
+            {{#if maneuver.hasSpeedModifiers}}<i class="fas fa-magic sf-effect-indicator"></i>{{/if}}
           </span>
-          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Damage'}}">
+          <span class="sf-stat-inline {{#if maneuver.hasDamageModifiers}}sf-stat-modified{{/if}}" title="{{localize 'STREET_FIGHTER.Combat.Damage'}}{{#if maneuver.hasDamageModifiers}} ({{localize 'STREET_FIGHTER.ActiveEffects.modifiedManeuverStat'}}){{/if}}">
             <i class="fas fa-fist-raised"></i> {{maneuver.calculatedDamage}}
+            {{#if maneuver.hasDamageModifiers}}<i class="fas fa-magic sf-effect-indicator"></i>{{/if}}
           </span>
-          <span class="sf-stat-inline" title="{{localize 'STREET_FIGHTER.Combat.Movement'}}">
+          <span class="sf-stat-inline {{#if maneuver.hasMovementModifiers}}sf-stat-modified{{/if}}" title="{{localize 'STREET_FIGHTER.Combat.Movement'}}{{#if maneuver.hasMovementModifiers}} ({{localize 'STREET_FIGHTER.ActiveEffects.modifiedManeuverStat'}}){{/if}}">
             <i class="fas fa-running"></i> {{maneuver.calculatedMovement}}
+            {{#if maneuver.hasMovementModifiers}}<i class="fas fa-magic sf-effect-indicator"></i>{{/if}}
           </span>
         </div>
 

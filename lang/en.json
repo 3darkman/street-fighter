@@ -339,9 +339,29 @@
         "trait": "Modify Trait",
         "resourceMax": "Modify Resource Max",
         "rollAll": "Modify All Rolls",
-        "rollTrait": "Modify Rolls with Trait"
+        "rollTrait": "Modify Rolls with Trait",
+        "maneuverTechniqueSpeed": "Maneuver Speed (by Technique)",
+        "maneuverTechniqueDamage": "Maneuver Damage (by Technique)",
+        "maneuverTechniqueMovement": "Maneuver Movement (by Technique)",
+        "maneuverSpecificSpeed": "Maneuver Speed (Specific)",
+        "maneuverSpecificDamage": "Maneuver Damage (Specific)",
+        "maneuverSpecificMovement": "Maneuver Movement (Specific)"
       },
-      "modified": "Modified by effects (base value)"
+      "TargetGroups": {
+        "traits": "Traits",
+        "rolls": "Rolls",
+        "maneuverTechnique": "Maneuver (by Technique)",
+        "maneuverSpecific": "Maneuver (Specific)"
+      },
+      "ManeuverStats": {
+        "speed": "Speed",
+        "damage": "Damage",
+        "movement": "Movement"
+      },
+      "technique": "Technique",
+      "maneuver": "Maneuver",
+      "modified": "Modified by effects (base value)",
+      "modifiedManeuverStat": "Modified by effects"
     },
     
     "Roll": {

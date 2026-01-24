@@ -22,6 +22,12 @@ export const EFFECT_TARGET_TYPES = {
   RESOURCE_MAX: "resourceMax",
   ROLL_ALL: "rollAll",
   ROLL_TRAIT: "rollTrait",
+  MANEUVER_TECHNIQUE_SPEED: "maneuverTechniqueSpeed",
+  MANEUVER_TECHNIQUE_DAMAGE: "maneuverTechniqueDamage",
+  MANEUVER_TECHNIQUE_MOVEMENT: "maneuverTechniqueMovement",
+  MANEUVER_SPECIFIC_SPEED: "maneuverSpecificSpeed",
+  MANEUVER_SPECIFIC_DAMAGE: "maneuverSpecificDamage",
+  MANEUVER_SPECIFIC_MOVEMENT: "maneuverSpecificMovement",
 };
 
 /**
@@ -45,6 +51,15 @@ export const TRAIT_TYPES = {
 };
 
 /**
+ * Maneuver stat types that can be modified by effects
+ */
+export const MANEUVER_STAT_TYPES = {
+  SPEED: "speed",
+  DAMAGE: "damage",
+  MOVEMENT: "movement",
+};
+
+/**
  * Effect key prefixes for different modification types
  * Used to identify what an effect change targets
  */
@@ -53,6 +68,12 @@ export const EFFECT_KEY_PREFIXES = {
   RESOURCE_MAX: "sf.resource.max.",
   ROLL_ALL: "sf.roll.all",
   ROLL_TRAIT: "sf.roll.trait.",
+  MANEUVER_TECHNIQUE_SPEED: "sf.maneuver.technique.speed.",
+  MANEUVER_TECHNIQUE_DAMAGE: "sf.maneuver.technique.damage.",
+  MANEUVER_TECHNIQUE_MOVEMENT: "sf.maneuver.technique.movement.",
+  MANEUVER_SPECIFIC_SPEED: "sf.maneuver.specific.speed.",
+  MANEUVER_SPECIFIC_DAMAGE: "sf.maneuver.specific.damage.",
+  MANEUVER_SPECIFIC_MOVEMENT: "sf.maneuver.specific.movement.",
 };
 
 /**
@@ -96,6 +117,60 @@ export function parseEffectKey(key) {
     };
   }
 
+  if (key.startsWith(EFFECT_KEY_PREFIXES.MANEUVER_TECHNIQUE_SPEED)) {
+    const techniqueId = key.substring(EFFECT_KEY_PREFIXES.MANEUVER_TECHNIQUE_SPEED.length);
+    return {
+      type: EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_SPEED,
+      targetId: techniqueId,
+      stat: MANEUVER_STAT_TYPES.SPEED,
+    };
+  }
+
+  if (key.startsWith(EFFECT_KEY_PREFIXES.MANEUVER_TECHNIQUE_DAMAGE)) {
+    const techniqueId = key.substring(EFFECT_KEY_PREFIXES.MANEUVER_TECHNIQUE_DAMAGE.length);
+    return {
+      type: EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_DAMAGE,
+      targetId: techniqueId,
+      stat: MANEUVER_STAT_TYPES.DAMAGE,
+    };
+  }
+
+  if (key.startsWith(EFFECT_KEY_PREFIXES.MANEUVER_TECHNIQUE_MOVEMENT)) {
+    const techniqueId = key.substring(EFFECT_KEY_PREFIXES.MANEUVER_TECHNIQUE_MOVEMENT.length);
+    return {
+      type: EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_MOVEMENT,
+      targetId: techniqueId,
+      stat: MANEUVER_STAT_TYPES.MOVEMENT,
+    };
+  }
+
+  if (key.startsWith(EFFECT_KEY_PREFIXES.MANEUVER_SPECIFIC_SPEED)) {
+    const maneuverItemId = key.substring(EFFECT_KEY_PREFIXES.MANEUVER_SPECIFIC_SPEED.length);
+    return {
+      type: EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_SPEED,
+      targetId: maneuverItemId,
+      stat: MANEUVER_STAT_TYPES.SPEED,
+    };
+  }
+
+  if (key.startsWith(EFFECT_KEY_PREFIXES.MANEUVER_SPECIFIC_DAMAGE)) {
+    const maneuverItemId = key.substring(EFFECT_KEY_PREFIXES.MANEUVER_SPECIFIC_DAMAGE.length);
+    return {
+      type: EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_DAMAGE,
+      targetId: maneuverItemId,
+      stat: MANEUVER_STAT_TYPES.DAMAGE,
+    };
+  }
+
+  if (key.startsWith(EFFECT_KEY_PREFIXES.MANEUVER_SPECIFIC_MOVEMENT)) {
+    const maneuverItemId = key.substring(EFFECT_KEY_PREFIXES.MANEUVER_SPECIFIC_MOVEMENT.length);
+    return {
+      type: EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_MOVEMENT,
+      targetId: maneuverItemId,
+      stat: MANEUVER_STAT_TYPES.MOVEMENT,
+    };
+  }
+
   return null;
 }
 
@@ -115,6 +190,18 @@ export function buildEffectKey(type, targetId = null) {
       return EFFECT_KEY_PREFIXES.ROLL_ALL;
     case EFFECT_TARGET_TYPES.ROLL_TRAIT:
       return `${EFFECT_KEY_PREFIXES.ROLL_TRAIT}${targetId}`;
+    case EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_SPEED:
+      return `${EFFECT_KEY_PREFIXES.MANEUVER_TECHNIQUE_SPEED}${targetId}`;
+    case EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_DAMAGE:
+      return `${EFFECT_KEY_PREFIXES.MANEUVER_TECHNIQUE_DAMAGE}${targetId}`;
+    case EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_MOVEMENT:
+      return `${EFFECT_KEY_PREFIXES.MANEUVER_TECHNIQUE_MOVEMENT}${targetId}`;
+    case EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_SPEED:
+      return `${EFFECT_KEY_PREFIXES.MANEUVER_SPECIFIC_SPEED}${targetId}`;
+    case EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_DAMAGE:
+      return `${EFFECT_KEY_PREFIXES.MANEUVER_SPECIFIC_DAMAGE}${targetId}`;
+    case EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_MOVEMENT:
+      return `${EFFECT_KEY_PREFIXES.MANEUVER_SPECIFIC_MOVEMENT}${targetId}`;
     default:
       return "";
   }
@@ -131,6 +218,12 @@ export function getEffectTargetTypeLabel(type) {
     [EFFECT_TARGET_TYPES.RESOURCE_MAX]: "STREET_FIGHTER.ActiveEffects.TargetTypes.resourceMax",
     [EFFECT_TARGET_TYPES.ROLL_ALL]: "STREET_FIGHTER.ActiveEffects.TargetTypes.rollAll",
     [EFFECT_TARGET_TYPES.ROLL_TRAIT]: "STREET_FIGHTER.ActiveEffects.TargetTypes.rollTrait",
+    [EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_SPEED]: "STREET_FIGHTER.ActiveEffects.TargetTypes.maneuverTechniqueSpeed",
+    [EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_DAMAGE]: "STREET_FIGHTER.ActiveEffects.TargetTypes.maneuverTechniqueDamage",
+    [EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_MOVEMENT]: "STREET_FIGHTER.ActiveEffects.TargetTypes.maneuverTechniqueMovement",
+    [EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_SPEED]: "STREET_FIGHTER.ActiveEffects.TargetTypes.maneuverSpecificSpeed",
+    [EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_DAMAGE]: "STREET_FIGHTER.ActiveEffects.TargetTypes.maneuverSpecificDamage",
+    [EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_MOVEMENT]: "STREET_FIGHTER.ActiveEffects.TargetTypes.maneuverSpecificMovement",
   };
   return labels[type] || "";
 }
@@ -148,4 +241,77 @@ export function getResourceTypeLabel(resourceType) {
     [RESOURCE_TYPES.SOAK]: "STREET_FIGHTER.Combat.soak",
   };
   return labels[resourceType] || "";
+}
+
+/**
+ * Get localization key for maneuver stat type
+ * @param {string} statType - Maneuver stat type
+ * @returns {string} Localization key
+ */
+export function getManeuverStatTypeLabel(statType) {
+  const labels = {
+    [MANEUVER_STAT_TYPES.SPEED]: "STREET_FIGHTER.ActiveEffects.ManeuverStats.speed",
+    [MANEUVER_STAT_TYPES.DAMAGE]: "STREET_FIGHTER.ActiveEffects.ManeuverStats.damage",
+    [MANEUVER_STAT_TYPES.MOVEMENT]: "STREET_FIGHTER.ActiveEffects.ManeuverStats.movement",
+  };
+  return labels[statType] || "";
+}
+
+/**
+ * Check if an effect target type is a maneuver modifier
+ * @param {string} type - Effect target type
+ * @returns {boolean}
+ */
+export function isManeuverEffectType(type) {
+  return [
+    EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_SPEED,
+    EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_DAMAGE,
+    EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_MOVEMENT,
+    EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_SPEED,
+    EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_DAMAGE,
+    EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_MOVEMENT,
+  ].includes(type);
+}
+
+/**
+ * Check if an effect target type targets a technique (category)
+ * @param {string} type - Effect target type
+ * @returns {boolean}
+ */
+export function isManeuverTechniqueEffectType(type) {
+  return [
+    EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_SPEED,
+    EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_DAMAGE,
+    EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_MOVEMENT,
+  ].includes(type);
+}
+
+/**
+ * Check if an effect target type targets a specific maneuver
+ * @param {string} type - Effect target type
+ * @returns {boolean}
+ */
+export function isManeuverSpecificEffectType(type) {
+  return [
+    EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_SPEED,
+    EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_DAMAGE,
+    EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_MOVEMENT,
+  ].includes(type);
+}
+
+/**
+ * Get the stat type from a maneuver effect target type
+ * @param {string} type - Effect target type
+ * @returns {string|null} The stat type or null
+ */
+export function getStatFromManeuverEffectType(type) {
+  const statMap = {
+    [EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_SPEED]: MANEUVER_STAT_TYPES.SPEED,
+    [EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_DAMAGE]: MANEUVER_STAT_TYPES.DAMAGE,
+    [EFFECT_TARGET_TYPES.MANEUVER_TECHNIQUE_MOVEMENT]: MANEUVER_STAT_TYPES.MOVEMENT,
+    [EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_SPEED]: MANEUVER_STAT_TYPES.SPEED,
+    [EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_DAMAGE]: MANEUVER_STAT_TYPES.DAMAGE,
+    [EFFECT_TARGET_TYPES.MANEUVER_SPECIFIC_MOVEMENT]: MANEUVER_STAT_TYPES.MOVEMENT,
+  };
+  return statMap[type] || null;
 }

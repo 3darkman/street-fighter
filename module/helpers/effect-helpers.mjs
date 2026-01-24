@@ -4,7 +4,14 @@
  * @author Kirlian Silvestre
  */
 
-import { EFFECT_TARGET_TYPES, parseEffectKey } from "../effects/effect-types.mjs";
+import {
+  EFFECT_TARGET_TYPES,
+  MANEUVER_STAT_TYPES,
+  parseEffectKey,
+  isManeuverTechniqueEffectType,
+  isManeuverSpecificEffectType,
+  getStatFromManeuverEffectType,
+} from "../effects/effect-types.mjs";
 
 /**
  * Collect all roll modifiers from an actor's active effects
@@ -237,4 +244,140 @@ export function getRollModifiersForTraits(actor, traitSourceIds = []) {
   }
 
   return modifiers;
+}
+
+/**
+ * Collect maneuver modifiers by technique (category) for a specific stat
+ * @param {Actor} actor - The actor to collect modifiers from
+ * @param {string} techniqueId - The technique/category ID (e.g., "punch", "kick")
+ * @param {string} stat - The stat to collect modifiers for (speed, damage, movement)
+ * @returns {Array<{value: number, mode: number, effectId: string, effectName: string}>}
+ */
+export function collectManeuverTechniqueModifiers(actor, techniqueId, stat) {
+  const modifiers = [];
+  const normalizedTechniqueId = techniqueId.toLowerCase();
+
+  for (const effect of actor.effects) {
+    if (effect.disabled) continue;
+
+    for (const change of effect.changes) {
+      const parsed = parseEffectKey(change.key);
+      if (!parsed) continue;
+
+      if (!isManeuverTechniqueEffectType(parsed.type)) continue;
+
+      const effectStat = getStatFromManeuverEffectType(parsed.type);
+      if (effectStat !== stat) continue;
+
+      if (parsed.targetId.toLowerCase() !== normalizedTechniqueId) continue;
+
+      const value = parseInt(change.value) || 0;
+      if (value === 0) continue;
+
+      modifiers.push({
+        value: value,
+        mode: change.mode,
+        effectId: effect.id,
+        effectName: effect.name,
+        techniqueId: parsed.targetId,
+      });
+    }
+  }
+
+  return modifiers;
+}
+
+/**
+ * Collect maneuver modifiers for a specific maneuver item
+ * @param {Actor} actor - The actor to collect modifiers from
+ * @param {string} maneuverItemId - The maneuver item ID
+ * @param {string} stat - The stat to collect modifiers for (speed, damage, movement)
+ * @returns {Array<{value: number, mode: number, effectId: string, effectName: string}>}
+ */
+export function collectManeuverSpecificModifiers(actor, maneuverItemId, stat) {
+  const modifiers = [];
+
+  for (const effect of actor.effects) {
+    if (effect.disabled) continue;
+
+    for (const change of effect.changes) {
+      const parsed = parseEffectKey(change.key);
+      if (!parsed) continue;
+
+      if (!isManeuverSpecificEffectType(parsed.type)) continue;
+
+      const effectStat = getStatFromManeuverEffectType(parsed.type);
+      if (effectStat !== stat) continue;
+
+      if (parsed.targetId !== maneuverItemId) continue;
+
+      const value = parseInt(change.value) || 0;
+      if (value === 0) continue;
+
+      modifiers.push({
+        value: value,
+        mode: change.mode,
+        effectId: effect.id,
+        effectName: effect.name,
+        maneuverItemId: parsed.targetId,
+      });
+    }
+  }
+
+  return modifiers;
+}
+
+/**
+ * Collect all maneuver modifiers for a specific maneuver and stat
+ * Combines both technique-based and specific maneuver modifiers
+ * @param {Actor} actor - The actor to collect modifiers from
+ * @param {Item} maneuver - The maneuver item
+ * @param {string} stat - The stat to collect modifiers for (speed, damage, movement)
+ * @returns {Array<{value: number, mode: number, effectId: string, effectName: string, source: string}>}
+ */
+export function collectAllManeuverModifiers(actor, maneuver, stat) {
+  const modifiers = [];
+
+  const category = maneuver.system.category || "";
+  const techniqueId = category.toLowerCase();
+
+  if (techniqueId) {
+    const techniqueModifiers = collectManeuverTechniqueModifiers(actor, techniqueId, stat);
+    for (const mod of techniqueModifiers) {
+      modifiers.push({
+        ...mod,
+        source: "technique",
+      });
+    }
+  }
+
+  const specificModifiers = collectManeuverSpecificModifiers(actor, maneuver.id, stat);
+  for (const mod of specificModifiers) {
+    modifiers.push({
+      ...mod,
+      source: "specific",
+    });
+  }
+
+  return modifiers;
+}
+
+/**
+ * Get effective maneuver stat value with all modifiers applied
+ * @param {Actor} actor - The actor
+ * @param {Item} maneuver - The maneuver item
+ * @param {string} stat - The stat (speed, damage, movement)
+ * @param {number} baseValue - The base calculated value before effect modifiers
+ * @returns {{value: number, baseValue: number, modifiers: Array, hasModifiers: boolean}}
+ */
+export function getEffectiveManeuverStat(actor, maneuver, stat, baseValue) {
+  const modifiers = collectAllManeuverModifiers(actor, maneuver, stat);
+  const effectiveValue = applyModifiers(baseValue, modifiers);
+
+  return {
+    value: effectiveValue,
+    baseValue: baseValue,
+    modifiers: modifiers,
+    hasModifiers: modifiers.length > 0,
+  };
 }
