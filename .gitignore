@@ -26,3 +26,6 @@ npm-debug.log*
 # Foundry VTT specific
 packs/*.db.lock
 docs/
+
+# Release artifacts
+releases/
