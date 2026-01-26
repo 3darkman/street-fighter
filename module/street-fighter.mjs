@@ -140,15 +140,30 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       const card = html.querySelector(".roll-result");
       if (!card) return;
 
+      const targetTokenId = card.dataset.targetTokenId;
       const targetActorId = card.dataset.targetActorId;
       const damage = parseInt(card.dataset.damage) || 0;
 
-      if (!targetActorId || damage <= 0) {
+      if ((!targetActorId && !targetTokenId) || damage <= 0) {
         ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Roll.noDamageToApply"));
         return;
       }
 
-      const targetActor = game.actors.get(targetActorId);
+      // Try to get the token's actor first (for synthetic/unlinked tokens)
+      // Fall back to the base actor if no token is found
+      let targetActor = null;
+      if (targetTokenId) {
+        const token = canvas.tokens?.get(targetTokenId);
+        if (token?.actor) {
+          targetActor = token.actor;
+        }
+      }
+      
+      // Fallback to base actor if token not found
+      if (!targetActor && targetActorId) {
+        targetActor = game.actors.get(targetActorId);
+      }
+
       if (!targetActor) {
         ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Errors.actorNotFound"));
         return;
