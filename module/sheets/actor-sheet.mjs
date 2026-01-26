@@ -12,6 +12,7 @@ import {
   getCharacterStatsForManeuver,
   formatOriginalModifier,
 } from "../helpers/maneuver-calculator.mjs";
+import { showPlayerCharacterImportDialog } from "../helpers/character-importer.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -47,6 +48,7 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       editCombo: StreetFighterActorSheet._onEditCombo,
       deleteCombo: StreetFighterActorSheet._onDeleteCombo,
       addBasicManeuvers: StreetFighterActorSheet._onAddBasicManeuvers,
+      importCharacter: StreetFighterActorSheet._onImportCharacter,
     },
     form: {
       submitOnChange: true,
@@ -148,6 +150,28 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
 
     // Store the active tab
     this.tabGroups.primary = tabName;
+  }
+
+  /** @inheritDoc */
+  _getHeaderControls() {
+    const controls = super._getHeaderControls();
+    
+    // Add import button for sheet owners
+    // Show for: non-imported characters (first import) OR already imported (reimport)
+    // Non-GM players can import into their own sheets
+    const isOwner = this.actor.isOwner;
+    const isGM = game.user.isGM;
+    
+    if (isOwner && !isGM) {
+      controls.unshift({
+        icon: "fas fa-file-import",
+        label: "STREET_FIGHTER.Character.importMyCharacter",
+        action: "importCharacter",
+        visible: true,
+      });
+    }
+    
+    return controls;
   }
 
   /** @inheritDoc */
@@ -1329,6 +1353,17 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
       console.error('Error adding basic maneuvers:', err);
       ui.notifications.error(game.i18n.localize('STREET_FIGHTER.Maneuvers.addBasicError'));
     }
+  }
+
+  /**
+   * Handle importing a character from file (player self-import)
+   * @this {StreetFighterActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async _onImportCharacter(event, target) {
+    event.preventDefault();
+    await showPlayerCharacterImportDialog(this.actor);
   }
 
   /**

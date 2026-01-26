@@ -240,7 +240,16 @@
       "importError": "Error importing characters",
       "isImported": "Imported Character",
       "isManual": "Manual Character",
-      "readOnlyWarning": "This character was imported and cannot be edited. Re-import to update."
+      "readOnlyWarning": "This character was imported and cannot be edited. Re-import to update.",
+      "importMyCharacter": "Import My Character",
+      "playerImportHint": "Select a file containing exactly one character to import into this sheet.",
+      "reimportHint": "You can only reimport the same character ({name}). Select the file to update.",
+      "playerImportSuccess": "Character imported successfully!",
+      "invalidFileFormat": "Invalid file format: missing characters array.",
+      "multipleCharactersError": "File contains {count} characters. Please select a file with exactly one character.",
+      "reimportNameMismatch": "Cannot import: expected character \"{expected}\" but file contains \"{found}\".",
+      "importParseError": "Failed to parse file: {message}",
+      "importingFile": "Importing character from: {name}..."
     },
     
     "Profile": {
