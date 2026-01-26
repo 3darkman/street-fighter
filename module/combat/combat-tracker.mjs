@@ -201,17 +201,22 @@ export class StreetFighterCombatTracker extends foundry.applications.sidebar.tab
       // Should hide maneuver from GM for online player combatants?
       const shouldHideFromGM = isGM && hidePlayerManeuversFromGM && isOnlinePlayerCombatant && !combatant.maneuverRevealed;
 
+      const isDefeated = combatant.isDefeated;
+
       const canOpenManeuverDialog = phase === COMBAT_PHASE.SELECTION &&
         selectionStatus !== SELECTION_STATUS.READY &&
+        !isDefeated &&
         (isOwner || (isGM && isNPC));
 
       const canInterrupt = phase === COMBAT_PHASE.EXECUTION &&
         currentActing &&
         combatant.id !== currentActingId &&
+        !isDefeated &&
         combatant.canInterrupt(currentActing) &&
         (isOwner || isGM);
 
       const showManeuverButton = phase === COMBAT_PHASE.SELECTION &&
+        !isDefeated &&
         (isOwner || (isGM && isNPC));
 
       return {

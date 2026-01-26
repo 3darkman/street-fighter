@@ -186,6 +186,12 @@ export class ManeuverSelectionDialog extends foundry.applications.api.Handlebars
       return null;
     }
 
+    // Block selection for defeated combatants
+    if (combatant.isDefeated) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Combat.CombatantDefeated"));
+      return null;
+    }
+
     const existingDialog = Object.values(ui.windows).find(
       w => w instanceof ManeuverSelectionDialog && w.combatant?.id === combatant.id
     );
