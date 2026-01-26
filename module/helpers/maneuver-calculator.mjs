@@ -254,6 +254,87 @@ export function groupManeuversByCategory(maneuvers) {
 }
 
 /**
+ * Prepare roll data for a maneuver
+ * This is the SSOT for preparing maneuver roll dialog data
+ * @param {Actor} actor - The actor performing the maneuver
+ * @param {Item} maneuver - The maneuver item
+ * @returns {object} Roll dialog options
+ */
+export function prepareManeuverRollData(actor, maneuver) {
+  const category = maneuver.system.category || "";
+  const categoryKey = category.toLowerCase();
+
+  let strengthItem = null;
+  let techniqueItem = null;
+
+  for (const item of actor.items) {
+    if (item.type === "attribute") {
+      const sourceId = item.system.sourceId || "";
+      if (sourceId === "strength") {
+        strengthItem = item;
+      }
+    }
+    if (item.type === "technique") {
+      const sourceId = item.system.sourceId || "";
+      if (sourceId === categoryKey) {
+        techniqueItem = item;
+      }
+    }
+  }
+
+  const isWeaponTechnique = techniqueItem?.system.isWeaponTechnique || techniqueItem?.system.isFirearmTechnique || false;
+  const attributeItem = isWeaponTechnique ? null : strengthItem;
+
+  let damageModValue = null;
+  const damageModStr = maneuver.system.damageModifier || "";
+  if (damageModStr.startsWith("+") || damageModStr.startsWith("-")) {
+    damageModValue = parseInt(damageModStr);
+  }
+
+  const equippedWeapons = [];
+  if (isWeaponTechnique) {
+    for (const item of actor.items) {
+      const weaponTechniqueId = (item.system.techniqueId || "").toLowerCase();
+      if (item.type === "weapon" && item.system.isEquipped && weaponTechniqueId === categoryKey) {
+        const damageStr = String(item.system.damage || "0");
+        const damageMod = parseInt(damageStr.replace(/^\+/, "")) || 0;
+        equippedWeapons.push({
+          id: item.id,
+          name: item.name,
+          damageMod,
+          selected: false,
+        });
+      }
+    }
+    if (equippedWeapons.length === 1) {
+      equippedWeapons[0].selected = true;
+    }
+  }
+
+  let targetSoak = null;
+  let targetName = null;
+  const firstTarget = game.user.targets.first();
+  if (firstTarget?.actor) {
+    const targetActor = firstTarget.actor;
+    targetSoak = targetActor.getEffectiveSoak?.() ?? targetActor.system.combat?.soak ?? 0;
+    targetName = targetActor.name;
+  }
+
+  return {
+    selectedTraitId: attributeItem?.id,
+    selectedTraitType: "attribute",
+    preSelectedSecondTrait: techniqueItem?.id,
+    maneuverName: maneuver.name,
+    maneuverDamageModifier: damageModValue,
+    equippedWeapons,
+    targetSoak,
+    targetName,
+    rollTitle: maneuver.name,
+    isDamageRoll: true,
+  };
+}
+
+/**
  * Check if actor can afford a maneuver's costs
  * @param {Actor} actor - The actor
  * @param {Item|ManeuverStats} maneuver - The maneuver item or stats

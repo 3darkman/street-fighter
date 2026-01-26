@@ -477,6 +477,8 @@
       "ProceedWithRoll": "You may now proceed with your roll.",
       "MoveBeforeRevealHint": "You can move on the map before revealing your maneuver.",
       "NoManeuverSelected": "No maneuver selected!",
+      "ManeuverNotFound": "Maneuver not found in character!",
+      "RollManeuver": "Roll Maneuver",
       "Interrupt": "Interrupt",
       "InterruptTitle": "Interrupt Action",
       "InterruptConfirm": "{name} will interrupt {target}'s action. Continue?",

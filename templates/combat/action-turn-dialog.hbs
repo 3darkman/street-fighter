@@ -80,8 +80,11 @@
     <div class="sf-revealed-notice">
       <i class="fas fa-check-circle"></i>
       <span>{{localize "STREET_FIGHTER.Combat.ManeuverRevealed"}}</span>
-      <p class="sf-revealed-hint">{{localize "STREET_FIGHTER.Combat.ProceedWithRoll"}}</p>
     </div>
+    <button type="button" class="sf-action-btn sf-roll-btn" data-action="rollManeuver">
+      <i class="fas fa-dice"></i>
+      {{localize "STREET_FIGHTER.Combat.RollManeuver"}}
+    </button>
     {{/if}}
 
     {{#if canSkip}}

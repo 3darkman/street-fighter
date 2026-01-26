@@ -477,6 +477,8 @@
       "ProceedWithRoll": "Você pode prosseguir com sua rolagem.",
       "MoveBeforeRevealHint": "Você pode se mover no mapa antes de revelar sua manobra.",
       "NoManeuverSelected": "Nenhuma manobra selecionada!",
+      "ManeuverNotFound": "Manobra não encontrada no personagem!",
+      "RollManeuver": "Rolar Manobra",
       "Interrupt": "Interromper",
       "InterruptTitle": "Interromper Ação",
       "InterruptConfirm": "{name} irá interromper a ação de {target}. Continuar?",
