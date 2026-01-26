@@ -273,9 +273,9 @@ export class StreetFighterCombat extends Combat {
       }
     }
 
-    // Calculate turn index based on initiative order for Foundry compatibility
-    const orderedCombatants = this.combatantsByInitiative;
-    const turnIndex = orderedCombatants.findIndex(c => c.id === combatant.id);
+    // Calculate turn index based on Foundry's turns array for compatibility
+    // Note: this.turns is Foundry's internal turn order, not our speed-based order
+    const turnIndex = this.turns.findIndex(c => c.id === combatant.id);
 
     // Update both: Street Fighter flag AND Foundry's standard turn property
     await this.setFlag(FLAG_SCOPE, COMBAT_FLAGS.CURRENT_ACTING_ID, combatant.id);
