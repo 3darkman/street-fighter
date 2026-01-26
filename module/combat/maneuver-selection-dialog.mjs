@@ -4,12 +4,13 @@
  * @author Kirlian Silvestre
  */
 
-import { COMBAT_PHASE, FLAG_SCOPE, COMBAT_FLAGS } from "./combat-phases.mjs";
+import { COMBAT_PHASE, FLAG_SCOPE, COMBAT_FLAGS, calculateSpeedTiebreaker } from "./combat-phases.mjs";
 import {
   calculateManeuverStats,
   getCharacterStatsForManeuver,
   canAffordManeuver,
 } from "../helpers/maneuver-calculator.mjs";
+import { getEffectiveTraitValue } from "../helpers/effect-helpers.mjs";
 
 /**
  * Dialog for selecting a maneuver during combat selection phase
@@ -132,10 +133,24 @@ export class ManeuverSelectionDialog extends foundry.applications.api.Handlebars
 
     const preparedManeuver = calculateManeuverStats(actor, maneuver);
 
+    // Get wits and perception for tiebreaker calculation
+    const findTraitValue = (sourceId) => {
+      if (!sourceId) return 0;
+      const item = actor.items.find(i => i.system.sourceId === sourceId);
+      if (!item) return 0;
+      const baseValue = item.system.value || 0;
+      const effective = getEffectiveTraitValue(actor, sourceId, baseValue);
+      return effective.value;
+    };
+    const wits = findTraitValue("wits");
+    const perception = findTraitValue("perception");
+    const speedTiebreaker = calculateSpeedTiebreaker(preparedManeuver.calculatedSpeed, wits, perception);
+
     await this.combatant.selectManeuver({
       itemId: maneuver.id,
       name: maneuver.name,
       speed: preparedManeuver.calculatedSpeed,
+      speedTiebreaker: speedTiebreaker,
       damage: preparedManeuver.calculatedDamage,
       movement: preparedManeuver.calculatedMovement,
       category: preparedManeuver.category,
@@ -183,6 +198,12 @@ export class ManeuverSelectionDialog extends foundry.applications.api.Handlebars
   static async show(combat, combatant) {
     if (combat.phase !== COMBAT_PHASE.SELECTION) {
       ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Combat.NotInSelectionPhase"));
+      return null;
+    }
+
+    // Block selection for defeated combatants
+    if (combatant.isDefeated) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Combat.CombatantDefeated"));
       return null;
     }
 

@@ -2,7 +2,7 @@
   "id": "street-fighter",
   "title": "Street Fighter RPG",
   "description": "Sistema de RPG baseado no universo Street Fighter para Foundry VTT.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "socket": true,
   "compatibility": {
     "minimum": "13",
@@ -30,10 +30,10 @@
   ],
   "packs": [],
   "packFolders": [],
-  "primaryTokenAttribute": "health",
-  "secondaryTokenAttribute": "super",
+  "primaryTokenAttribute": "resources.health.value",
+  "secondaryTokenAttribute": "resources.willpower.value",
   "grid": {
-    "type": 1,
+    "type": 2,
     "distance": 1,
     "units": "m"
   },

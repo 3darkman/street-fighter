@@ -240,7 +240,16 @@
       "importError": "Erro ao importar personagens",
       "isImported": "Personagem Importado",
       "isManual": "Personagem Manual",
-      "readOnlyWarning": "Este personagem foi importado e não pode ser editado. Reimporte para atualizar."
+      "readOnlyWarning": "Este personagem foi importado e não pode ser editado. Reimporte para atualizar.",
+      "importMyCharacter": "Importar Meu Personagem",
+      "playerImportHint": "Selecione um arquivo contendo exatamente um personagem para importar nesta ficha.",
+      "reimportHint": "Você só pode reimportar o mesmo personagem ({name}). Selecione o arquivo para atualizar.",
+      "playerImportSuccess": "Personagem importado com sucesso!",
+      "invalidFileFormat": "Formato de arquivo inválido: array de personagens ausente.",
+      "multipleCharactersError": "O arquivo contém {count} personagens. Por favor, selecione um arquivo com exatamente um personagem.",
+      "reimportNameMismatch": "Não é possível importar: esperado personagem \"{expected}\" mas o arquivo contém \"{found}\".",
+      "importParseError": "Falha ao processar arquivo: {message}",
+      "importingFile": "Importando personagem de: {name}..."
     },
     
     "Profile": {
@@ -477,6 +486,8 @@
       "ProceedWithRoll": "Você pode prosseguir com sua rolagem.",
       "MoveBeforeRevealHint": "Você pode se mover no mapa antes de revelar sua manobra.",
       "NoManeuverSelected": "Nenhuma manobra selecionada!",
+      "ManeuverNotFound": "Manobra não encontrada no personagem!",
+      "RollManeuver": "Rolar Manobra",
       "Interrupt": "Interromper",
       "InterruptTitle": "Interromper Ação",
       "InterruptConfirm": "{name} irá interromper a ação de {target}. Continuar?",

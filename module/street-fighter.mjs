@@ -25,7 +25,7 @@ import { registerEffects } from "./effects/index.mjs";
 import { showImportDialog } from "./helpers/library-importer.mjs";
 import { showCharacterImportDialog } from "./helpers/character-importer.mjs";
 import { executeRoll } from "./dice/roll-dialog.mjs";
-import { createImportButton } from "./helpers/utils.mjs";
+import { createImportButton, canInteractWithChatMessage } from "./helpers/utils.mjs";
 import { DIFFICULTY } from "./config/constants.mjs";
 
 Hooks.once("init", async () => {
@@ -104,6 +104,8 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 });
 
 Hooks.on("renderItemDirectory", (app, html, data) => {
+  if (!game.user.isGM) return;
+
   const button = createImportButton(
     "sf-import-library",
     "STREET_FIGHTER.Library.import",
@@ -118,6 +120,8 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
 });
 
 Hooks.on("renderActorDirectory", (app, html, data) => {
+  if (!game.user.isGM) return;
+
   const button = createImportButton(
     "sf-import-characters",
     "STREET_FIGHTER.Character.import",
@@ -132,6 +136,15 @@ Hooks.on("renderActorDirectory", (app, html, data) => {
 });
 
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
+  const canInteract = canInteractWithChatMessage(message);
+
+  // Hide interactive buttons for non-owners/non-GMs
+  if (!canInteract) {
+    html.querySelectorAll(".reroll-button, .apply-damage-button, .card-buttons button").forEach(btn => {
+      btn.style.display = "none";
+    });
+  }
+
   // Apply Damage button handler
   const applyDamageButton = html.querySelector(".apply-damage-button");
   if (applyDamageButton) {
@@ -140,15 +153,30 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       const card = html.querySelector(".roll-result");
       if (!card) return;
 
+      const targetTokenId = card.dataset.targetTokenId;
       const targetActorId = card.dataset.targetActorId;
       const damage = parseInt(card.dataset.damage) || 0;
 
-      if (!targetActorId || damage <= 0) {
+      if ((!targetActorId && !targetTokenId) || damage <= 0) {
         ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Roll.noDamageToApply"));
         return;
       }
 
-      const targetActor = game.actors.get(targetActorId);
+      // Try to get the token's actor first (for synthetic/unlinked tokens)
+      // Fall back to the base actor if no token is found
+      let targetActor = null;
+      if (targetTokenId) {
+        const token = canvas.tokens?.get(targetTokenId);
+        if (token?.actor) {
+          targetActor = token.actor;
+        }
+      }
+      
+      // Fallback to base actor if token not found
+      if (!targetActor && targetActorId) {
+        targetActor = game.actors.get(targetActorId);
+      }
+
       if (!targetActor) {
         ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Errors.actorNotFound"));
         return;

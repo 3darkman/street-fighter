@@ -22,6 +22,7 @@ export {
   getDefaultCombatFlags,
   getDefaultCombatantFlags,
   createSelectedManeuver,
+  calculateSpeedTiebreaker,
   canInterrupt,
   sortByInitiative
 } from "./combat-phases.mjs";

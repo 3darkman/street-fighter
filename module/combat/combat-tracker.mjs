@@ -111,6 +111,9 @@ export class StreetFighterCombatTracker extends foundry.applications.sidebar.tab
       context.turns = await this._buildTurnsFromCombatants(combat);
     }
 
+    // Note: Turn ordering is now handled by StreetFighterCombat._sortCombatants
+    // which sorts by speed during execution phase. No need to re-sort here.
+
     return context;
   }
 
@@ -201,17 +204,22 @@ export class StreetFighterCombatTracker extends foundry.applications.sidebar.tab
       // Should hide maneuver from GM for online player combatants?
       const shouldHideFromGM = isGM && hidePlayerManeuversFromGM && isOnlinePlayerCombatant && !combatant.maneuverRevealed;
 
+      const isDefeated = combatant.isDefeated;
+
       const canOpenManeuverDialog = phase === COMBAT_PHASE.SELECTION &&
         selectionStatus !== SELECTION_STATUS.READY &&
+        !isDefeated &&
         (isOwner || (isGM && isNPC));
 
       const canInterrupt = phase === COMBAT_PHASE.EXECUTION &&
         currentActing &&
         combatant.id !== currentActingId &&
+        !isDefeated &&
         combatant.canInterrupt(currentActing) &&
         (isOwner || isGM);
 
       const showManeuverButton = phase === COMBAT_PHASE.SELECTION &&
+        !isDefeated &&
         (isOwner || (isGM && isNPC));
 
       return {
@@ -226,7 +234,8 @@ export class StreetFighterCombatTracker extends foundry.applications.sidebar.tab
           isSkipped: actionStatus === ACTION_STATUS.SKIPPED,
           isInterrupted: actionStatus === ACTION_STATUS.INTERRUPTED,
           maneuverRevealed: combatant.maneuverRevealed,
-          speed: shouldHideFromGM ? null : (selectedManeuver?.speed ?? null),
+          // Speed is always visible during execution phase, hidden only during selection for GM
+          speed: (phase === COMBAT_PHASE.EXECUTION || !shouldHideFromGM) ? (selectedManeuver?.speed ?? null) : null,
           canOpenManeuverDialog,
           canInterrupt,
           showManeuverButton,

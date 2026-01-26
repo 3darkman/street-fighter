@@ -12,6 +12,7 @@ import {
   FLAG_SCOPE,
   COMBAT_FLAGS,
   COMBATANT_FLAGS,
+  SF_HOOKS,
   getDefaultCombatFlags,
   getDefaultCombatantFlags,
   sortByInitiative
@@ -97,7 +98,7 @@ export class StreetFighterCombat extends Combat {
   }
 
   /**
-   * Get combatants sorted by initiative (speed-based)
+   * Get combatants sorted by initiative (speed-based with tiebreaker)
    * @returns {Combatant[]}
    */
   get combatantsByInitiative() {
@@ -107,6 +108,7 @@ export class StreetFighterCombat extends Combat {
       .map(c => ({
         combatant: c,
         speed: c.selectedManeuverSpeed ?? 999,
+        speedTiebreaker: c.selectedManeuverSpeedTiebreaker ?? 999,
         name: c.name
       }));
 
@@ -130,6 +132,57 @@ export class StreetFighterCombat extends Combat {
     await this._resetSuperBars();
     await this._initializeCombatFlags();
     return super.startCombat();
+  }
+
+  /**
+   * Return the Array of combatants sorted into initiative order.
+   * During execution phase, sorts by maneuver speed (lower = faster = first).
+   * @override
+   * @returns {Combatant[]}
+   */
+  setupTurns() {
+    this.turns ||= [];
+
+    // Get phase from flags (safely, as this may be called during initialization)
+    const phase = this.flags?.[FLAG_SCOPE]?.[COMBAT_FLAGS.PHASE];
+
+    // Determine the turn order based on phase
+    let turns;
+    if (phase === COMBAT_PHASE.EXECUTION) {
+      // During execution phase, sort by maneuver speed tiebreaker (lower = faster = first)
+      // speedTiebreaker includes wits, perception, and random roll for tiebreaking
+      turns = this.combatants.contents.sort((a, b) => {
+        const tiebreakerA = a.selectedManeuverSpeedTiebreaker ?? 999;
+        const tiebreakerB = b.selectedManeuverSpeedTiebreaker ?? 999;
+        return tiebreakerA - tiebreakerB;
+      });
+    } else {
+      // Default Foundry sorting (by initiative, descending)
+      turns = this.combatants.contents.sort((a, b) => {
+        const ia = Number.isNumeric(a.initiative) ? a.initiative : -Infinity;
+        const ib = Number.isNumeric(b.initiative) ? b.initiative : -Infinity;
+        return (ib - ia) || (a.id > b.id ? 1 : -1);
+      });
+    }
+
+    // Handle turn index bounds
+    if (this.turn !== null) {
+      if (this.turn < 0) this.turn = 0;
+      else if (this.turn >= turns.length) {
+        this.turn = 0;
+        this.round++;
+      }
+    }
+
+    // Update state tracking
+    const c = turns[this.turn];
+    this.current = this._getCurrentState(c);
+
+    // One-time initialization of the previous state
+    if (!this.previous) this.previous = this.current;
+
+    // Return the array of prepared turns
+    return this.turns = turns;
   }
 
   /* -------------------------------------------- */
@@ -159,6 +212,8 @@ export class StreetFighterCombat extends Combat {
       return this;
     }
 
+    const previousPhase = this.phase;
+
     // Increment round if this is a new turn (round 0 means combat just started)
     if (this.round === 0) {
       await this.update({ round: 1 });
@@ -170,6 +225,13 @@ export class StreetFighterCombat extends Combat {
     await this.setFlag(FLAG_SCOPE, COMBAT_FLAGS.TURN_STARTED, true);
     await this.setFlag(FLAG_SCOPE, COMBAT_FLAGS.CURRENT_ACTING_ID, null);
     await this.setFlag(FLAG_SCOPE, COMBAT_FLAGS.INTERRUPTION_STACK, []);
+
+    // Dispatch Foundry lifecycle hook for round start
+    const roundContext = { round: this.round, skipped: false };
+    await this._onStartRound(roundContext);
+
+    // Dispatch Street Fighter specific phase changed hook
+    Hooks.callAll(SF_HOOKS.PHASE_CHANGED, this, COMBAT_PHASE.SELECTION, previousPhase);
 
     broadcastPhaseChanged(this, COMBAT_PHASE.SELECTION);
 
@@ -193,11 +255,54 @@ export class StreetFighterCombat extends Combat {
       return this;
     }
 
-    await this.setFlag(FLAG_SCOPE, COMBAT_FLAGS.PHASE, COMBAT_PHASE.EXECUTION);
+    const previousPhase = this.phase;
 
-    const firstCombatant = this.combatantsByInitiative[0];
+    // Pre-calculate the first combatant before changing phase
+    // This ensures currentActingId is set atomically with the phase change
+    const combatantsWithSpeed = Array.from(this.combatants)
+      .filter(c => !c.isDefeated)
+      .map(c => ({
+        combatant: c,
+        speed: c.selectedManeuverSpeed ?? 999,
+        speedTiebreaker: c.selectedManeuverSpeedTiebreaker ?? 999,
+        name: c.name
+      }));
+    const sortedCombatants = sortByInitiative(combatantsWithSpeed).map(item => item.combatant);
+    const firstCombatant = sortedCombatants[0];
+
+    // Set phase and first acting combatant atomically to avoid race conditions
+    await this.update({
+      [`flags.${FLAG_SCOPE}.${COMBAT_FLAGS.PHASE}`]: COMBAT_PHASE.EXECUTION,
+      [`flags.${FLAG_SCOPE}.${COMBAT_FLAGS.CURRENT_ACTING_ID}`]: firstCombatant?.id ?? null
+    });
+
+    // Re-sort turns by speed now that we're in execution phase
+    this.setupTurns();
+
+    // Dispatch Street Fighter specific phase changed hook
+    Hooks.callAll(SF_HOOKS.PHASE_CHANGED, this, COMBAT_PHASE.EXECUTION, previousPhase);
+
+    // Set the first combatant as acting (handles turn sync and hooks)
     if (firstCombatant) {
-      await this._setActingCombatant(firstCombatant);
+      await firstCombatant.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.ACTION_STATUS, ACTION_STATUS.ACTING);
+
+      // Sync Foundry's turn property
+      const turnIndex = this.turns.findIndex(c => c.id === firstCombatant.id);
+      if (turnIndex >= 0 && turnIndex !== this.turn) {
+        await this.update({ turn: turnIndex }, { turnEvents: false });
+      }
+
+      // Dispatch start turn event
+      const startContext = { round: this.round, turn: turnIndex, skipped: false };
+      await this._onStartTurn(firstCombatant, startContext);
+
+      // Dispatch standard Foundry hooks for module compatibility
+      const updateData = { round: this.round, turn: turnIndex };
+      const updateOptions = { direction: 1 };
+      Hooks.callAll("combatTurn", this, updateData, updateOptions);
+      Hooks.callAll("combatTurnChange", this, this.previous, this.current);
+
+      broadcastTurnStarted(this, firstCombatant);
     }
 
     broadcastPhaseChanged(this, COMBAT_PHASE.EXECUTION);
@@ -222,7 +327,10 @@ export class StreetFighterCombat extends Combat {
       return this;
     }
 
-    await this._onRoundEnd();
+    // Dispatch Foundry lifecycle hook for round end
+    const roundContext = { round: this.round, skipped: false };
+    await this._onEndRound(roundContext);
+
     await this.nextRound();
     await this.startSelectionPhase();
 
@@ -235,20 +343,48 @@ export class StreetFighterCombat extends Combat {
 
   /**
    * Set the currently acting combatant
+   * Synchronizes with Foundry's combat.turn and dispatches standard hooks for module compatibility
    * @param {Combatant} combatant - The combatant to set as acting
    * @private
    */
   async _setActingCombatant(combatant) {
     const previousActing = this.currentActingCombatant;
+    const previousTurn = this.turn;
+
+    // Handle previous combatant's turn ending (if interrupted)
     if (previousActing && previousActing.id !== combatant.id) {
       const prevStatus = previousActing.getFlag(FLAG_SCOPE, COMBATANT_FLAGS.ACTION_STATUS);
       if (prevStatus === ACTION_STATUS.ACTING || prevStatus === ACTION_STATUS.REVEALED) {
         await previousActing.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.ACTION_STATUS, ACTION_STATUS.INTERRUPTED);
+
+        // Dispatch end turn event for the interrupted combatant
+        const endContext = { round: this.round, turn: previousTurn, skipped: false };
+        await this._onEndTurn(previousActing, endContext);
       }
     }
 
+    // Calculate turn index based on Foundry's turns array for compatibility
+    // Note: this.turns is Foundry's internal turn order, not our speed-based order
+    const turnIndex = this.turns.findIndex(c => c.id === combatant.id);
+
+    // Update both: Street Fighter flag AND Foundry's standard turn property
     await this.setFlag(FLAG_SCOPE, COMBAT_FLAGS.CURRENT_ACTING_ID, combatant.id);
     await combatant.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.ACTION_STATUS, ACTION_STATUS.ACTING);
+
+    // Sync Foundry's turn property (turnEvents: false to prevent Foundry's own event dispatch)
+    if (turnIndex >= 0 && turnIndex !== this.turn) {
+      await this.update({ turn: turnIndex }, { turnEvents: false });
+    }
+
+    // Dispatch start turn event for the new combatant
+    const startContext = { round: this.round, turn: turnIndex, skipped: false };
+    await this._onStartTurn(combatant, startContext);
+
+    // Dispatch standard Foundry hooks for module compatibility
+    const updateData = { round: this.round, turn: turnIndex };
+    const updateOptions = { direction: 1 };
+    Hooks.callAll("combatTurn", this, updateData, updateOptions);
+    Hooks.callAll("combatTurnChange", this, this.previous, this.current);
 
     broadcastTurnStarted(this, combatant);
   }
@@ -284,7 +420,11 @@ export class StreetFighterCombat extends Combat {
     await interrupted.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.ACTION_STATUS, ACTION_STATUS.INTERRUPTED);
     await interrupted.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.INTERRUPTED_BY_ID, interruptorId);
 
+    // _setActingCombatant will handle the turn transition hooks
     await this._setActingCombatant(interruptor);
+
+    // Dispatch Street Fighter specific interruption hook
+    Hooks.callAll(SF_HOOKS.INTERRUPTION, this, interruptor, interrupted);
 
     broadcastInterruption(this, interruptor, interrupted);
 
@@ -299,12 +439,21 @@ export class StreetFighterCombat extends Combat {
     const current = this.currentActingCombatant;
     if (!current) return this;
 
+    const currentTurn = this.turn;
+
     // Auto-reveal maneuver if not already revealed
     if (!current.maneuverRevealed) {
       await current.revealManeuver();
     }
 
     await current.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.ACTION_STATUS, ACTION_STATUS.COMPLETED);
+
+    // Dispatch end turn event for the completing combatant
+    const endContext = { round: this.round, turn: currentTurn, skipped: false };
+    await this._onEndTurn(current, endContext);
+
+    // Dispatch Street Fighter specific action completed hook
+    Hooks.callAll(SF_HOOKS.ACTION_COMPLETED, this, current);
 
     const stack = this.interruptionStack;
     if (stack.length > 0) {
@@ -332,7 +481,13 @@ export class StreetFighterCombat extends Combat {
     const current = this.currentActingCombatant;
     if (!current) return this;
 
+    const currentTurn = this.turn;
+
     await current.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.ACTION_STATUS, ACTION_STATUS.SKIPPED);
+
+    // Dispatch end turn event for the skipped combatant
+    const endContext = { round: this.round, turn: currentTurn, skipped: true };
+    await this._onEndTurn(current, endContext);
 
     await this._advanceToNextCombatant();
 
@@ -391,11 +546,63 @@ export class StreetFighterCombat extends Combat {
     return super.nextRound();
   }
 
+  /* -------------------------------------------- */
+  /*  Foundry Combat Lifecycle Hooks              */
+  /*  These methods ensure compatibility with     */
+  /*  standard Foundry modules                    */
+  /* -------------------------------------------- */
+
   /**
-   * Handle end of round effects
-   * @private
+   * A workflow that occurs at the start of each Combat Turn.
+   * Called when a combatant begins their action in the execution phase.
+   * @override
+   * @param {Combatant} combatant - The Combatant whose turn just started
+   * @param {object} context - Context data for the turn
+   * @returns {Promise<void>}
+   * @protected
    */
-  async _onRoundEnd() {
+  async _onStartTurn(combatant, context) {
+    // Dispatch Street Fighter specific hook
+    Hooks.callAll(SF_HOOKS.TURN_STARTED, this, combatant, context);
+  }
+
+  /**
+   * A workflow that occurs at the end of each Combat Turn.
+   * Called when a combatant completes their action in the execution phase.
+   * @override
+   * @param {Combatant} combatant - The Combatant whose turn just ended
+   * @param {object} context - Context data for the turn
+   * @returns {Promise<void>}
+   * @protected
+   */
+  async _onEndTurn(combatant, context) {
+    // Dispatch Street Fighter specific hook
+    Hooks.callAll(SF_HOOKS.TURN_ENDED, this, combatant, context);
+  }
+
+  /**
+   * A workflow that occurs at the start of each Combat Round.
+   * Called when the selection phase begins.
+   * @override
+   * @param {object} context - Context data for the round
+   * @returns {Promise<void>}
+   * @protected
+   */
+  async _onStartRound(context) {
+    // Base Foundry implementation does nothing, but modules may hook into this
+  }
+
+  /**
+   * A workflow that occurs at the end of each Combat Round.
+   * Called when all combatants have completed their actions.
+   * Handles Chi regeneration and other end-of-round effects.
+   * @override
+   * @param {object} context - Context data for the round
+   * @returns {Promise<void>}
+   * @protected
+   */
+  async _onEndRound(context) {
+    // Street Fighter specific: Chi regeneration
     for (const combatant of this.combatants) {
       const actor = combatant.actor;
       if (!actor) continue;
