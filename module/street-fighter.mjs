@@ -104,6 +104,8 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 });
 
 Hooks.on("renderItemDirectory", (app, html, data) => {
+  if (!game.user.isGM) return;
+
   const button = createImportButton(
     "sf-import-library",
     "STREET_FIGHTER.Library.import",
@@ -118,6 +120,8 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
 });
 
 Hooks.on("renderActorDirectory", (app, html, data) => {
+  if (!game.user.isGM) return;
+
   const button = createImportButton(
     "sf-import-characters",
     "STREET_FIGHTER.Character.import",

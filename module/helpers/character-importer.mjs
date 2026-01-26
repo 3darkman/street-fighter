@@ -317,6 +317,161 @@ async function addEmbeddedItems(actor, charData) {
 }
 
 /**
+ * Import a character into an existing actor (for player self-import)
+ * Validates that the file contains only one character and matches the actor name if already imported
+ * @param {File} file - The file to import
+ * @param {Actor} targetActor - The actor to import into
+ * @returns {Promise<{success: boolean, error: string|null}>}
+ */
+export async function importCharacterIntoActor(file, targetActor) {
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+
+    if (!data.characters || !Array.isArray(data.characters)) {
+      return { 
+        success: false, 
+        error: game.i18n.localize("STREET_FIGHTER.Character.invalidFileFormat") 
+      };
+    }
+
+    // Validate: file must contain exactly one character
+    if (data.characters.length !== 1) {
+      return { 
+        success: false, 
+        error: game.i18n.format("STREET_FIGHTER.Character.multipleCharactersError", {
+          count: data.characters.length
+        })
+      };
+    }
+
+    const charData = data.characters[0];
+    const characterName = charData.name || charData.characterName || "Unnamed Fighter";
+    const isAlreadyImported = targetActor.system.importData?.isImported || false;
+
+    // If actor was already imported, only allow reimporting the same character (by name)
+    if (isAlreadyImported) {
+      const existingName = targetActor.name;
+      if (existingName !== characterName) {
+        return { 
+          success: false, 
+          error: game.i18n.format("STREET_FIGHTER.Character.reimportNameMismatch", {
+            expected: existingName,
+            found: characterName
+          })
+        };
+      }
+    }
+
+    const version = data.version || "unknown";
+
+    // Build system data
+    const newSystemData = buildActorSystemData(charData, version);
+
+    // Preserve current resource values if updating (clamped to new max)
+    if (isAlreadyImported) {
+      const currentSystem = targetActor.system;
+      newSystemData.resources.health.value = Math.min(
+        currentSystem.resources?.health?.value ?? newSystemData.resources.health.max,
+        newSystemData.resources.health.max
+      );
+      newSystemData.resources.chi.value = Math.min(
+        currentSystem.resources?.chi?.value ?? newSystemData.resources.chi.max,
+        newSystemData.resources.chi.max
+      );
+      newSystemData.resources.willpower.value = Math.min(
+        currentSystem.resources?.willpower?.value ?? newSystemData.resources.willpower.max,
+        newSystemData.resources.willpower.max
+      );
+    }
+
+    // Update actor data
+    await targetActor.update({
+      name: characterName,
+      img: charData.imageBase64 ? `data:image/png;base64,${charData.imageBase64}` : targetActor.img,
+      system: newSystemData,
+    });
+
+    // Remove all existing embedded items and re-add them
+    const existingItemIds = targetActor.items.map(i => i.id);
+    if (existingItemIds.length > 0) {
+      await targetActor.deleteEmbeddedDocuments("Item", existingItemIds);
+    }
+
+    // Add embedded items (special maneuvers, weapons, etc.)
+    await addEmbeddedItems(targetActor, charData);
+
+    return { success: true, error: null };
+  } catch (e) {
+    console.error("Street Fighter | Character import error:", e);
+    return { 
+      success: false, 
+      error: game.i18n.format("STREET_FIGHTER.Character.importParseError", { message: e.message })
+    };
+  }
+}
+
+/**
+ * Show the character import dialog for a specific actor (player self-import)
+ * @param {Actor} targetActor - The actor to import into
+ */
+export async function showPlayerCharacterImportDialog(targetActor) {
+  const { DialogV2 } = foundry.applications.api;
+  
+  const isAlreadyImported = targetActor.system.importData?.isImported || false;
+  const hint = isAlreadyImported
+    ? game.i18n.format("STREET_FIGHTER.Character.reimportHint", { name: targetActor.name })
+    : game.i18n.localize("STREET_FIGHTER.Character.playerImportHint");
+  
+  const content = `
+    <form>
+      <div class="form-group">
+        <label>Character File (.fscharacters)</label>
+        <input type="file" name="characterFile" accept=".fscharacters,.json" />
+      </div>
+      <p style="font-size: 11px; color: #888; margin-top: 8px;">
+        ${hint}
+      </p>
+    </form>
+  `;
+
+  let fileInput = null;
+
+  await DialogV2.prompt({
+    window: {
+      title: game.i18n.localize("STREET_FIGHTER.Character.importMyCharacter"),
+      icon: "fas fa-file-import",
+    },
+    content,
+    render: (event, dialog) => {
+      fileInput = dialog.element.querySelector('input[name="characterFile"]');
+    },
+    ok: {
+      label: game.i18n.localize("STREET_FIGHTER.Character.import"),
+      icon: "fas fa-file-import",
+      callback: async () => {
+        if (!fileInput?.files.length) {
+          ui.notifications.error(game.i18n.localize("STREET_FIGHTER.Errors.noFileSelected"));
+          return;
+        }
+
+        const file = fileInput.files[0];
+        ui.notifications.info(game.i18n.format("STREET_FIGHTER.Character.importingFile", { name: file.name }));
+
+        const result = await importCharacterIntoActor(file, targetActor);
+
+        if (result.success) {
+          ui.notifications.info(game.i18n.localize("STREET_FIGHTER.Character.playerImportSuccess"));
+        } else {
+          ui.notifications.error(result.error);
+        }
+      },
+    },
+    rejectClose: false,
+  });
+}
+
+/**
  * Show the character import dialog
  */
 export async function showCharacterImportDialog() {
