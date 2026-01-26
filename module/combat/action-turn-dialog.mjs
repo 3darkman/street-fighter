@@ -39,7 +39,6 @@ export class ActionTurnDialog extends foundry.applications.api.HandlebarsApplica
   static DEFAULT_OPTIONS = {
     id: "action-turn-dialog-{id}",
     classes: ["street-fighter", "action-turn-dialog"],
-    tag: "dialog",
     window: {
       frame: true,
       positioned: true,
