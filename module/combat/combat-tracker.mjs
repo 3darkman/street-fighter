@@ -234,7 +234,8 @@ export class StreetFighterCombatTracker extends foundry.applications.sidebar.tab
           isSkipped: actionStatus === ACTION_STATUS.SKIPPED,
           isInterrupted: actionStatus === ACTION_STATUS.INTERRUPTED,
           maneuverRevealed: combatant.maneuverRevealed,
-          speed: shouldHideFromGM ? null : (selectedManeuver?.speed ?? null),
+          // Speed is always visible during execution phase, hidden only during selection for GM
+          speed: (phase === COMBAT_PHASE.EXECUTION || !shouldHideFromGM) ? (selectedManeuver?.speed ?? null) : null,
           canOpenManeuverDialog,
           canInterrupt,
           showManeuverButton,
