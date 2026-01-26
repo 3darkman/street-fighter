@@ -111,6 +111,11 @@ export class StreetFighterCombatTracker extends foundry.applications.sidebar.tab
       context.turns = await this._buildTurnsFromCombatants(combat);
     }
 
+    // Sort turns by speed during execution phase (lower speed = faster = first)
+    if (phase === COMBAT_PHASE.EXECUTION && context.turns?.length) {
+      context.turns = this._sortTurnsBySpeed(context.turns);
+    }
+
     return context;
   }
 
@@ -242,6 +247,23 @@ export class StreetFighterCombatTracker extends foundry.applications.sidebar.tab
           statusLabel: this._getStatusLabel(phase, selectionStatus, actionStatus)
         }
       };
+    });
+  }
+
+  /**
+   * Sort turns by speed (lower speed = faster = first)
+   * @param {object[]} turns - Array of turn objects with sf.speed
+   * @returns {object[]} Sorted array
+   * @private
+   */
+  _sortTurnsBySpeed(turns) {
+    return [...turns].sort((a, b) => {
+      const speedA = a.sf?.speed ?? 999;
+      const speedB = b.sf?.speed ?? 999;
+      if (speedA !== speedB) {
+        return speedA - speedB;
+      }
+      return (a.name || "").localeCompare(b.name || "");
     });
   }
 
