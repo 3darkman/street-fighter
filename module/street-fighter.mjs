@@ -25,7 +25,7 @@ import { registerEffects } from "./effects/index.mjs";
 import { showImportDialog } from "./helpers/library-importer.mjs";
 import { showCharacterImportDialog } from "./helpers/character-importer.mjs";
 import { executeRoll } from "./dice/roll-dialog.mjs";
-import { createImportButton } from "./helpers/utils.mjs";
+import { createImportButton, canInteractWithChatMessage } from "./helpers/utils.mjs";
 import { DIFFICULTY } from "./config/constants.mjs";
 
 Hooks.once("init", async () => {
@@ -132,6 +132,15 @@ Hooks.on("renderActorDirectory", (app, html, data) => {
 });
 
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
+  const canInteract = canInteractWithChatMessage(message);
+
+  // Hide interactive buttons for non-owners/non-GMs
+  if (!canInteract) {
+    html.querySelectorAll(".reroll-button, .apply-damage-button, .card-buttons button").forEach(btn => {
+      btn.style.display = "none";
+    });
+  }
+
   // Apply Damage button handler
   const applyDamageButton = html.querySelector(".apply-damage-button");
   if (applyDamageButton) {
