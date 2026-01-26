@@ -51,6 +51,21 @@ export const SOCKET_EVENTS = Object.freeze({
 });
 
 /**
+ * Street Fighter specific hooks for module compatibility
+ * These hooks allow external modules to react to Street Fighter combat events
+ * @enum {string}
+ */
+export const SF_HOOKS = Object.freeze({
+  PHASE_CHANGED: "streetfighter.phaseChanged",
+  MANEUVER_SELECTED: "streetfighter.maneuverSelected",
+  MANEUVER_REVEALED: "streetfighter.maneuverRevealed",
+  INTERRUPTION: "streetfighter.interruption",
+  ACTION_COMPLETED: "streetfighter.actionCompleted",
+  TURN_STARTED: "streetfighter.turnStarted",
+  TURN_ENDED: "streetfighter.turnEnded"
+});
+
+/**
  * Flag scope for Street Fighter system
  * @constant {string}
  */

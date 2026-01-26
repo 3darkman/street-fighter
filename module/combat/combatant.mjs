@@ -10,6 +10,7 @@ import {
   ACTION_STATUS,
   FLAG_SCOPE,
   COMBATANT_FLAGS,
+  SF_HOOKS,
   getDefaultCombatantFlags,
   createSelectedManeuver,
   canInterrupt
@@ -165,6 +166,9 @@ export class StreetFighterCombatant extends Combatant {
     await this.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.SELECTED_MANEUVER, selectedManeuver);
     await this.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.SELECTION_STATUS, SELECTION_STATUS.READY);
 
+    // Dispatch Street Fighter specific maneuver selected hook
+    Hooks.callAll(SF_HOOKS.MANEUVER_SELECTED, this.parent, this, selectedManeuver);
+
     return this;
   }
 
@@ -194,6 +198,9 @@ export class StreetFighterCombatant extends Combatant {
 
     await this.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.MANEUVER_REVEALED, true);
     await this.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.ACTION_STATUS, ACTION_STATUS.REVEALED);
+
+    // Dispatch Street Fighter specific maneuver revealed hook
+    Hooks.callAll(SF_HOOKS.MANEUVER_REVEALED, this.parent, this, this.selectedManeuver);
 
     await this._postManeuverToChat();
 
