@@ -12,6 +12,8 @@ import {
 } from "./combat-phases.mjs";
 
 import { broadcastManeuverRevealed } from "./combat-socket.mjs";
+import { StreetFighterRollDialog, executeRoll } from "../dice/roll-dialog.mjs";
+import { prepareManeuverRollData } from "../helpers/maneuver-calculator.mjs";
 
 /**
  * Dialog shown to a player when it's their combatant's turn
@@ -55,7 +57,8 @@ export class ActionTurnDialog extends foundry.applications.api.HandlebarsApplica
     actions: {
       revealManeuver: ActionTurnDialog._onRevealManeuver,
       skipTurn: ActionTurnDialog._onSkipTurn,
-      toggleNotes: ActionTurnDialog._onToggleNotes
+      toggleNotes: ActionTurnDialog._onToggleNotes,
+      rollManeuver: ActionTurnDialog._onRollManeuver
     }
   };
 
@@ -181,6 +184,38 @@ export class ActionTurnDialog extends foundry.applications.api.HandlebarsApplica
     if (confirmed) {
       await this.combat.skipCurrentAction();
       await this.close();
+    }
+  }
+
+  /**
+   * Handle rolling the maneuver damage
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   * @this {ActionTurnDialog}
+   */
+  static async _onRollManeuver(event, target) {
+    event.preventDefault();
+
+    const selectedManeuver = this.combatant.selectedManeuver;
+    if (!selectedManeuver) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Combat.NoManeuverSelected"));
+      return;
+    }
+
+    const actor = this.combatant.actor;
+    if (!actor) return;
+
+    const maneuver = actor.items.get(selectedManeuver.itemId);
+    if (!maneuver) {
+      ui.notifications.warn(game.i18n.localize("STREET_FIGHTER.Combat.ManeuverNotFound"));
+      return;
+    }
+
+    const rollOptions = prepareManeuverRollData(actor, maneuver);
+    const rollData = await StreetFighterRollDialog.create(actor, rollOptions);
+
+    if (rollData) {
+      await executeRoll(rollData);
     }
   }
 

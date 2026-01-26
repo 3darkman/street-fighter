@@ -11,6 +11,7 @@ import {
   calculateManeuverStats,
   getCharacterStatsForManeuver,
   formatOriginalModifier,
+  prepareManeuverRollData,
 } from "../helpers/maneuver-calculator.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -987,86 +988,8 @@ export class StreetFighterActorSheet extends HandlebarsApplicationMixin(ActorShe
 
     if (!maneuver) return;
 
-    // Find the attribute and technique for damage calculation
-    // Damage = Strength + Technique (based on maneuver category)
-    const category = maneuver.system.category || "";
-    const categoryKey = category.toLowerCase();
-    
-    // Find Strength attribute and the technique for this maneuver's category
-    let strengthItem = null;
-    let techniqueItem = null;
-    
-    for (const item of this.actor.items) {
-      if (item.type === "attribute") {
-        const sourceId = item.system.sourceId || "";
-        if (sourceId === "strength") {
-          strengthItem = item;
-        }
-      }
-      if (item.type === "technique") {
-        const sourceId = item.system.sourceId || "";
-        if (sourceId === categoryKey) {
-          techniqueItem = item;
-        }
-      }
-    }
-
-    // For weapon techniques (melee or firearm), we don't use strength
-    const isWeaponTechnique = techniqueItem?.system.isWeaponTechnique || techniqueItem?.system.isFirearmTechnique || false;
-    const attributeItem = isWeaponTechnique ? null : strengthItem;
-    
-    // Parse damage modifier for fixed modifier
-    let damageModValue = null;
-    const damageModStr = maneuver.system.damageModifier || "";
-    if (damageModStr.startsWith("+") || damageModStr.startsWith("-")) {
-      damageModValue = parseInt(damageModStr);
-    }
-    
-    // Find equipped weapons for this technique
-    const equippedWeapons = [];
-    if (isWeaponTechnique) {
-      for (const item of this.actor.items) {
-        const weaponTechniqueId = (item.system.techniqueId || "").toLowerCase();
-        if (item.type === "weapon" && item.system.isEquipped && weaponTechniqueId === categoryKey) {
-          // Parse damage which may be a string like "+2" or "-1" or just "2"
-          const damageStr = String(item.system.damage || "0");
-          const damageMod = parseInt(damageStr.replace(/^\+/, "")) || 0;
-          equippedWeapons.push({
-            id: item.id,
-            name: item.name,
-            damageMod,
-            selected: false,
-          });
-        }
-      }
-      // If only one weapon, pre-select it
-      if (equippedWeapons.length === 1) {
-        equippedWeapons[0].selected = true;
-      }
-    }
-    
-    // Get target's soak if a target is selected
-    let targetSoak = null;
-    let targetName = null;
-    const firstTarget = game.user.targets.first();
-    if (firstTarget?.actor) {
-      const targetActor = firstTarget.actor;
-      targetSoak = targetActor.getEffectiveSoak?.() ?? targetActor.system.combat?.soak ?? 0;
-      targetName = targetActor.name;
-    }
-    
-    const rollData = await StreetFighterRollDialog.create(this.actor, {
-      selectedTraitId: attributeItem?.id,
-      selectedTraitType: "attribute",
-      preSelectedSecondTrait: techniqueItem?.id,
-      maneuverName: maneuver.name,
-      maneuverDamageModifier: damageModValue,
-      equippedWeapons,
-      targetSoak,
-      targetName,
-      rollTitle: maneuver.name,
-      isDamageRoll: true,
-    });
+    const rollOptions = prepareManeuverRollData(this.actor, maneuver);
+    const rollData = await StreetFighterRollDialog.create(this.actor, rollOptions);
 
     if (rollData) {
       await executeRoll(rollData);
