@@ -133,6 +133,59 @@ export class StreetFighterCombat extends Combat {
     return super.startCombat();
   }
 
+  /**
+   * Return the Array of combatants sorted into initiative order.
+   * During execution phase, sorts by maneuver speed (lower = faster = first).
+   * @override
+   * @returns {Combatant[]}
+   */
+  setupTurns() {
+    this.turns ||= [];
+
+    // Get phase from flags (safely, as this may be called during initialization)
+    const phase = this.flags?.[FLAG_SCOPE]?.[COMBAT_FLAGS.PHASE];
+
+    // Determine the turn order based on phase
+    let turns;
+    if (phase === COMBAT_PHASE.EXECUTION) {
+      // During execution phase, sort by maneuver speed (lower = faster = first)
+      turns = this.combatants.contents.sort((a, b) => {
+        const speedA = a.selectedManeuverSpeed ?? 999;
+        const speedB = b.selectedManeuverSpeed ?? 999;
+        if (speedA !== speedB) {
+          return speedA - speedB;
+        }
+        return (a.name || "").localeCompare(b.name || "");
+      });
+    } else {
+      // Default Foundry sorting (by initiative, descending)
+      turns = this.combatants.contents.sort((a, b) => {
+        const ia = Number.isNumeric(a.initiative) ? a.initiative : -Infinity;
+        const ib = Number.isNumeric(b.initiative) ? b.initiative : -Infinity;
+        return (ib - ia) || (a.id > b.id ? 1 : -1);
+      });
+    }
+
+    // Handle turn index bounds
+    if (this.turn !== null) {
+      if (this.turn < 0) this.turn = 0;
+      else if (this.turn >= turns.length) {
+        this.turn = 0;
+        this.round++;
+      }
+    }
+
+    // Update state tracking
+    const c = turns[this.turn];
+    this.current = this._getCurrentState(c);
+
+    // One-time initialization of the previous state
+    if (!this.previous) this.previous = this.current;
+
+    // Return the array of prepared turns
+    return this.turns = turns;
+  }
+
   /* -------------------------------------------- */
   /*  Phase Management                            */
   /* -------------------------------------------- */
@@ -207,10 +260,14 @@ export class StreetFighterCombat extends Combat {
 
     await this.setFlag(FLAG_SCOPE, COMBAT_FLAGS.PHASE, COMBAT_PHASE.EXECUTION);
 
+    // Re-sort turns by speed now that we're in execution phase
+    this.setupTurns();
+
     // Dispatch Street Fighter specific phase changed hook
     Hooks.callAll(SF_HOOKS.PHASE_CHANGED, this, COMBAT_PHASE.EXECUTION, previousPhase);
 
-    const firstCombatant = this.combatantsByInitiative[0];
+    // Get first combatant from the newly sorted turns
+    const firstCombatant = this.turns.filter(c => !c.isDefeated)[0];
     if (firstCombatant) {
       await this._setActingCombatant(firstCombatant);
     }
