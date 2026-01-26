@@ -36,7 +36,7 @@ Para importar um personagem do Fighter Sheet:
 1. No aplicativo Fighter Sheet, exporte seus personagens (formato `.fscharacter`)
 2. No Foundry VTT, abra a aba de actors e clique em importar personagens
 3. Use a opção de importação para carregar o arquivo
-4. É importante que todos o conteúdo que o personagem use, já esteja cadastrado no mundo do foundry, assim o personagem já terá tudo corretamente.
+> **💡 Importante**: Antes de importar, garanta que todos os itens referenciados pelo personagem já existam no mundo (Atributos, Habilidades, Técnicas, Manobras, Antecedentes, Estilos, Armas, Equipamentos, Divisões etc.), seja por cadastro manual ou importando previamente as bibliotecas do Fighter Sheet.
 
 ### Personagem Importado vs. Criado no Foundry
 
@@ -110,12 +110,14 @@ Sistema robusto de Active Effects que permite modificar:
 
 ## Instalação
 
-### Via Foundry VTT (Recomendado)
+### Via Manifest URL (Recomendado)
 
 1. No Foundry VTT, vá para **Configuration → Game Systems**
 2. Clique em **Install System**
-3. Procure por "Street Fighter RPG" ou cole o manifest URL
+3. Cole o Manifest URL abaixo (o sistema não está listado no diretório do Foundry)
 4. Clique em **Install**
+
+**Manifest URL**: https://github.com/3darkman/street-fighter/releases/latest/download/system.json
 
 ### Instalação Manual
 
@@ -188,3 +190,4 @@ Contribuições são bem-vindas! Por favor:
 - Diálogo de seleção de manobras
 - Diálogo de turno de ação
 - Chat cards para revelação de manobras
+
