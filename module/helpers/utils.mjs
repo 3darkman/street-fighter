@@ -4,6 +4,17 @@
  */
 
 /**
+ * Check if the current user can interact with a chat message's buttons
+ * Returns true if user is GM or the message author
+ * @param {ChatMessage} message - The chat message to check
+ * @returns {boolean}
+ */
+export function canInteractWithChatMessage(message) {
+  if (game.user.isGM) return true;
+  return message.author?.id === game.user.id;
+}
+
+/**
  * Find a world item by its sourceId
  * @param {string} sourceId - The sourceId to search for
  * @param {string|string[]} types - Optional item type(s) to filter by
