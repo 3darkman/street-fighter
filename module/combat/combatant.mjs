@@ -31,11 +31,19 @@ export class StreetFighterCombatant extends Combatant {
   }
 
   /**
-   * Get the selected maneuver's speed value
+   * Get the selected maneuver's speed value (integer for display)
    * @returns {number|null}
    */
   get selectedManeuverSpeed() {
     return this.selectedManeuver?.speed ?? null;
+  }
+
+  /**
+   * Get the selected maneuver's speed tiebreaker value (composite for ordering)
+   * @returns {number|null}
+   */
+  get selectedManeuverSpeedTiebreaker() {
+    return this.selectedManeuver?.speedTiebreaker ?? this.selectedManeuver?.speed ?? null;
   }
 
   /**
@@ -253,12 +261,12 @@ export class StreetFighterCombatant extends Combatant {
 
     if (!target.canBeInterrupted) return false;
 
-    const mySpeed = this.selectedManeuverSpeed;
-    const targetSpeed = target.selectedManeuverSpeed;
+    const mySpeedTiebreaker = this.selectedManeuverSpeedTiebreaker;
+    const targetSpeedTiebreaker = target.selectedManeuverSpeedTiebreaker;
 
-    if (mySpeed === null || targetSpeed === null) return false;
+    if (mySpeedTiebreaker === null || targetSpeedTiebreaker === null) return false;
 
-    return canInterrupt(mySpeed, targetSpeed);
+    return canInterrupt(mySpeedTiebreaker, targetSpeedTiebreaker);
   }
 
   /* -------------------------------------------- */

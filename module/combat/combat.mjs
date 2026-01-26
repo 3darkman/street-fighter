@@ -98,7 +98,7 @@ export class StreetFighterCombat extends Combat {
   }
 
   /**
-   * Get combatants sorted by initiative (speed-based)
+   * Get combatants sorted by initiative (speed-based with tiebreaker)
    * @returns {Combatant[]}
    */
   get combatantsByInitiative() {
@@ -108,6 +108,7 @@ export class StreetFighterCombat extends Combat {
       .map(c => ({
         combatant: c,
         speed: c.selectedManeuverSpeed ?? 999,
+        speedTiebreaker: c.selectedManeuverSpeedTiebreaker ?? 999,
         name: c.name
       }));
 
@@ -148,14 +149,12 @@ export class StreetFighterCombat extends Combat {
     // Determine the turn order based on phase
     let turns;
     if (phase === COMBAT_PHASE.EXECUTION) {
-      // During execution phase, sort by maneuver speed (lower = faster = first)
+      // During execution phase, sort by maneuver speed tiebreaker (lower = faster = first)
+      // speedTiebreaker includes wits, perception, and random roll for tiebreaking
       turns = this.combatants.contents.sort((a, b) => {
-        const speedA = a.selectedManeuverSpeed ?? 999;
-        const speedB = b.selectedManeuverSpeed ?? 999;
-        if (speedA !== speedB) {
-          return speedA - speedB;
-        }
-        return (a.name || "").localeCompare(b.name || "");
+        const tiebreakerA = a.selectedManeuverSpeedTiebreaker ?? 999;
+        const tiebreakerB = b.selectedManeuverSpeedTiebreaker ?? 999;
+        return tiebreakerA - tiebreakerB;
       });
     } else {
       // Default Foundry sorting (by initiative, descending)
@@ -258,7 +257,24 @@ export class StreetFighterCombat extends Combat {
 
     const previousPhase = this.phase;
 
-    await this.setFlag(FLAG_SCOPE, COMBAT_FLAGS.PHASE, COMBAT_PHASE.EXECUTION);
+    // Pre-calculate the first combatant before changing phase
+    // This ensures currentActingId is set atomically with the phase change
+    const combatantsWithSpeed = Array.from(this.combatants)
+      .filter(c => !c.isDefeated)
+      .map(c => ({
+        combatant: c,
+        speed: c.selectedManeuverSpeed ?? 999,
+        speedTiebreaker: c.selectedManeuverSpeedTiebreaker ?? 999,
+        name: c.name
+      }));
+    const sortedCombatants = sortByInitiative(combatantsWithSpeed).map(item => item.combatant);
+    const firstCombatant = sortedCombatants[0];
+
+    // Set phase and first acting combatant atomically to avoid race conditions
+    await this.update({
+      [`flags.${FLAG_SCOPE}.${COMBAT_FLAGS.PHASE}`]: COMBAT_PHASE.EXECUTION,
+      [`flags.${FLAG_SCOPE}.${COMBAT_FLAGS.CURRENT_ACTING_ID}`]: firstCombatant?.id ?? null
+    });
 
     // Re-sort turns by speed now that we're in execution phase
     this.setupTurns();
@@ -266,10 +282,27 @@ export class StreetFighterCombat extends Combat {
     // Dispatch Street Fighter specific phase changed hook
     Hooks.callAll(SF_HOOKS.PHASE_CHANGED, this, COMBAT_PHASE.EXECUTION, previousPhase);
 
-    // Get first combatant from the newly sorted turns
-    const firstCombatant = this.turns.filter(c => !c.isDefeated)[0];
+    // Set the first combatant as acting (handles turn sync and hooks)
     if (firstCombatant) {
-      await this._setActingCombatant(firstCombatant);
+      await firstCombatant.setFlag(FLAG_SCOPE, COMBATANT_FLAGS.ACTION_STATUS, ACTION_STATUS.ACTING);
+
+      // Sync Foundry's turn property
+      const turnIndex = this.turns.findIndex(c => c.id === firstCombatant.id);
+      if (turnIndex >= 0 && turnIndex !== this.turn) {
+        await this.update({ turn: turnIndex }, { turnEvents: false });
+      }
+
+      // Dispatch start turn event
+      const startContext = { round: this.round, turn: turnIndex, skipped: false };
+      await this._onStartTurn(firstCombatant, startContext);
+
+      // Dispatch standard Foundry hooks for module compatibility
+      const updateData = { round: this.round, turn: turnIndex };
+      const updateOptions = { direction: 1 };
+      Hooks.callAll("combatTurn", this, updateData, updateOptions);
+      Hooks.callAll("combatTurnChange", this, this.previous, this.current);
+
+      broadcastTurnStarted(this, firstCombatant);
     }
 
     broadcastPhaseChanged(this, COMBAT_PHASE.EXECUTION);

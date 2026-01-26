@@ -126,7 +126,8 @@ export function getDefaultCombatantFlags() {
  * @typedef {object} SelectedManeuver
  * @property {string} itemId - The maneuver item ID
  * @property {string} name - The maneuver name
- * @property {number} speed - Calculated speed value
+ * @property {number} speed - Calculated speed value (integer for display)
+ * @property {number} speedTiebreaker - Composite speed value for ordering (includes tiebreaker)
  * @property {number} chiCost - Chi cost
  * @property {number} willpowerCost - Willpower cost
  * @property {string} notes - Maneuver notes
@@ -136,11 +137,26 @@ export function getDefaultCombatantFlags() {
  */
 
 /**
+ * Calculate composite speed value with tiebreaker criteria
+ * Formula: speed + wits * 0.1 + perception * 0.01 + random * 0.001
+ * This ensures unique ordering even with equal base speeds
+ * @param {number} speed - Base speed value
+ * @param {number} wits - Character's wits value
+ * @param {number} perception - Character's perception value
+ * @returns {number} Composite speed value
+ */
+export function calculateSpeedTiebreaker(speed, wits, perception) {
+  const random = Math.floor(Math.random() * 9) + 1;
+  return speed + (wits * 0.1) + (perception * 0.01) + (random * 0.001);
+}
+
+/**
  * Creates a selected maneuver data object
  * @param {object} params - Maneuver parameters
  * @param {string} params.itemId - The maneuver item ID
  * @param {string} params.name - The maneuver name
- * @param {number} params.speed - Calculated speed value
+ * @param {number} params.speed - Calculated speed value (integer for display)
+ * @param {number} params.speedTiebreaker - Composite speed value for ordering
  * @param {number} params.damage - Calculated damage value
  * @param {number} params.movement - Calculated movement value
  * @param {string} params.category - Maneuver category
@@ -149,11 +165,12 @@ export function getDefaultCombatantFlags() {
  * @param {string} params.notes - Maneuver notes
  * @returns {SelectedManeuver}
  */
-export function createSelectedManeuver({ itemId, name, speed, damage, movement, category, chiCost, willpowerCost, notes }) {
+export function createSelectedManeuver({ itemId, name, speed, speedTiebreaker, damage, movement, category, chiCost, willpowerCost, notes }) {
   return Object.freeze({
     itemId,
     name,
     speed,
+    speedTiebreaker: speedTiebreaker ?? speed,
     damage,
     movement,
     category,
@@ -164,25 +181,26 @@ export function createSelectedManeuver({ itemId, name, speed, damage, movement, 
 }
 
 /**
- * Checks if a combatant can interrupt another based on speed
- * @param {number} interruptorSpeed - Speed of the combatant attempting to interrupt
- * @param {number} targetSpeed - Speed of the currently acting combatant
+ * Checks if a combatant can interrupt another based on speed tiebreaker
+ * Uses the composite speed value that includes tiebreaker criteria
+ * @param {number} interruptorSpeedTiebreaker - Composite speed of the combatant attempting to interrupt
+ * @param {number} targetSpeedTiebreaker - Composite speed of the currently acting combatant
  * @returns {boolean}
  */
-export function canInterrupt(interruptorSpeed, targetSpeed) {
-  return interruptorSpeed > targetSpeed;
+export function canInterrupt(interruptorSpeedTiebreaker, targetSpeedTiebreaker) {
+  return interruptorSpeedTiebreaker > targetSpeedTiebreaker;
 }
 
 /**
  * Sorts combatants by initiative (speed-based, lower first)
- * @param {Array<{speed: number, name: string}>} combatants - Array of combatant data
+ * Uses speedTiebreaker for ordering which includes wits, perception, and random roll
+ * @param {Array<{speed: number, speedTiebreaker: number, name: string}>} combatants - Array of combatant data
  * @returns {Array} Sorted array
  */
 export function sortByInitiative(combatants) {
   return [...combatants].sort((a, b) => {
-    if (a.speed !== b.speed) {
-      return a.speed - b.speed;
-    }
-    return a.name.localeCompare(b.name);
+    const tiebreakerA = a.speedTiebreaker ?? a.speed;
+    const tiebreakerB = b.speedTiebreaker ?? b.speed;
+    return tiebreakerA - tiebreakerB;
   });
 }
